@@ -37,6 +37,7 @@ export const en: Record<MessageKey, string> = {
 
 	'quick.label': 'New task',
 	'quick.placeholder': 'New task – e.g. “Rechnung zahlen morgen 14:00 !hoch #finanzen @arbeit”',
+	'quick.placeholderShort': 'New task, e.g. “Arzt morgen 9 Uhr”',
 	'quick.created': 'Task created',
 	'quick.unknownArea': 'There is no area “{name}” – the task goes to “{fallback}”.',
 

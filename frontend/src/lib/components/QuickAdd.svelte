@@ -24,9 +24,17 @@
 	const today = $derived(todayIn(session.user?.timezone ?? 'UTC'));
 	const previewArea = $derived(preview?.area_id ? areas.byId(preview.area_id) : undefined);
 
+	// Auf schmalen Bildschirmen ein kurzer Platzhalter statt abgeschnittenem Beispiel.
+	let narrow = $state(false);
+
 	onMount(() => {
 		ui.quickAddMounted = true;
+		const media = matchMedia('(max-width: 640px)');
+		narrow = media.matches;
+		const onChange = (event: MediaQueryListEvent) => (narrow = event.matches);
+		media.addEventListener('change', onChange);
 		return () => {
+			media.removeEventListener('change', onChange);
 			ui.quickAddMounted = false;
 			clearTimeout(timer);
 		};
@@ -111,7 +119,7 @@
 			bind:value={text}
 			oninput={schedulePreview}
 			onkeydown={onKeydown}
-			placeholder={t('quick.placeholder')}
+			placeholder={narrow ? t('quick.placeholderShort') : t('quick.placeholder')}
 			class="h-11 w-full bg-transparent text-[15px] outline-none placeholder:text-muted"
 			autocomplete="off"
 			enterkeyhint="done"

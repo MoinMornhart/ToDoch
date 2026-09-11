@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Plus, Trash, X } from '@lucide/svelte';
+	import { tick } from 'svelte';
 	import { api, ApiError } from '$lib/api';
 	import { i18n, t } from '$lib/i18n/index.svelte';
 	import {
@@ -48,6 +49,7 @@
 	let confirmDelete = $state(false);
 	let error = $state<string | null>(null);
 	let showPreview = $state(false);
+	let titleInput: HTMLInputElement | undefined = $state();
 	let keySequence = 0;
 
 	function message(err: unknown): string {
@@ -79,6 +81,9 @@
 			error = null;
 			showPreview = false;
 			open = true;
+			// Dialog beim Titel öffnen – dort wird am häufigsten geändert.
+			await tick();
+			titleInput?.focus();
 		} catch (err) {
 			toasts.error(message(err));
 			ui.editTaskId = null;
@@ -180,7 +185,14 @@
 
 			<div>
 				<label class="label" for="{uid}-title">{t('task.title')}</label>
-				<input id="{uid}-title" class="input" bind:value={form.title} maxlength="300" required />
+				<input
+					id="{uid}-title"
+					bind:this={titleInput}
+					class="input"
+					bind:value={form.title}
+					maxlength="300"
+					required
+				/>
 			</div>
 
 			<div class="grid gap-4 sm:grid-cols-3">

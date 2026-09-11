@@ -15,6 +15,7 @@
 	import { page } from '$app/state';
 	import AreaSwitcher from '$lib/components/AreaSwitcher.svelte';
 	import HelpDialog from '$lib/components/HelpDialog.svelte';
+	import Logo from '$lib/components/Logo.svelte';
 	import SearchDialog from '$lib/components/SearchDialog.svelte';
 	import TaskEditor from '$lib/components/TaskEditor.svelte';
 	import { t, type MessageKey } from '$lib/i18n/index.svelte';
@@ -72,7 +73,13 @@
 		aria-label={t('nav.main')}
 		class="sticky top-0 hidden h-dvh w-56 shrink-0 flex-col gap-0.5 border-r border-line px-3 py-5 md:flex"
 	>
-		<a href="/today" class="mb-5 px-2 text-lg font-semibold tracking-tight">Todoch</a>
+		<a
+			href="/today"
+			class="mb-5 flex items-center gap-2.5 px-2 text-lg font-semibold tracking-tight"
+		>
+			<Logo size={26} />
+			Todoch
+		</a>
 		{#each primary as item (item.href)}
 			<a
 				href={item.href}

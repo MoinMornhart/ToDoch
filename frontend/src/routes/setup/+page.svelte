@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { goto, replaceState } from '$app/navigation';
 	import { api, ApiError } from '$lib/api';
+	import Logo from '$lib/components/Logo.svelte';
 	import { i18n, t } from '$lib/i18n/index.svelte';
 	import { session } from '$lib/stores/session.svelte';
 	import type { Locale, User } from '$lib/types';
@@ -64,7 +65,9 @@
 
 <main id="main" class="grid min-h-dvh place-items-center px-4 py-10">
 	<form class="w-full max-w-md" onsubmit={submit}>
-		<p class="mb-1 text-sm font-semibold tracking-tight text-accent">Todoch</p>
+		<p class="mb-4 flex items-center gap-2 text-sm font-semibold tracking-tight">
+			<Logo size={28} />Todoch
+		</p>
 		<h1 class="mb-2 text-2xl font-semibold tracking-tight">{t('setup.title')}</h1>
 		<p class="mb-6 text-sm text-muted">{t('setup.intro')}</p>
 		{#if error}<p role="alert" class="mb-4 text-sm text-danger">{error}</p>{/if}

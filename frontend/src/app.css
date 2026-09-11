@@ -72,10 +72,13 @@ body {
 	color: var(--fg);
 }
 
-:focus-visible {
-	outline: 2px solid var(--accent);
-	outline-offset: 2px;
-	border-radius: 4px;
+/* In der Basis-Ebene, damit Utilities wie „outline-none“ den Rahmen gezielt ersetzen können. */
+@layer base {
+	:focus-visible {
+		outline: 2px solid var(--accent);
+		outline-offset: 2px;
+		border-radius: 4px;
+	}
 }
 
 dialog::backdrop {

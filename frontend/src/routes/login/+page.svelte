@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { ApiError } from '$lib/api';
+	import Logo from '$lib/components/Logo.svelte';
 	import { t } from '$lib/i18n/index.svelte';
 	import { session } from '$lib/stores/session.svelte';
 
@@ -29,7 +30,9 @@
 
 <main id="main" class="grid min-h-dvh place-items-center px-4">
 	<form class="w-full max-w-sm" onsubmit={submit}>
-		<p class="mb-1 text-sm font-semibold tracking-tight text-accent">Todoch</p>
+		<p class="mb-4 flex items-center gap-2 text-sm font-semibold tracking-tight">
+			<Logo size={28} />Todoch
+		</p>
 		<h1 class="mb-6 text-2xl font-semibold tracking-tight">{t('login.title')}</h1>
 		{#if error}<p role="alert" class="mb-4 text-sm text-danger">{error}</p>{/if}
 		<div class="flex flex-col gap-4">

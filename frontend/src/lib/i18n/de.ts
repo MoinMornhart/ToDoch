@@ -36,6 +36,7 @@ export const de = {
 	'quick.label': 'Neue Aufgabe',
 	'quick.placeholder':
 		'Neue Aufgabe – z. B. „Rechnung zahlen morgen 14:00 !hoch #finanzen @arbeit“',
+	'quick.placeholderShort': 'Neue Aufgabe, z. B. „Arzt morgen 9 Uhr“',
 	'quick.created': 'Aufgabe angelegt',
 	'quick.unknownArea': 'Bereich „{name}“ gibt es nicht – Aufgabe landet in „{fallback}“.',
 

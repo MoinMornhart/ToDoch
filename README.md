@@ -1,166 +1,295 @@
+<div align="center">
+
+<img src="docs/images/logo.svg" width="88" alt="Todoch-Logo">
+
 # Todoch
 
-**Minimalistische To-do- und Termin-App – selbst gehostet, sicher, ohne Cloud.**
+**Deine To-dos und Termine – auf deinem eigenen Server.**<br>
+Minimalistisch, schnell mit der Tastatur, sicher ab Werk. Keine Cloud, kein Tracking.
 
-Todoch läuft auf deinem eigenen Server (z. B. Proxmox), braucht zur Laufzeit keine externen
-Dienste, keine CDNs und sendet keine Telemetrie. Die Oberfläche ist eine installierbare Web-App
-(PWA) für Desktop und Smartphone und lässt sich komplett mit der Tastatur bedienen.
+[![CI](https://github.com/MoinMornhart/Todoch/actions/workflows/ci.yml/badge.svg)](https://github.com/MoinMornhart/Todoch/actions/workflows/ci.yml)
+[![Version](https://img.shields.io/github/v/release/MoinMornhart/Todoch?label=Version&color=2459d6)](https://github.com/MoinMornhart/Todoch/releases)
+[![Lizenz: MIT](https://img.shields.io/badge/Lizenz-MIT-2459d6)](LICENSE)
+[![Proxmox](https://img.shields.io/badge/Proxmox-1%20Befehl-E57000?logo=proxmox&logoColor=white)](#-installation-auf-proxmox)
 
-> **Stand:** Version 0.0.1 = Meilenstein 1 (Grundgerüst) von 8. Welche Funktionen noch kommen,
-> steht in der [Roadmap](#roadmap). Jede Änderung erscheint als neue Version in der
-> [CHANGELOG.md](CHANGELOG.md).
+[Installation](#-installation-auf-proxmox) ·
+[Funktionen](#-funktionen) ·
+[Adresse & HTTPS](#-adresse-https-und-passkeys) ·
+[Verwaltung](#-verwaltung-im-container) ·
+[Roadmap](#-roadmap) ·
+[Entwicklung](#-entwicklung)
 
-## Funktionen
+<br>
 
-- **Aufgaben** mit Notiz (Markdown), Fälligkeit, Priorität, Tags, Unterpunkten und Wiederholungen
-  (täglich, wöchentlich an bestimmten Tagen, monatlich, jährlich, mit Intervall und Enddatum).
-- **Ansichten:** Heute, Demnächst (7 Tage), Alle offen, Erledigt, einzelne Tage – gefiltert nach
-  **Bereichen** wie „Arbeit“ und „Privat“ (eigene Bereiche mit Farbe und Symbol möglich).
-- **Schnellerfassung** in einer Zeile:
-  `Rechnung zahlen morgen 14:00 !hoch #finanzen @arbeit` → Aufgabe mit Datum, Uhrzeit, Priorität,
-  Tag und Bereich. Versteht auch „am 15.10. um 9 Uhr“, „nächsten Freitag“, „in 2 Wochen“,
-  „jeden Dienstag“, „werktags“, „Monatsende“ …
-- **Volltextsuche** über Titel, Notizen und Tags.
-- **Tastatur:** `n` neue Aufgabe · `/` suchen · `j`/`k` navigieren · `x` abhaken · `e` bearbeiten · `?` Hilfe.
-- **Sicherheit:** Einrichtung per Einmalcode, Argon2id-Passwörter mit Leak-Prüfung, serverseitige
-  Sitzungen, CSRF-Schutz, Rate-Limits, strenge CSP, Audit-Log – Details in [docs/SECURITY.md](docs/SECURITY.md).
-- Deutsch und Englisch, Hell- und Dunkelmodus (folgt dem System), barrierearm.
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/heute-dunkel.png">
+  <img src="docs/images/heute.png" alt="Todoch – Ansicht „Heute“" width="860">
+</picture>
 
-## Proxmox-Quickstart
+</div>
 
-Im Stil der [community-scripts](https://community-scripts.github.io/ProxmoxVE/): in der
-**Shell des Proxmox-Hosts** (als root) ausführen:
+---
+
+## ✨ Funktionen
+
+<table>
+<tr>
+<td width="50%" valign="top">
+
+### ⚡ Schnellerfassung
+Eine Zeile tippen – Todoch erkennt Datum, Uhrzeit, Priorität, Tags, Bereich und Wiederholung:
+
+```text
+Reifenwechsel buchen nächste Woche 8:30 !mittel #auto @privat
+```
+
+Versteht auch „am 15.10. um 9 Uhr“, „übermorgen“, „in 2 Wochen“, „jeden Dienstag“, „werktags“, „Monatsende“ …
+
+</td>
+<td width="50%" valign="top">
+
+<img src="docs/images/schnellerfassung.png" alt="Schnellerfassung mit erkannten Angaben">
+
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+
+<img src="docs/images/bearbeiten.png" alt="Aufgabe bearbeiten">
+
+</td>
+<td width="50%" valign="top">
+
+### 📝 Aufgaben mit allem, was nötig ist
+Notizen mit Markdown, Unterpunkte, Priorität, Tags, Fälligkeit mit Uhrzeit und Wiederholungen – täglich, an bestimmten Wochentagen, monatlich, jährlich, mit Intervall und Enddatum.
+
+### 🗂️ Bereiche
+„Arbeit“, „Privat“ und eigene Bereiche mit Farbe und Symbol. Ein Klick filtert alle Ansichten.
+
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+
+### ⌨️ Tastatur zuerst
+
+| Taste | Aktion |
+| :---: | --- |
+| <kbd>n</kbd> | Neue Aufgabe |
+| <kbd>/</kbd> | Suchen |
+| <kbd>j</kbd> / <kbd>k</kbd> | Nächste / vorherige Aufgabe |
+| <kbd>x</kbd> | Erledigt |
+| <kbd>e</kbd> | Bearbeiten |
+| <kbd>?</kbd> | Alle Kürzel |
+
+</td>
+<td width="50%" valign="top">
+
+### 📅 Klare Ansichten
+**Heute** (mit Überfälligem), **Demnächst** für die nächsten 7 Tage, **Alle offen**, **Erledigt** und jeder einzelne Tag – dazu eine Volltextsuche über Titel, Notizen und Tags.
+
+### 📱 Überall
+Installierbar als App (PWA) auf Smartphone und Desktop, Hell- und Dunkelmodus nach Systemeinstellung, Deutsch und Englisch, barrierearm.
+
+</td>
+</tr>
+</table>
+
+<div align="center">
+<img src="docs/images/mobil.png" alt="Todoch auf dem Smartphone" width="260">
+&nbsp;&nbsp;&nbsp;
+<img src="docs/images/mobil-demnaechst.png" alt="Demnächst auf dem Smartphone" width="260">
+</div>
+
+### 🔒 Sicher ab Werk
+
+| | |
+| --- | --- |
+| 🔑 **Anmeldung** | Einrichtung nur mit Einmalcode, Argon2id-Passwörter mit Abgleich gegen Leak-Listen, Sperre mit wachsender Wartezeit nach Fehlversuchen |
+| 🍪 **Sitzungen** | Serverseitig und einzeln widerrufbar, Geräteübersicht, „Überall abmelden“, Idle- und Absolut-Timeout |
+| 🛡️ **Browser** | Strenge Content-Security-Policy ohne `unsafe-inline`, CSRF-Schutz, HSTS und alle wichtigen Security-Header |
+| 🧾 **Nachvollziehbar** | Audit-Log, das sich per Datenbank-Trigger nicht nachträglich ändern lässt |
+| 📦 **Betrieb** | Container ohne Root-Rechte, schreibgeschützt, Datenbank ohne offene Ports, keine Telemetrie, keine CDNs |
+
+Details und Bedrohungsmodell: [docs/SECURITY.md](docs/SECURITY.md)
+
+---
+
+## 🚀 Installation auf Proxmox
+
+Ein Befehl in der **Shell des Proxmox-Hosts** (als root) – im Stil der [community-scripts](https://community-scripts.github.io/ProxmoxVE/):
 
 ```bash
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/MoinMornhart/Todoch/main/ct/todoch.sh)"
 ```
 
-Das Skript fragt „Standard“ oder „Erweitert“ ab und erstellt einen unprivilegierten
-**Debian-13-LXC** (2 CPU, 2 GB RAM, 16 GB Disk). Darin installiert es Docker, erzeugt alle
-Geheimnisse, baut Todoch und startet es. Am Ende zeigt es die Adresse und einen **einmaligen
-Einrichtungslink** für das Admin-Konto an.
+Das Skript fragt **Standard** oder **Erweitert** ab, erstellt einen unprivilegierten Debian-13-Container
+(2 CPU · 2 GB RAM · 16 GB Disk), installiert Docker, erzeugt alle Schlüssel und startet Todoch.
+Am Ende steht die Adresse und ein **einmaliger Einrichtungslink** für dein Konto:
 
-- **Konsole ohne Passwort:** Die Proxmox-Konsole des Containers meldet sich automatisch als root an.
-- **Update:** In der Konsole `update` eingeben. Todoch lädt die neueste Version, sichert vorher die
-  Datenbank, spielt System-Updates ein und kehrt bei Problemen automatisch zur alten Version zurück.
-- **Verwaltung:** `todoch help` (Domain, Ports, Benutzer, Sicherung, Protokolle).
+```text
+🚀  Todoch wurde erfolgreich installiert!
+🌐  Adresse: https://todoch.local
+💡  Erster Aufruf (legt das Admin-Konto an):
+      https://todoch.local/setup#code=…
+```
 
-### Ohne Rückfragen (z. B. per SSH)
+| In der Container-Konsole | |
+| --- | --- |
+| `update` | Neueste Version installieren – mit Sicherung vorher und automatischem Rückfall bei Problemen |
+| `todoch help` | Domain, Ports, Benutzer, Sicherung, Protokolle |
 
-Alle Einstellungen lassen sich vorgeben:
+Die Proxmox-Konsole des Containers ist ohne Passwort zugänglich.
+
+<details>
+<summary><b>Ohne Rückfragen installieren (z. B. per SSH)</b></summary>
+
+<br>
+
+Alle Einstellungen lassen sich per Variable vorgeben:
 
 ```bash
-var_ctid=108 var_hostname=todoch var_mac=BC:24:11:00:00:01 \
-var_domain=todoch.example.de var_proxy=yes \
+var_ctid=108 var_hostname=todoch var_domain=todoch.example.de var_proxy=yes \
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/MoinMornhart/Todoch/main/ct/todoch.sh)"
 ```
-
-Weitere Variablen: `var_cpu`, `var_ram`, `var_disk`, `var_bridge`, `var_net` (`dhcp` oder
-`IP/CIDR`), `var_gateway`, `var_vlan`, `var_storage`, `var_template_storage`, `var_tls`
-(`proxy` | `internal` | `acme`).
-
-## Adresse, HTTPS und Passkeys
-
-Passkeys (ab Meilenstein 6) funktionieren nur über **HTTPS mit einem festen Hostnamen** – nie
-über eine IP. Todoch kennt drei Betriebsarten, umschaltbar in der Container-Konsole:
-
-| Befehl | Wann | HTTPS |
-| --- | --- | --- |
-| `todoch domain todoch.example.de --proxy` | Ein Reverse-Proxy (NetBird, Nginx Proxy Manager, Traefik) macht HTTPS | Proxy; Todoch nur HTTP auf Port 80 |
-| `todoch domain todoch.home.arpa` | Nur im Heimnetz | Eigene Todoch-CA; Zertifikat unter `http://<IP>/ca.crt` auf jedem Gerät installieren |
-| `todoch domain todoch.example.de --acme` | Domain zeigt direkt auf den Server, Ports 80/443 offen | Let's Encrypt automatisch |
-| `todoch domain --reset` | Zurück zum Standard | `https://<hostname>.local` mit eigener CA |
-
-**Beispiel NetBird / Nginx Proxy Manager:** `todoch domain todoch.example.de --proxy`, dann im Proxy
-als Ziel `http://<IP-des-Containers>:80` eintragen (HTTP, nicht HTTPS). `todoch info` zeigt das
-Ziel jederzeit an. Ports ändern: `todoch port <https> [http]` bzw. hinter dem Proxy `todoch port <http>`.
-
-**Zertifikat der Todoch-CA installieren** (nur Betriebsart „internal“):
-iPhone/iPad: Profil laden → Einstellungen → Profil installieren → Allgemein → Info →
-Zertifikatsvertrauenseinstellungen → aktivieren. macOS: Doppelklick → Schlüsselbund → „Immer
-vertrauen“. Windows: Doppelklick → Zertifikat installieren → „Vertrauenswürdige
-Stammzertifizierungsstellen“. Android: Einstellungen → Sicherheit → Verschlüsselung &
-Anmeldedaten → CA-Zertifikat installieren.
-
-## Docker Compose (ohne Proxmox)
-
-Für eine bestehende VM oder einen vorhandenen Docker-Host:
-
-```bash
-git clone https://github.com/MoinMornhart/Todoch.git && cd Todoch
-cp .env.example deploy/.env      # Werte eintragen – jede Variable ist dort erklärt
-chmod 600 deploy/.env
-docker compose -f deploy/docker-compose.yml up -d --build
-```
-
-Danach `https://<TODOCH_DOMAIN>/setup#code=<TODOCH_SETUP_TOKEN>` öffnen. Die Dienste: `app`
-(API), `worker` (Hintergrund-Jobs), `db` (PostgreSQL), `redis` (Valkey), `web` (Caddy + Oberfläche).
-Datenbank und Redis hängen in einem internen Netz ohne Internet und ohne offene Ports.
-
-### Konfiguration (`.env`)
 
 | Variable | Bedeutung |
 | --- | --- |
-| `TODOCH_ORIGIN` | Öffentliche Adresse, genau wie im Browser (z. B. `https://todoch.example.de`) |
-| `TODOCH_DOMAIN` | Hostname für Caddy |
-| `TODOCH_TLS_MODE` | `proxy`, `internal` oder `acme` (siehe oben) |
-| `TODOCH_HTTP_PORT`, `TODOCH_HTTPS_PORT` | Ports auf dem Host (Standard 80/443) |
-| `TODOCH_SECRET_KEY` | Signaturschlüssel, mind. 32 Zeichen |
-| `TODOCH_ENCRYPTION_KEYS` | Schlüssel für gespeicherte Zugangsdaten (`1:<base64>`, mehrere für Rotation) – **getrennt sichern!** |
-| `TODOCH_SETUP_TOKEN` | Einmaliger Einrichtungscode für das erste Konto |
-| `POSTGRES_PASSWORD`, `REDIS_PASSWORD` | Interne Passwörter |
-| `TODOCH_SESSION_IDLE_MINUTES`, `TODOCH_SESSION_ABSOLUTE_HOURS` | Abmeldung nach Inaktivität / spätestens nach |
-| `TZ`, `TODOCH_LOG_LEVEL`, `TODOCH_VERSION` | Zeitzone, Protokollstufe, Image-Version |
+| `var_ctid`, `var_hostname` | Container-ID und Hostname |
+| `var_cpu`, `var_ram`, `var_disk` | Ressourcen (Standard 2 / 2048 MiB / 16 GB) |
+| `var_bridge`, `var_net`, `var_gateway`, `var_vlan`, `var_mac` | Netzwerk (`var_net=dhcp` oder `IP/CIDR`) |
+| `var_storage`, `var_template_storage` | Speicher für Container und Vorlage |
+| `var_domain`, `var_tls` / `var_proxy=yes` | Adresse und HTTPS-Betriebsart (siehe unten) |
 
-Todoch startet nicht, wenn Geheimnisse fehlen, zu kurz sind oder noch Platzhalter enthalten.
+</details>
 
-## Sicherung und Wiederherstellung
+<details>
+<summary><b>Docker Compose ohne Proxmox</b></summary>
+
+<br>
 
 ```bash
-todoch backup                 # → /var/backups/todoch/todoch-<datum>-manuell.tar.gz
-todoch restore <datei>        # sichert vorher den aktuellen Stand
+git clone https://github.com/MoinMornhart/Todoch.git && cd Todoch
+cp .env.example deploy/.env && chmod 600 deploy/.env   # Werte eintragen – jede Variable ist erklärt
+docker compose -f deploy/docker-compose.yml up -d --build
 ```
 
-Die Sicherung enthält die Datenbank. Die **Schlüssel** (Umgebungsdatei) liegen getrennt unter
-`/var/backups/todoch/keys/` – ohne sie lassen sich gespeicherte Zugangsdaten nicht entschlüsseln.
-Beides zusammen an einem sicheren Ort aufbewahren. Vor jedem Update legt Todoch automatisch eine
-Sicherung an. Zusätzlich empfohlen: vor größeren Updates einen Proxmox-Snapshot des Containers.
+Dann `https://<TODOCH_DOMAIN>/setup#code=<TODOCH_SETUP_TOKEN>` öffnen.
+Dienste: `web` (Caddy + Oberfläche) · `app` (API) · `worker` (Hintergrund-Jobs) · `db` (PostgreSQL) · `redis` (Valkey).
+Datenbank und Redis hängen in einem internen Netz ohne Internet und ohne offene Ports.
 
-## Fehlersuche
+| Variable | Bedeutung |
+| --- | --- |
+| `TODOCH_ORIGIN` | Adresse genau wie im Browser, z. B. `https://todoch.example.de` |
+| `TODOCH_DOMAIN`, `TODOCH_TLS_MODE` | Hostname und HTTPS-Betriebsart (`proxy` · `internal` · `acme`) |
+| `TODOCH_HTTP_PORT`, `TODOCH_HTTPS_PORT` | Ports auf dem Host (Standard 80 / 443) |
+| `TODOCH_SECRET_KEY` | Signaturschlüssel, mind. 32 Zeichen |
+| `TODOCH_ENCRYPTION_KEYS` | Schlüssel für gespeicherte Zugangsdaten – **getrennt sichern!** |
+| `TODOCH_SETUP_TOKEN` | Einmaliger Einrichtungscode |
+| `POSTGRES_PASSWORD`, `REDIS_PASSWORD` | Interne Passwörter |
+| `TODOCH_SESSION_IDLE_MINUTES`, `TODOCH_SESSION_ABSOLUTE_HOURS` | Abmeldung nach Inaktivität / spätestens |
 
-- **Seite nicht erreichbar:** `todoch info` zeigt Adresse, Betriebsart und den Zustand der Dienste,
-  `todoch logs` die Protokolle (`todoch logs app`, `… web`, `… db`).
-- **502 hinter dem Reverse-Proxy:** Ziel muss `http://<IP>:<HTTP-Port>` sein, nicht `https://`.
-- **Zertifikatswarnung:** In der Betriebsart `internal` die CA unter `http://<IP>/ca.crt` installieren.
-- **Passwort vergessen:** `todoch reset-password <e-mail>` setzt ein Zufallspasswort.
-- **Zu viele Anmeldeversuche:** Nach fünf Fehlversuchen wartet Todoch zunehmend länger (bis 1 Stunde).
+Todoch startet nicht, wenn Schlüssel fehlen, zu kurz sind oder noch Platzhalter enthalten.
 
-## Deinstallation
+</details>
 
-Auf dem Proxmox-Host: `pct stop <ID> && pct destroy <ID>`. Mit Docker Compose:
-`docker compose -f deploy/docker-compose.yml down -v` (löscht auch alle Daten).
+---
 
-## Roadmap
+## 🌐 Adresse, HTTPS und Passkeys
 
-| Meilenstein | Inhalt | Stand |
+Passkeys (ab Meilenstein 6) funktionieren nur über **HTTPS mit festem Hostnamen** – nie über eine IP.
+Todoch kennt drei Betriebsarten, umschaltbar mit einem Befehl:
+
+| Befehl | Passt, wenn … | HTTPS macht … |
 | --- | --- | --- |
-| 1 | Grundgerüst: Auth mit Passwort + Sitzungen, Bereiche, Aufgaben, Oberfläche, CI | ✅ v0.0.1 |
-| 2 | Kalender: Termine, Monat/Woche/Agenda, Erinnerungen, ICS-Feeds | |
-| 3 | Formular für telefonisch vereinbarte Termine, Kontakte, Folgeaufgaben | |
-| 4 | E-Mail: IMAP + Autoconfig, Regeln, Terminerkennung, Bestätigungs-Inbox | |
-| 5 | OAuth für Gmail/Microsoft, Kalender-Synchronisation (CalDAV, Google, Microsoft, ICS) | |
-| 6 | Passkeys, TOTP, Wiederherstellungscodes | |
-| 7 | Gruppen, Rollen, Einladungen, Zuweisungen, Kommentare, Verlauf | |
-| 8 | Härtung: Audit-Ansicht, Export/Kontolöschung, Restore-Tests, Security-Review nach OWASP ASVS L2 | |
+| `todoch domain todoch.example.de --proxy` | ein Reverse-Proxy davor sitzt (NetBird, Nginx Proxy Manager, Traefik) | der Proxy – Todoch spricht nur HTTP auf Port 80 |
+| `todoch domain todoch.home.arpa` | Todoch nur im Heimnetz läuft | Todoch mit eigener CA (Zertifikat unter `http://<IP>/ca.crt`) |
+| `todoch domain todoch.example.de --acme` | die Domain direkt auf den Server zeigt, Ports 80/443 offen | Todoch mit Let's Encrypt |
+| `todoch domain --reset` | du zurück zum Standard willst | Todoch unter `https://<hostname>.local` |
 
-## Entwicklung
+> **Reverse-Proxy:** Als Ziel `http://<IP-des-Containers>:80` eintragen – HTTP, nicht HTTPS. `todoch info` zeigt es jederzeit an.
+
+<details>
+<summary><b>Zertifikat der Todoch-CA auf Geräten installieren</b> (nur Betriebsart „internal“)</summary>
+
+<br>
+
+| Gerät | So geht's |
+| --- | --- |
+| iPhone / iPad | `http://<IP>/ca.crt` öffnen → Einstellungen → Profil installieren → Allgemein → Info → Zertifikatsvertrauenseinstellungen → aktivieren |
+| macOS | Datei doppelklicken → Schlüsselbundverwaltung → „Immer vertrauen“ |
+| Windows | Datei doppelklicken → Zertifikat installieren → „Vertrauenswürdige Stammzertifizierungsstellen“ |
+| Android | Einstellungen → Sicherheit → Verschlüsselung & Anmeldedaten → CA-Zertifikat installieren |
+
+</details>
+
+---
+
+## 🛠️ Verwaltung im Container
+
+```bash
+todoch info                      # Adresse, Betriebsart, Zustand aller Dienste
+todoch setup-code                # Einrichtungslink erneut anzeigen
+todoch users                     # Benutzer auflisten
+todoch reset-password <e-mail>   # Passwort vergessen? Neues Zufallspasswort
+todoch backup                    # Datenbank sichern → /var/backups/todoch
+todoch restore <datei>           # Sicherung einspielen (sichert vorher den aktuellen Stand)
+todoch logs [app|web|db|worker]  # Protokolle ansehen
+```
+
+> [!IMPORTANT]
+> Die Schlüssel für gespeicherte Zugangsdaten liegen **getrennt** von der Sicherung unter
+> `/var/backups/todoch/keys/`. Beides zusammen an einem sicheren Ort aufbewahren – ohne Schlüssel keine
+> Wiederherstellung. Vor jedem Update legt Todoch automatisch eine Sicherung an.
+
+<details>
+<summary><b>Fehlersuche</b></summary>
+
+<br>
+
+| Problem | Lösung |
+| --- | --- |
+| Seite nicht erreichbar | `todoch info` und `todoch logs` |
+| 502 hinter dem Reverse-Proxy | Ziel muss `http://<IP>:<HTTP-Port>` sein, nicht `https://` |
+| Zertifikatswarnung | In der Betriebsart `internal` die CA unter `http://<IP>/ca.crt` installieren |
+| Passwort vergessen | `todoch reset-password <e-mail>` |
+| „Zu viele Versuche“ | Nach 5 Fehlversuchen wartet Todoch zunehmend länger (bis 1 Stunde) |
+| Deinstallieren | Proxmox: `pct stop <ID> && pct destroy <ID>` · Compose: `docker compose -f deploy/docker-compose.yml down -v` |
+
+</details>
+
+---
+
+## 🗺️ Roadmap
+
+| | Meilenstein | Inhalt |
+| :---: | --- | --- |
+| ✅ | **1 · Grundgerüst** | Anmeldung, Sitzungen, Bereiche, Aufgaben, Schnellerfassung, Suche, PWA, Proxmox-Quickstart |
+| ⏳ | **2 · Kalender** | Termine, Monat / Woche / Agenda, Erinnerungen, ICS-Abos für Apple, Google & Outlook |
+| ⏳ | **3 · Telefontermine** | Formular für telefonisch vereinbarte Termine, Kontakte, Folgeaufgaben |
+| ⏳ | **4 · E-Mail** | Postfächer per IMAP, Regeln, automatische Terminerkennung, Bestätigungs-Inbox |
+| ⏳ | **5 · Synchronisation** | Gmail & Microsoft per OAuth, Zwei-Wege-Sync mit CalDAV, Google und Microsoft |
+| ⏳ | **6 · Passkeys** | Anmeldung mit Face ID / Touch ID / Windows Hello, TOTP, Wiederherstellungscodes |
+| ⏳ | **7 · Gruppen** | Gemeinsame Bereiche, Rollen, Einladungen, Zuweisungen, Kommentare |
+| ⏳ | **8 · Härtung** | Datenexport, Kontolöschung, Restore-Tests, Security-Review nach OWASP ASVS L2 |
+
+Jede Änderung erscheint als neue Version (`0.0.1 → 0.0.2 → … → 0.0.9 → 0.1.0`) mit Beschreibung im
+[Changelog](CHANGELOG.md) und in den [Releases](https://github.com/MoinMornhart/Todoch/releases).
+
+---
+
+## 👩‍💻 Entwicklung
+
+<details>
+<summary><b>Lokal starten und testen</b></summary>
+
+<br>
 
 Voraussetzungen: Python 3.12 mit [uv](https://docs.astral.sh/uv/), Node.js 24, PostgreSQL 16.
 
 ```bash
-# Backend (API auf http://127.0.0.1:8000)
-cd backend
-uv sync
+# Backend – API auf http://127.0.0.1:8000
+cd backend && uv sync
 export TODOCH_ENVIRONMENT=development TODOCH_ORIGIN=http://localhost:5173 \
   TODOCH_SECRET_KEY=dev-secret-key-0123456789-abcdefghij \
   TODOCH_ENCRYPTION_KEYS=1:AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8= \
@@ -169,24 +298,25 @@ export TODOCH_ENVIRONMENT=development TODOCH_ORIGIN=http://localhost:5173 \
 uv run alembic upgrade head
 uv run uvicorn app.main:create_app --factory --reload
 
-# Frontend (http://localhost:5173, leitet /api an das Backend weiter)
+# Frontend – http://localhost:5173 (leitet /api ans Backend weiter)
 cd frontend && npm install && npm run dev
 ```
 
-Tests: `uv run pytest` (Backend, braucht PostgreSQL – `TODOCH_TEST_DATABASE_URL`),
-`npm test` (Unit), `npx playwright test` (Ende-zu-Ende gegen den Produktions-Build).
-Architektur und Entscheidungen: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/adr/](docs/adr/).
+| Tests | Befehl |
+| --- | --- |
+| Backend (pytest, braucht PostgreSQL) | `cd backend && uv run pytest` |
+| Frontend (Vitest) | `cd frontend && npm test` |
+| Ende-zu-Ende gegen den Produktions-Build (Playwright) | `cd frontend && npx playwright test` |
+| Screenshots für diese Seite | `SCREENSHOTS=1 npx playwright test e2e/screenshots.spec.ts` |
 
-## Versionen
+Neue Version veröffentlichen: `scripts/release.sh "Kurzbeschreibung" "Änderung 1" "Änderung 2"`
 
-Jede Änderung wird als neue Version veröffentlicht: `0.0.1 → 0.0.2 → … → 0.0.9 → 0.1.0`.
-Commit-Nachricht, Tag `vX.Y.Z`, GitHub-Release und [CHANGELOG.md](CHANGELOG.md) beschreiben,
-was sich geändert hat.
+</details>
 
-```bash
-scripts/release.sh "Kurzbeschreibung" "Änderung 1" "Änderung 2"
-```
+**Technik:** FastAPI · PostgreSQL 16 · Valkey + ARQ · SvelteKit + TypeScript + Tailwind · Caddy · Docker Compose<br>
+**Mehr:** [Architektur](docs/ARCHITECTURE.md) · [Sicherheit](docs/SECURITY.md) · [Entscheidungen](docs/adr/) · [API (OpenAPI)](docs/openapi.json)
 
-## Lizenz
-
-MIT © 2026 MoinMornhart
+<div align="center">
+<br>
+<sub>MIT-Lizenz · © 2026 MoinMornhart</sub>
+</div>

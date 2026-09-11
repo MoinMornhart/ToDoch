@@ -404,6 +404,8 @@ export const de = {
 	'settings.method.passkey': 'Passkey',
 	'settings.method.password': 'Passwort',
 
+	'settings.adminNoCurrent': 'Als Admin brauchst du dein altes Passwort dafür nicht.',
+
 	'error.generic': 'Etwas ist schiefgelaufen.'
 } as const;
 

@@ -168,11 +168,19 @@ async def change_password(
     user = session.user
     ip = client_ip(request)
     await res.limiter.enforce("password-change", str(user.id), limit=10, window=600)
-    valid, _ = await verify_password_async(user.password_hash, body.current_password)
-    if not valid:
-        audit.record(db, "password.change_failed", user_id=user.id, ip=ip)
-        await db.commit()
-        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Das aktuelle Passwort ist falsch.")
+    # Admins dürfen ohne das alte Passwort ändern (z. B. nach Anmeldung per Passkey).
+    # Wer es trotzdem angibt, muss das richtige nehmen.
+    skip_current = user.is_admin and body.current_password is None
+    if not skip_current:
+        if body.current_password is None:
+            raise HTTPException(
+                status.HTTP_400_BAD_REQUEST, "Bitte das aktuelle Passwort eingeben."
+            )
+        valid, _ = await verify_password_async(user.password_hash, body.current_password)
+        if not valid:
+            audit.record(db, "password.change_failed", user_id=user.id, ip=ip)
+            await db.commit()
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, "Das aktuelle Passwort ist falsch.")
     try:
         check_password_policy(body.new_password, email=user.email, display_name=user.display_name)
     except PasswordPolicyError as exc:
@@ -186,6 +194,6 @@ async def change_password(
         db, user, res.settings, method=session.auth_method, ip=ip,
         user_agent=request.headers.get("user-agent"),
     )  # fmt: skip
-    audit.record(db, "password.changed", user_id=user.id, ip=ip)
+    audit.record(db, "password.changed", user_id=user.id, ip=ip, without_current=skip_current)
     await db.commit()
     set_session_cookies(response, token, res.settings)

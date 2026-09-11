@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Todoch API",
-    "version": "0.0.9"
+    "version": "0.1.0"
   },
   "paths": {
     "/api/health": {
@@ -4269,9 +4269,16 @@
       "PasswordChangeIn": {
         "properties": {
           "current_password": {
-            "type": "string",
-            "maxLength": 256,
-            "minLength": 1,
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 256,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Current Password"
           },
           "new_password": {
@@ -4283,7 +4290,6 @@
         },
         "type": "object",
         "required": [
-          "current_password",
           "new_password"
         ],
         "title": "PasswordChangeIn"

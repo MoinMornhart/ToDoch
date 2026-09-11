@@ -70,7 +70,8 @@ class MePatch(BaseModel):
 
 
 class PasswordChangeIn(BaseModel):
-    current_password: Password
+    # Für Admins optional – alle anderen müssen ihr aktuelles Passwort bestätigen
+    current_password: Password | None = None
     new_password: Password
 
 

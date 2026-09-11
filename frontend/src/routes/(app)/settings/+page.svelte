@@ -71,7 +71,7 @@
 		try {
 			await api('/auth/password', {
 				method: 'POST',
-				body: { current_password: currentPassword, new_password: newPassword }
+				body: { current_password: currentPassword || undefined, new_password: newPassword }
 			});
 			currentPassword = '';
 			newPassword = '';
@@ -163,17 +163,21 @@
 				value={session.user?.email}
 				readonly
 			/>
-			<div>
-				<label class="label" for="current-password">{t('settings.currentPassword')}</label>
-				<input
-					id="current-password"
-					type="password"
-					class="input"
-					autocomplete="current-password"
-					required
-					bind:value={currentPassword}
-				/>
-			</div>
+			{#if session.user?.is_admin}
+				<p class="self-end text-sm text-muted sm:pb-2.5">{t('settings.adminNoCurrent')}</p>
+			{:else}
+				<div>
+					<label class="label" for="current-password">{t('settings.currentPassword')}</label>
+					<input
+						id="current-password"
+						type="password"
+						class="input"
+						autocomplete="current-password"
+						required
+						bind:value={currentPassword}
+					/>
+				</div>
+			{/if}
 			<div>
 				<label class="label" for="new-password">{t('settings.newPassword')}</label>
 				<input

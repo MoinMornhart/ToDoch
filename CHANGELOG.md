@@ -4,6 +4,14 @@ Alle Änderungen an Todoch – die neueste Version steht oben.
 Versionsschema: `0.0.1 → 0.0.2 → … → 0.0.9 → 0.1.0 → … → 0.9.9 → 1.0.0`.
 Im Container spielt der Befehl `update` immer die neueste Version ein.
 
+## [0.1.1] – 2026-09-11
+
+Admins ändern ihr Passwort ohne das alte
+
+- Als Admin unter Einstellungen → Passwort ändern nur noch das neue Passwort eingeben – praktisch z. B. nach der Anmeldung per Passkey
+- Normale Nutzer bestätigen weiterhin mit dem aktuellen Passwort; wer es angibt, muss das richtige nehmen
+- Absicherung: Änderung meldet alle anderen Geräte ab und wird im Audit-Log vermerkt (ohne altes Passwort)
+
 ## [0.1.0] – 2026-09-11
 
 Passkeys: Anmelden ohne Passwort

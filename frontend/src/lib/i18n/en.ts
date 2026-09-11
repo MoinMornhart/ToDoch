@@ -405,5 +405,7 @@ export const en: Record<MessageKey, string> = {
 	'settings.method.passkey': 'Passkey',
 	'settings.method.password': 'Password',
 
+	'settings.adminNoCurrent': 'As an admin you don’t need your old password for this.',
+
 	'error.generic': 'Something went wrong.'
 };

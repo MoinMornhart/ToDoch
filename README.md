@@ -101,6 +101,22 @@ Installierbar als App (PWA) auf Smartphone und Desktop, Hell- und Dunkelmodus na
 <img src="docs/images/mobil-demnaechst.png" alt="Demnächst auf dem Smartphone" width="260">
 </div>
 
+### 🗓️ Kalender
+
+<img src="docs/images/kalender-woche.png" alt="Kalender in der Wochenansicht">
+
+**Monat, Woche, Tag und Agenda** – Termine per Drag & Drop verschieben, Aufgaben mit Fälligkeit
+erscheinen direkt daneben. Wiederkehrende Termine (auch „jeden letzten Freitag“) lassen sich als
+**nur dieser / dieser und folgende / alle** bearbeiten. Ganztägige und mehrtägige Termine, Ort,
+Videolink, Teilnehmer, Erinnerungen, **feste Termine** mit Rückfrage beim Verschieben und eine
+**Warnung bei Überschneidungen** im selben Bereich. Die Termine des Tages stehen auch auf „Heute“.
+
+<details>
+<summary><b>Monatsansicht ansehen</b></summary>
+<br>
+<img src="docs/images/kalender-monat.png" alt="Kalender in der Monatsansicht">
+</details>
+
 ### 🔒 Sicher ab Werk
 
 | | |
@@ -265,7 +281,7 @@ todoch logs [app|web|db|worker]  # Protokolle ansehen
 | | Meilenstein | Inhalt |
 | :---: | --- | --- |
 | ✅ | **1 · Grundgerüst** | Anmeldung, Sitzungen, Bereiche, Aufgaben, Schnellerfassung, Suche, PWA, Proxmox-Quickstart |
-| ⏳ | **2 · Kalender** | Termine, Monat / Woche / Agenda, Erinnerungen, ICS-Abos für Apple, Google & Outlook |
+| 🚧 | **2 · Kalender** | ✅ Termine, Serien, Monat / Woche / Tag / Agenda, Drag & Drop, Konflikte · ⏳ Erinnerungen, ICS-Abos für Apple, Google & Outlook |
 | ⏳ | **3 · Telefontermine** | Formular für telefonisch vereinbarte Termine, Kontakte, Folgeaufgaben |
 | ⏳ | **4 · E-Mail** | Postfächer per IMAP, Regeln, automatische Terminerkennung, Bestätigungs-Inbox |
 | ⏳ | **5 · Synchronisation** | Gmail & Microsoft per OAuth, Zwei-Wege-Sync mit CalDAV, Google und Microsoft |

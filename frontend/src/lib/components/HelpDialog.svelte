@@ -12,7 +12,10 @@
 		[['e'], 'help.edit'],
 		[['?'], 'help.help'],
 		[['Esc'], 'help.close'],
-		[['Strg', 'Enter'], 'help.save']
+		[['Strg', 'Enter'], 'help.save'],
+		[['c'], 'help.newEvent'],
+		[['←', '→'], 'help.calNav'],
+		[['m', 'w', 'd', 'a'], 'help.calViews']
 	];
 </script>
 

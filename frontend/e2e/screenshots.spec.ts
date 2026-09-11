@@ -35,6 +35,86 @@ async function login(page: Page) {
 	await expect(page).toHaveURL(/\/today$/);
 }
 
+function isoDay(date: Date): string {
+	return date.toLocaleDateString('en-CA');
+}
+
+/** Beispieltermine in der aktuellen Woche (über die API, mit CSRF-Token aus dem Cookie). */
+async function createEvents(page: Page) {
+	const cookies = await page.context().cookies();
+	const headers = {
+		'X-CSRF-Token': cookies.find((c) => c.name === '__Host-todoch_csrf')?.value ?? '',
+		Origin: 'http://localhost:4173'
+	};
+	const areas = (await (await page.request.get('/api/areas')).json()) as {
+		id: string;
+		name: string;
+	}[];
+	const area = (name: string) => areas.find((a) => a.name === name)?.id;
+	const now = new Date();
+	const monday = new Date(now);
+	monday.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+	const day = (offset: number) => {
+		const d = new Date(monday);
+		d.setDate(monday.getDate() + offset);
+		return isoDay(d);
+	};
+	const events = [
+		{
+			title: 'Standup',
+			start_date: day(0),
+			start_time: '09:00',
+			end_time: '09:15',
+			area_id: area('Arbeit'),
+			rrule: 'FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR'
+		},
+		{
+			title: 'Kundentermin Berger',
+			start_date: day(1),
+			start_time: '14:00',
+			end_time: '15:30',
+			location: 'Büro Berger',
+			is_fixed: true,
+			area_id: area('Arbeit')
+		},
+		{
+			title: 'Mittagessen mit Lena',
+			start_date: day(2),
+			start_time: '12:00',
+			end_time: '13:00',
+			area_id: area('Privat')
+		},
+		{
+			title: 'Workshop Q4',
+			start_date: day(3),
+			start_time: '10:00',
+			end_time: '12:00',
+			location: 'Raum 3',
+			area_id: area('Arbeit')
+		},
+		{
+			title: 'Zahnarzt',
+			start_date: day(3),
+			start_time: '11:00',
+			end_time: '11:45',
+			area_id: area('Privat')
+		},
+		{
+			title: 'Sport',
+			start_date: day(4),
+			start_time: '18:00',
+			end_time: '19:30',
+			area_id: area('Privat'),
+			rrule: 'FREQ=WEEKLY'
+		},
+		{ title: 'Familienfeier', start_date: day(5), all_day: true, area_id: area('Privat') }
+	];
+	for (const event of events) {
+		const response = await page.request.post('/api/events', { data: event, headers });
+		expect(response.status()).toBe(201);
+	}
+}
+
 test('README-Screenshots', async ({ browser }) => {
 	test.setTimeout(180_000);
 	const light = await browser.newContext({
@@ -97,6 +177,16 @@ test('README-Screenshots', async ({ browser }) => {
 	await page.getByRole('link', { name: 'Demnächst' }).first().click();
 	await calm(page);
 	await page.screenshot({ path: `${OUT}/demnaechst.png` });
+
+	await createEvents(page);
+	await page.goto(`/calendar?view=week&date=${isoDay(new Date())}`);
+	await expect(page.getByRole('button', { name: /Workshop Q4/ })).toBeVisible();
+	await calm(page);
+	await page.screenshot({ path: `${OUT}/kalender-woche.png` });
+	await page.goto(`/calendar?view=month&date=${isoDay(new Date())}`);
+	await expect(page.getByRole('button', { name: /Familienfeier/ }).first()).toBeVisible();
+	await calm(page);
+	await page.screenshot({ path: `${OUT}/kalender-monat.png` });
 	await light.close();
 
 	const dark = await browser.newContext({

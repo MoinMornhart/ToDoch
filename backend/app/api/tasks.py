@@ -5,16 +5,18 @@ from __future__ import annotations
 import re
 import uuid
 from datetime import UTC, date, datetime, timedelta
-from typing import Literal
+from typing import Annotated, Literal
+from zoneinfo import ZoneInfo
 
 from fastapi import APIRouter, HTTPException, Query, status
 from sqlalchemy import Select, func, or_, select
 
 from app.api.deps import DB, CurrentUser, user_now, user_today
 from app.markdown import render_markdown
-from app.models import Area, ChecklistItem, Task, User
+from app.models import Area, ChecklistItem, Event, Task, User
 from app.policy import Action, authorize, visible_areas
 from app.quickadd import parse_quick_add
+from app.schemas.events import EventSearchOut, SearchOut
 from app.schemas.tasks import (
     ChecklistItemIn,
     ChecklistItemOut,
@@ -67,7 +69,7 @@ async def _default_area(db: DB, user: User) -> Area:
     return area
 
 
-async def _area_for_new_task(db: DB, user: User, area_id: uuid.UUID | None) -> Area:
+async def area_for_new_item(db: DB, user: User, area_id: uuid.UUID | None) -> Area:
     if area_id is None:
         area = await _default_area(db, user)
     else:
@@ -108,6 +110,8 @@ async def list_tasks(
     day: date | None = None,
     tag: str | None = Query(default=None, max_length=40),
     limit: int = Query(default=300, ge=1, le=1000),
+    start: Annotated[date | None, Query(alias="from")] = None,
+    end: Annotated[date | None, Query(alias="to")] = None,
 ) -> list[TaskOut]:
     today = user_today(user)
     query = _visible_tasks(user)
@@ -123,7 +127,12 @@ async def list_tasks(
         Task.sort_order,
         Task.created_at,
     )
-    if day is not None:
+    if start is not None and end is not None:
+        # Zeitraum (z. B. für den Kalender): offene und erledigte Aufgaben mit Fälligkeit darin
+        query = query.where(
+            Task.due_date >= start, Task.due_date < end, Task.status != "archived"
+        ).order_by(*open_order)
+    elif day is not None:
         query = query.where(Task.due_date == day, Task.status != "archived").order_by(
             Task.status.desc(), *open_order
         )
@@ -147,7 +156,7 @@ async def list_tasks(
 
 @router.post("/tasks", response_model=TaskOut, status_code=status.HTTP_201_CREATED)
 async def create_task(body: TaskIn, db: DB, user: CurrentUser) -> TaskOut:
-    area = await _area_for_new_task(db, user, body.area_id)
+    area = await area_for_new_item(db, user, body.area_id)
     task = Task(
         area_id=area.id,
         area=area,
@@ -179,8 +188,8 @@ async def _resolve_quick_area(
         if match:
             authorize(user, Action.CREATE, match[0])
             return match[0], False
-        return await _area_for_new_task(db, user, fallback), True
-    return await _area_for_new_task(db, user, fallback), False
+        return await area_for_new_item(db, user, fallback), True
+    return await area_for_new_item(db, user, fallback), False
 
 
 @router.post("/tasks/quick/preview", response_model=QuickAddPreview)
@@ -315,23 +324,50 @@ async def reopen_task(task_id: uuid.UUID, db: DB, user: CurrentUser) -> TaskOut:
     return task_out(task)
 
 
-@router.get("/search", response_model=list[TaskOut])
+def _event_search_out(event: Event, tzid: str) -> EventSearchOut:
+    start = (
+        event.start_at.date().isoformat()
+        if event.all_day
+        else event.start_at.astimezone(ZoneInfo(tzid)).strftime("%Y-%m-%dT%H:%M")
+    )
+    return EventSearchOut(
+        id=event.id,
+        title=event.title,
+        location=event.location,
+        all_day=event.all_day,
+        recurring=event.rrule is not None,
+        start_local=start,
+    )
+
+
+@router.get("/search", response_model=SearchOut)
 async def search(
     db: DB,
     user: CurrentUser,
     q: str = Query(min_length=1, max_length=200),
     area_id: uuid.UUID | None = None,
-) -> list[TaskOut]:
+) -> SearchOut:
     terms = re.findall(r"\w+", q.lower())[:8]
     if not terms:
-        return []
+        return SearchOut(tasks=[], events=[])
     ts_query = func.to_tsquery("simple", " & ".join(f"{t}:*" for t in terms))
-    query = _visible_tasks(user).where(
+    tasks = _visible_tasks(user).where(
         or_(Task.search_vector.op("@@")(ts_query), Task.tags.overlap(terms))
     )
+    events = (
+        select(Event)
+        .join(Area, Event.area_id == Area.id)
+        .where(visible_areas(user), Event.series_id.is_(None))
+        .where(or_(Event.search_vector.op("@@")(ts_query), Event.tags.overlap(terms)))
+    )
     if area_id is not None:
-        query = query.where(Task.area_id == area_id)
-    query = query.order_by(
+        tasks = tasks.where(Task.area_id == area_id)
+        events = events.where(Event.area_id == area_id)
+    tasks = tasks.order_by(
         (Task.status == "open").desc(), func.ts_rank(Task.search_vector, ts_query).desc()
     ).limit(50)
-    return [task_out(t) for t in (await db.scalars(query)).unique()]
+    events = events.order_by(Event.start_at.desc()).limit(20)
+    return SearchOut(
+        tasks=[task_out(t) for t in (await db.scalars(tasks)).unique()],
+        events=[_event_search_out(e, user.timezone) for e in await db.scalars(events)],
+    )

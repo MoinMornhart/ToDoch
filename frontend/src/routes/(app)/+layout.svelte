@@ -1,6 +1,7 @@
 <script lang="ts">
 	import {
 		CalendarDays,
+		CalendarRange,
 		CircleCheckBig,
 		Keyboard,
 		Layers,
@@ -14,6 +15,9 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import AreaSwitcher from '$lib/components/AreaSwitcher.svelte';
+	import ChoiceDialog from '$lib/components/ChoiceDialog.svelte';
+	import EventEditor from '$lib/components/EventEditor.svelte';
+	import { todayIn } from '$lib/dates';
 	import HelpDialog from '$lib/components/HelpDialog.svelte';
 	import Logo from '$lib/components/Logo.svelte';
 	import SearchDialog from '$lib/components/SearchDialog.svelte';
@@ -29,6 +33,7 @@
 	const primary: { href: string; label: MessageKey; icon: typeof Sun }[] = [
 		{ href: '/today', label: 'nav.today', icon: Sun },
 		{ href: '/upcoming', label: 'nav.upcoming', icon: CalendarDays },
+		{ href: '/calendar', label: 'nav.calendar', icon: CalendarRange },
 		{ href: '/open', label: 'nav.open', icon: ListTodo },
 		{ href: '/done', label: 'nav.done', icon: CircleCheckBig }
 	];
@@ -36,7 +41,8 @@
 		{ href: '/areas', label: 'nav.areas', icon: Layers },
 		{ href: '/settings', label: 'nav.settings', icon: Settings }
 	];
-	const tabs = [...primary.slice(0, 3), ...secondary];
+	// Handy: Heute, Demnächst, Kalender, Alle offen, Einstellungen
+	const tabs = [...primary.slice(0, 4), ...secondary.slice(1)];
 
 	const isActive = (href: string) => page.url.pathname === href;
 
@@ -51,6 +57,9 @@
 			event.preventDefault();
 			ui.quickAddPending = true;
 			if (!ui.quickAddMounted) void goto('/today');
+		} else if (key === 'c') {
+			event.preventDefault();
+			ui.eventEditor = { mode: 'new', date: todayIn(session.user?.timezone ?? 'UTC') };
 		} else if (key === '/') {
 			event.preventDefault();
 			ui.searchOpen = true;
@@ -136,7 +145,12 @@
 				<Keyboard size={18} aria-hidden="true" />
 			</button>
 		</header>
-		<main id="main" class="w-full max-w-3xl flex-1 px-4 pt-5 pb-28 md:px-8 md:pb-12">
+		<main
+			id="main"
+			class="w-full flex-1 px-4 pt-5 pb-28 md:px-8 md:pb-12 {page.url.pathname === '/calendar'
+				? ''
+				: 'max-w-3xl'}"
+		>
 			{@render children()}
 		</main>
 	</div>
@@ -163,3 +177,5 @@
 <SearchDialog />
 <HelpDialog />
 <TaskEditor />
+<EventEditor />
+<ChoiceDialog />

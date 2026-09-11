@@ -12,7 +12,7 @@ from enum import StrEnum
 from fastapi import HTTPException, status
 from sqlalchemy import ColumnElement
 
-from app.models import Area, Task, User
+from app.models import Area, Event, Task, User
 
 
 class Role(StrEnum):
@@ -37,7 +37,7 @@ PERMISSIONS: dict[Role, frozenset[Action]] = {
     Role.VIEWER: frozenset({Action.VIEW}),
 }
 
-Protected = Area | Task
+Protected = Area | Task | Event
 
 
 def _area_of(obj: Protected) -> Area:

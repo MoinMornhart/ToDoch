@@ -173,7 +173,8 @@ async def test_search(alice: AsyncClient) -> None:
     await _create(alice, title="Nichts")
 
     async def found(q: str) -> list[str]:
-        return [t["title"] for t in (await alice.get("/api/search", params={"q": q})).json()]
+        response = await alice.get("/api/search", params={"q": q})
+        return [t["title"] for t in response.json()["tasks"]]
 
     assert await found("steuer") == ["Steuererklärung abgeben"]
     assert await found("finanzamt") == ["Steuererklärung abgeben"]

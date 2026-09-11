@@ -19,7 +19,19 @@ async def _alice_objects(alice: AsyncClient) -> dict[str, Any]:
         )
     ).json()
     session = (await alice.get("/api/auth/sessions")).json()[0]
-    return {"area": areas[0], "task": task, "session": session}
+    event = (
+        await alice.post(
+            "/api/events",
+            json={
+                "title": "Besprechung",
+                "start_date": "2026-09-14",
+                "start_time": "09:00",
+                "rrule": "FREQ=WEEKLY",
+                "area_id": areas[0]["id"],
+            },
+        )
+    ).json()["event"]
+    return {"area": areas[0], "task": task, "session": session, "event": event}
 
 
 async def test_foreign_task_is_invisible(alice: AsyncClient, bob: AsyncClient) -> None:
@@ -66,8 +78,15 @@ async def test_lists_and_search_do_not_leak(alice: AsyncClient, bob: AsyncClient
     for view in ("today", "upcoming", "open", "done", "archived", "all"):
         assert (await bob.get("/api/tasks", params={"view": view})).json() == []
     assert (await bob.get("/api/tasks", params={"area_id": area_id})).json() == []
-    assert (await bob.get("/api/search", params={"q": "geheim"})).json() == []
-    assert (await bob.get("/api/search", params={"q": "vertraulich"})).json() == []
+    empty = {"tasks": [], "events": []}
+    for word in ("geheim", "vertraulich", "besprechung"):
+        assert (await bob.get("/api/search", params={"q": word})).json() == empty
+    bob_events = await bob.get("/api/events", params={"from": "2026-09-01", "to": "2026-10-01"})
+    assert bob_events.json() == []
+    other_area = await bob.get(
+        "/api/events", params={"from": "2026-09-01", "to": "2026-10-01", "area_id": area_id}
+    )
+    assert other_area.json() == []
     assert all(a["id"] != area_id for a in (await bob.get("/api/areas")).json())
     quick = await bob.post("/api/tasks/quick/preview", json={"text": "x @Arbeit"})
     assert quick.json()["area_id"] != area_id
@@ -97,7 +116,7 @@ OBJECT_ROUTES = _object_routes()
 def test_every_object_route_is_covered() -> None:
     assert len(OBJECT_ROUTES) >= 8
     params = {p for _, path in OBJECT_ROUTES for p in re.findall(r"\{(\w+_id)\}", path)}
-    assert params <= {"task_id", "area_id", "session_id"}, params
+    assert params <= {"task_id", "area_id", "session_id", "event_id"}, params
 
 
 @pytest.mark.parametrize(("method", "path"), OBJECT_ROUTES)
@@ -109,6 +128,7 @@ async def test_every_object_route_rejects_foreign_ids(
         "task_id": objects["task"]["id"],
         "area_id": objects["area"]["id"],
         "session_id": objects["session"]["id"],
+        "event_id": objects["event"]["id"],
     }
     url = re.sub(r"\{(\w+_id)\}", lambda m: ids[m.group(1)], path)
     body = {} if method in ("PATCH", "PUT") else None

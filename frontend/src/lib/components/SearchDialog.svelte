@@ -1,19 +1,21 @@
 <script lang="ts">
-	import { Search } from '@lucide/svelte';
+	import { CalendarDays, Search } from '@lucide/svelte';
 	import { tick } from 'svelte';
 	import { api } from '$lib/api';
-	import { formatDay, todayIn } from '$lib/dates';
+	import { formatDay, formatTime, todayIn } from '$lib/dates';
 	import { i18n, t } from '$lib/i18n/index.svelte';
 	import { dayLabels } from '$lib/labels';
 	import { areas } from '$lib/stores/areas.svelte';
 	import { session } from '$lib/stores/session.svelte';
 	import { ui } from '$lib/stores/ui.svelte';
-	import type { Task } from '$lib/types';
+	import type { EventSearchResult, SearchResult, Task } from '$lib/types';
 	import Dialog from './Dialog.svelte';
+
+	type Hit = { kind: 'task'; task: Task } | { kind: 'event'; event: EventSearchResult };
 
 	const uid = $props.id();
 	let query = $state('');
-	let results = $state<Task[]>([]);
+	let results = $state<Hit[]>([]);
 	let active = $state(0);
 	let searched = $state(false);
 	let input: HTMLInputElement | undefined = $state();
@@ -43,9 +45,12 @@
 		}
 		timer = setTimeout(async () => {
 			try {
-				const found = await api<Task[]>('/search', { query: { q, area_id: areas.filterId } });
+				const found = await api<SearchResult>('/search', { query: { q, area_id: areas.filterId } });
 				if (mine === sequence) {
-					results = found;
+					results = [
+						...found.events.map((event): Hit => ({ kind: 'event', event })),
+						...found.tasks.map((task): Hit => ({ kind: 'task', task }))
+					];
 					active = 0;
 					searched = true;
 				}
@@ -55,9 +60,14 @@
 		}, 180);
 	}
 
-	function openTask(task: Task) {
+	function openHit(hit: Hit) {
 		ui.searchOpen = false;
-		ui.editTaskId = task.id;
+		if (hit.kind === 'task') ui.editTaskId = hit.task.id;
+		else ui.eventEditor = { mode: 'edit', eventId: hit.event.id, occurrence: null };
+	}
+
+	function keyOf(hit: Hit): string {
+		return hit.kind === 'task' ? `t:${hit.task.id}` : `e:${hit.event.id}`;
 	}
 
 	function onKeydown(event: KeyboardEvent) {
@@ -69,8 +79,8 @@
 			active = Math.max(active - 1, 0);
 		} else if (event.key === 'Enter') {
 			event.preventDefault();
-			const task = results[active];
-			if (task) openTask(task);
+			const hit = results[active];
+			if (hit) openHit(hit);
 		}
 	}
 </script>
@@ -98,7 +108,7 @@
 		/>
 	</div>
 	<ul id="{uid}-results" role="listbox" aria-label={t('search.label')} class="mt-3 flex flex-col">
-		{#each results as task, index (task.id)}
+		{#each results as hit, index (keyOf(hit))}
 			<!-- svelte-ignore a11y_click_events_have_key_events -->
 			<li
 				id="{uid}-option-{index}"
@@ -108,14 +118,27 @@
 				active
 					? 'bg-surface-2'
 					: ''}"
-				onclick={() => openTask(task)}
+				onclick={() => openHit(hit)}
 				onmousemove={() => (active = index)}
 			>
-				<span class={task.status === 'done' ? 'text-muted line-through' : ''}>{task.title}</span>
-				{#if task.due_date}
-					<span class="shrink-0 text-xs text-muted">
-						{formatDay(task.due_date, today, i18n.locale, dayLabels())}
+				{#if hit.kind === 'event'}
+					<span class="flex min-w-0 items-center gap-2">
+						<CalendarDays size={14} class="shrink-0 text-muted" aria-label={t('search.event')} />
+						<span class="truncate">{hit.event.title}</span>
 					</span>
+					<span class="shrink-0 text-xs text-muted">
+						{formatDay(hit.event.start_local.slice(0, 10), today, i18n.locale, dayLabels())}
+						{#if !hit.event.all_day}{formatTime(hit.event.start_local.slice(11))}{/if}
+					</span>
+				{:else}
+					<span class={hit.task.status === 'done' ? 'text-muted line-through' : ''}>
+						{hit.task.title}
+					</span>
+					{#if hit.task.due_date}
+						<span class="shrink-0 text-xs text-muted">
+							{formatDay(hit.task.due_date, today, i18n.locale, dayLabels())}
+						</span>
+					{/if}
 				{/if}
 			</li>
 		{/each}

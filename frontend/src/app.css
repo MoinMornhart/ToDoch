@@ -81,6 +81,17 @@ body {
 	}
 }
 
+/* Stundenlinien im Zeitraster des Kalenders (48 px pro Stunde) */
+.hour-lines {
+	background-image: repeating-linear-gradient(
+		to bottom,
+		var(--line) 0,
+		var(--line) 1px,
+		transparent 1px,
+		transparent 48px
+	);
+}
+
 dialog::backdrop {
 	background: rgb(0 0 0 / 0.35);
 }

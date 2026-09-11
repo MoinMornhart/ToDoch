@@ -48,6 +48,10 @@ class Task(UUIDPk, Timestamps, Base):
     tags: Mapped[list[str]] = mapped_column(ARRAY(String(40)), default=list)
     recurrence: Mapped[str | None] = mapped_column(String(200))
     source: Mapped[str] = mapped_column(String(20), default="manual")
+    # Verknüpfter Termin, z. B. Folgeaufgabe eines Telefontermins
+    event_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("events.id", ondelete="SET NULL"), index=True
+    )
     sort_order: Mapped[int] = mapped_column(default=0)
     search_vector: Mapped[Any] = mapped_column(
         TSVECTOR,

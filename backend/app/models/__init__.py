@@ -3,6 +3,7 @@
 from app.models.area import Area
 from app.models.audit import AuditEvent
 from app.models.base import Base
+from app.models.contact import Contact
 from app.models.event import Event
 from app.models.feed import FeedToken
 from app.models.push import PushSubscription, ReminderLog, ServerKey
@@ -14,6 +15,7 @@ __all__ = [
     "AuditEvent",
     "Base",
     "ChecklistItem",
+    "Contact",
     "Event",
     "FeedToken",
     "PushSubscription",

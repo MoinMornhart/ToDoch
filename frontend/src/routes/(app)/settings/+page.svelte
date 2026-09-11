@@ -4,6 +4,7 @@
 	import { goto } from '$app/navigation';
 	import { describeAgent } from '$lib/agent';
 	import { api, ApiError } from '$lib/api';
+	import ContactsSettings from '$lib/components/ContactsSettings.svelte';
 	import PageHeader from '$lib/components/PageHeader.svelte';
 	import PushSettings from '$lib/components/PushSettings.svelte';
 	import { i18n, t } from '$lib/i18n/index.svelte';
@@ -227,6 +228,8 @@
 			{t('settings.logoutAll')}
 		</button>
 	</section>
+
+	<ContactsSettings />
 
 	<PushSettings />
 

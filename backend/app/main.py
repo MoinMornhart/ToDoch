@@ -11,7 +11,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
 from app import __version__
-from app.api import areas, auth, events, feeds, meta, push, tasks
+from app.api import appointments, areas, auth, contacts, events, feeds, meta, push, tasks
 from app.config import Settings, load_settings
 from app.resources import Resources, build_resources
 from app.security.middleware import SecurityMiddleware
@@ -51,7 +51,7 @@ def create_app(settings: Settings | None = None, resources: Resources | None = N
         ]
         return JSONResponse({"detail": errors}, status_code=422)
 
-    for module in (meta, auth, areas, tasks, events, feeds, push):
+    for module in (meta, auth, areas, tasks, events, feeds, push, contacts, appointments):
         app.include_router(module.router)
 
     app.add_middleware(SecurityMiddleware, settings=settings)

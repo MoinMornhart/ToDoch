@@ -20,7 +20,11 @@ def _moment(event: Event, instant: datetime) -> date | datetime:
 
 
 def build_calendar(events: Iterable[Event], *, name: str, detail: str) -> bytes:
-    """Stabile Ausgabe: gleiche Termine ergeben gleiche Bytes (wichtig für ETag-Caching)."""
+    """Stabile Ausgabe: gleiche Termine ergeben gleiche Bytes (wichtig für ETag-Caching).
+
+    ``detail``: ``full`` alles, ``public`` ohne Beschreibung und Tags (zum Weitergeben an
+    Gesprächspartner – interne Notizen bleiben intern), ``title`` nur Titel, ``busy`` nur „Belegt“.
+    """
     calendar = Calendar()
     calendar.add("prodid", "-//Todoch//Todoch//DE")
     calendar.add("version", "2.0")
@@ -48,13 +52,14 @@ def build_calendar(events: Iterable[Event], *, name: str, detail: str) -> bytes:
             item.add("class", "PRIVATE")
         else:
             item.add("summary", event.title)
-            if detail == "full":
+            if detail in ("full", "public"):
                 if event.location:
                     item.add("location", event.location)
-                if event.description:
-                    item.add("description", event.description)
                 if event.url:
                     item.add("url", event.url)
+            if detail == "full":
+                if event.description:
+                    item.add("description", event.description)
                 if event.tags:
                     item.add("categories", list(event.tags))
         item.add("status", event.status.upper())

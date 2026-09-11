@@ -2,14 +2,33 @@ from __future__ import annotations
 
 import uuid
 from datetime import date, datetime, time
+from functools import lru_cache
 from typing import Annotated, Literal
+from zoneinfo import available_timezones
 
 from pydantic import AfterValidator, BaseModel, EmailStr, Field, StringConstraints, field_validator
 
-from app.schemas.tasks import MAX_NOTES, Tags, TaskOut, Title
+from app.schemas.contacts import ContactOut
+from app.schemas.tasks import MAX_NOTES, Priority, Tags, TaskOut, Title
 from app.services.event_recurrence import normalize_event_rule
 
 Status = Literal["tentative", "confirmed", "cancelled"]
+Channel = Literal["phone", "in_person", "mail", "other"]
+AgreedWith = Annotated[str, StringConstraints(strip_whitespace=True, max_length=200)]
+
+
+@lru_cache(maxsize=1)
+def _zones() -> frozenset[str]:
+    return frozenset(available_timezones())
+
+
+def _zone(value: str | None) -> str | None:
+    if value is not None and value not in _zones():
+        raise ValueError("Unbekannte Zeitzone")
+    return value
+
+
+Zone = Annotated[str | None, Field(max_length=64), AfterValidator(_zone)]
 Transparency = Literal["opaque", "transparent"]
 Reminder = Annotated[int, Field(ge=0, le=60 * 24 * 28)]
 Scope = Literal["this", "following", "all"]
@@ -55,6 +74,13 @@ class EventIn(_Fields):
     tags: Tags = []
     attendees: Annotated[list[AttendeeIn], Field(max_length=50)] = []
     reminders: Annotated[list[Reminder], Field(max_length=10)] = []
+    # Leer = Zeitzone des Nutzers
+    tzid: Zone = None
+    contact_id: uuid.UUID | None = None
+    channel: Channel | None = None
+    agreed_on: date | None = None
+    agreed_with: AgreedWith = ""
+    priority: Priority = 0
 
 
 class EventPatch(_Fields):
@@ -75,11 +101,24 @@ class EventPatch(_Fields):
     tags: Tags | None = None
     attendees: Annotated[list[AttendeeIn], Field(max_length=50)] | None = None
     reminders: Annotated[list[Reminder], Field(max_length=10)] | None = None
+    tzid: Zone = None
+    contact_id: uuid.UUID | None = None
+    channel: Channel | None = None
+    agreed_on: date | None = None
+    agreed_with: AgreedWith | None = None
+    priority: Priority | None = None
 
 
 class AttendeeOut(BaseModel):
     name: str
     email: str | None
+
+
+class LinkedTaskOut(BaseModel):
+    id: uuid.UUID
+    title: str
+    due_date: date | None
+    status: str
 
 
 class EventOut(BaseModel):
@@ -108,6 +147,12 @@ class EventOut(BaseModel):
     attendees: list[AttendeeOut]
     reminders: list[int]
     sequence: int
+    contact: ContactOut | None
+    channel: str | None
+    agreed_on: date | None
+    agreed_with: str
+    priority: int
+    tasks: list[LinkedTaskOut] = []
     created_at: datetime
     updated_at: datetime
 

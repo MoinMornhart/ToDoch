@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 from typing import Any
 
 from sqlalchemy import (
@@ -11,6 +11,7 @@ from sqlalchemy import (
     ForeignKey,
     Index,
     Integer,
+    SmallInteger,
     String,
     Text,
     UniqueConstraint,
@@ -20,7 +21,9 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.area import Area
 from app.models.base import Base, Timestamps, UUIDPk
+from app.models.contact import Contact
 
+CHANNELS = ("phone", "in_person", "mail", "other")
 EVENT_STATUSES = ("tentative", "confirmed", "cancelled")
 
 
@@ -40,6 +43,11 @@ class Event(UUIDPk, Timestamps, Base):
         CheckConstraint("status in ('tentative', 'confirmed', 'cancelled')", name="status"),
         CheckConstraint("transparency in ('opaque', 'transparent')", name="transparency"),
         CheckConstraint("(series_id is null) = (recurrence_id is null)", name="override_pair"),
+        CheckConstraint(
+            "channel is null or channel in ('phone', 'in_person', 'mail', 'other')",
+            name="channel",
+        ),
+        CheckConstraint("priority between 0 and 3", name="priority"),
         UniqueConstraint(
             "uid",
             "recurrence_id",
@@ -72,6 +80,14 @@ class Event(UUIDPk, Timestamps, Base):
     transparency: Mapped[str] = mapped_column(String(12), default="opaque")
     is_fixed: Mapped[bool] = mapped_column(default=False)
     source: Mapped[str] = mapped_column(String(20), default="manual")
+    # Telefontermin: Kontakt, wie und wann vereinbart, mit wem gesprochen
+    contact_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("contacts.id", ondelete="SET NULL"), index=True
+    )
+    channel: Mapped[str | None] = mapped_column(String(12))
+    agreed_on: Mapped[date | None]
+    agreed_with: Mapped[str] = mapped_column(String(200), default="")
+    priority: Mapped[int] = mapped_column(SmallInteger, default=0)
     tags: Mapped[list[str]] = mapped_column(ARRAY(String(40)), default=list)
     attendees: Mapped[list[dict[str, Any]]] = mapped_column(JSONB, default=list)
     reminders: Mapped[list[int]] = mapped_column(ARRAY(Integer), default=list)
@@ -87,3 +103,4 @@ class Event(UUIDPk, Timestamps, Base):
     )
 
     area: Mapped[Area] = relationship(lazy="joined", innerjoin=True)
+    contact: Mapped[Contact | None] = relationship(lazy="joined")

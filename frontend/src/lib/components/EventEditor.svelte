@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { Trash } from '@lucide/svelte';
+	import { Download, Mail, Phone, Trash, UserRound } from '@lucide/svelte';
+	import { formatLongDate } from '$lib/dates';
 	import { tick } from 'svelte';
 	import { api, ApiError } from '$lib/api';
 	import { formatAttendees, parseAttendees } from '$lib/attendees';
@@ -266,6 +267,26 @@
 		}
 	}
 
+	const agreement = $derived.by(() => {
+		if (!detail?.channel) return '';
+		const parts = [t('event.agreed', { channel: t(`phone.channel.${detail.channel}`) })];
+		if (detail.agreed_on) {
+			parts.push(t('event.agreedOn', { date: formatLongDate(detail.agreed_on, i18n.locale) }));
+		}
+		if (detail.agreed_with) parts.push(t('event.agreedWith', { name: detail.agreed_with }));
+		return parts.join(' ');
+	});
+
+	function openTask(id: string) {
+		open = false;
+		ui.editTaskId = id;
+	}
+
+	function anotherAppointment(contactId: string) {
+		open = false;
+		ui.phoneForm = { contactId };
+	}
+
 	function onClose() {
 		ui.eventEditor = null;
 		request = null;
@@ -284,6 +305,79 @@
 		<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 		<form class="flex flex-col gap-4" onsubmit={save} onkeydown={onKeydown}>
 			{#if error}<p role="alert" class="text-sm text-danger">{error}</p>{/if}
+
+			{#if detail && (detail.contact || agreement || detail.tasks.length)}
+				<section
+					aria-label={t('event.contact')}
+					class="flex flex-col gap-2 rounded-lg border border-line bg-surface-2/60 p-3 text-sm"
+				>
+					{#if detail.contact}
+						{@const contact = detail.contact}
+						<div class="flex flex-wrap items-start justify-between gap-2">
+							<div class="min-w-0">
+								<p class="flex items-center gap-1.5 font-medium">
+									<UserRound size={15} aria-hidden="true" />{contact.name}
+									{#if contact.company}<span class="font-normal text-muted"
+											>· {contact.company}</span
+										>{/if}
+								</p>
+								<p class="mt-1 flex flex-wrap gap-x-4 gap-y-1">
+									{#if contact.phone}
+										<a
+											class="inline-flex items-center gap-1 text-accent"
+											href="tel:{contact.phone}"
+										>
+											<Phone size={13} aria-hidden="true" />{contact.phone}
+										</a>
+									{/if}
+									{#if contact.email}
+										<a
+											class="inline-flex items-center gap-1 text-accent"
+											href="mailto:{contact.email}"
+										>
+											<Mail size={13} aria-hidden="true" />{contact.email}
+										</a>
+									{/if}
+								</p>
+								{#if contact.address}
+									<p class="mt-1 whitespace-pre-line text-muted">{contact.address}</p>
+								{/if}
+							</div>
+							<button
+								type="button"
+								class="btn px-2.5 py-1 text-xs"
+								onclick={() => anotherAppointment(contact.id)}
+							>
+								{t('event.another')}
+							</button>
+						</div>
+					{/if}
+					{#if agreement}<p class="text-muted">{agreement}</p>{/if}
+					{#if detail.tasks.length}
+						<div>
+							<p class="text-xs font-medium text-muted">{t('event.tasks')}</p>
+							<ul class="mt-1 flex flex-col gap-0.5">
+								{#each detail.tasks as linked (linked.id)}
+									<li>
+										<button
+											type="button"
+											class="text-left {linked.status === 'done'
+												? 'text-muted line-through'
+												: 'text-accent'}"
+											onclick={() => openTask(linked.id)}
+										>
+											{linked.title}{#if linked.due_date}
+												<span class="text-muted">
+													· {formatLongDate(linked.due_date, i18n.locale)}</span
+												>{/if}
+										</button>
+									</li>
+								{/each}
+							</ul>
+						</div>
+					{/if}
+				</section>
+			{/if}
 
 			<div>
 				<label class="label" for="{uid}-title">{t('event.title')}</label>
@@ -506,10 +600,22 @@
 
 			<div class="flex items-center justify-between gap-2 border-t border-line pt-4">
 				{#if request?.mode === 'edit'}
-					<button type="button" class="btn btn-ghost btn-danger" onclick={remove}>
-						<Trash size={16} aria-hidden="true" />
-						{confirmDelete ? t('task.deleteConfirm') : t('task.delete')}
-					</button>
+					<div class="flex flex-wrap gap-1">
+						<button type="button" class="btn btn-ghost btn-danger" onclick={remove}>
+							<Trash size={16} aria-hidden="true" />
+							{confirmDelete ? t('task.deleteConfirm') : t('task.delete')}
+						</button>
+						<a
+							class="btn btn-ghost"
+							href="/api/events/{request.eventId}/ics"
+							download="termin.ics"
+							title={t('event.ics')}
+						>
+							<Download size={16} aria-hidden="true" /><span class="sr-only sm:not-sr-only"
+								>{t('event.ics')}</span
+							>
+						</a>
+					</div>
 				{:else}
 					<span></span>
 				{/if}

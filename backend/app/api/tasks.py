@@ -49,6 +49,7 @@ def task_out(task: Task) -> TaskOut:
         tags=list(task.tags or []),
         recurrence=task.recurrence,
         source=task.source,
+        event_id=task.event_id,
         sort_order=task.sort_order,
         checklist=[ChecklistItemOut(id=i.id, text=i.text, done=i.done) for i in task.checklist],
         created_at=task.created_at,

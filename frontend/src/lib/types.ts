@@ -51,6 +51,8 @@ export interface Task {
 	tags: string[];
 	recurrence: string | null;
 	source: string;
+	/** Verknüpfter Termin, z. B. bei der Folgeaufgabe eines Telefontermins. */
+	event_id: string | null;
 	sort_order: number;
 	checklist: ChecklistItem[];
 	created_at: string;
@@ -135,8 +137,41 @@ export interface EventDetail {
 	attendees: Attendee[];
 	reminders: number[];
 	sequence: number;
+	contact: Contact | null;
+	channel: Channel | null;
+	agreed_on: string | null;
+	agreed_with: string;
+	priority: Priority;
+	tasks: LinkedTask[];
 	created_at: string;
 	updated_at: string;
+}
+
+export type Channel = 'phone' | 'in_person' | 'mail' | 'other';
+
+export interface Contact {
+	id: string;
+	name: string;
+	company: string;
+	phone: string;
+	email: string;
+	address: string;
+	use_count: number;
+	last_used_at: string | null;
+}
+
+export interface LinkedTask {
+	id: string;
+	title: string;
+	due_date: string | null;
+	status: TaskStatus;
+}
+
+export interface AppointmentResult {
+	event: EventDetail;
+	task: Task | null;
+	contact: Contact | null;
+	conflicts: Conflict[];
 }
 
 export interface Conflict {

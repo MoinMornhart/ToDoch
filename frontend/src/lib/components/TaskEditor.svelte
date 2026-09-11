@@ -197,6 +197,13 @@
 		}
 	}
 
+	function openEvent() {
+		const eventId = task?.event_id;
+		if (!eventId) return;
+		open = false;
+		ui.eventEditor = { mode: 'edit', eventId, occurrence: null };
+	}
+
 	function onClose() {
 		ui.editTaskId = null;
 		ui.newTask = null;
@@ -210,6 +217,11 @@
 		<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 		<form class="flex flex-col gap-4" onsubmit={save} onkeydown={onKeydown}>
 			{#if error}<p role="alert" class="text-sm text-danger">{error}</p>{/if}
+			{#if task?.event_id}
+				<button type="button" class="btn self-start" onclick={openEvent}>
+					{t('task.openEvent')}
+				</button>
+			{/if}
 
 			<div>
 				<label class="label" for="{uid}-title">{t('task.title')}</label>

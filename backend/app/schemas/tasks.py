@@ -96,6 +96,7 @@ class TaskOut(BaseModel):
     tags: list[str]
     recurrence: str | None
     source: str
+    event_id: uuid.UUID | None
     sort_order: int
     checklist: list[ChecklistItemOut]
     created_at: datetime

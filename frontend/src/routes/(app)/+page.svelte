@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { CalendarPlus, MapPin, Plus } from '@lucide/svelte';
+	import { CalendarPlus, MapPin, Phone, Plus } from '@lucide/svelte';
 	import { goto } from '$app/navigation';
 	import DashboardCard from '$lib/components/DashboardCard.svelte';
 	import TaskRow from '$lib/components/TaskRow.svelte';
@@ -107,6 +107,9 @@
 			onclick={() => (ui.eventEditor = { mode: 'new', date: today })}
 		>
 			<CalendarPlus size={16} aria-hidden="true" />{t('new.event')}
+		</button>
+		<button type="button" class="btn" onclick={() => (ui.phoneForm = {})}>
+			<Phone size={16} aria-hidden="true" />{t('new.phone')}
 		</button>
 	</div>
 </header>

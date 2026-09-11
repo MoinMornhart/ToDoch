@@ -4,6 +4,19 @@ Alle Änderungen an Todoch – die neueste Version steht oben.
 Versionsschema: `0.0.1 → 0.0.2 → … → 0.0.9 → 0.1.0 → … → 0.9.9 → 1.0.0`.
 Im Container spielt der Befehl `update` immer die neueste Version ein.
 
+## [0.0.9] – 2026-09-11
+
+Telefontermine – Meilenstein 3 abgeschlossen
+
+- Neues Formular „Telefontermin“ (Taste t, Menü Neu, Übersicht): Kontakt, Termin, Vereinbarung, Notizen und Einordnung in einem Schritt
+- Kontakte werden gespeichert und beim Tippen vorgeschlagen; Verwaltung unter Einstellungen → Kontakte
+- Ort als telefonisch, vor Ort oder Video mit Link; eigene Zeitzone je Termin
+- Folgeaufgabe (z. B. „Unterlagen vorbereiten“) X Tage vorher, mit dem Termin verknüpft – „Zum Termin“ in der Aufgabe
+- Entwurf wird laufend auf dem Gerät gesichert und beim Abmelden gelöscht
+- Nach dem Speichern: ICS herunterladen (ohne interne Notizen), per E-Mail senden, weiterer Termin für denselben Kontakt
+- Termin-Dialog zeigt Kontakt mit Telefon- und Mail-Link, Vereinbarung und Aufgaben; jeder Termin als ICS herunterladbar
+- Sicherheit: Kontakte sind privat je Nutzer (IDOR-Tests), Löschen entfernt nur die Verknüpfung
+
 ## [0.0.8] – 2026-09-11
 
 Übersicht, Aufgaben als Ticket, Dunkelmodus und gekürzter Kalender

@@ -41,6 +41,7 @@ async def _alice_objects(alice: AsyncClient) -> dict[str, Any]:
             },
         )
     ).json()
+    contact = (await alice.post("/api/contacts", json={"name": "Vertraulich"})).json()
     return {
         "area": areas[0],
         "task": task,
@@ -48,6 +49,7 @@ async def _alice_objects(alice: AsyncClient) -> dict[str, Any]:
         "event": event,
         "feed": feed,
         "subscription": subscription,
+        "contact": contact,
     }
 
 
@@ -133,7 +135,15 @@ OBJECT_ROUTES = _object_routes()
 def test_every_object_route_is_covered() -> None:
     assert len(OBJECT_ROUTES) >= 8
     params = {p for _, path in OBJECT_ROUTES for p in re.findall(r"\{(\w+_id)\}", path)}
-    known = {"task_id", "area_id", "session_id", "event_id", "feed_id", "subscription_id"}
+    known = {
+        "task_id",
+        "area_id",
+        "session_id",
+        "event_id",
+        "feed_id",
+        "subscription_id",
+        "contact_id",
+    }
     assert params <= known, params
 
 
@@ -149,6 +159,7 @@ async def test_every_object_route_rejects_foreign_ids(
         "event_id": objects["event"]["id"],
         "feed_id": objects["feed"]["id"],
         "subscription_id": objects["subscription"]["id"],
+        "contact_id": objects["contact"]["id"],
     }
     url = re.sub(r"\{(\w+_id)\}", lambda m: ids[m.group(1)], path)
     body = {} if method in ("PATCH", "PUT") else None
@@ -156,3 +167,5 @@ async def test_every_object_route_rejects_foreign_ids(
     assert response.status_code in (403, 404), (method, url, response.status_code)
     # Alice' Daten sind unverändert vorhanden
     assert (await alice.get(f"/api/tasks/{ids['task_id']}")).status_code == 200
+    contact = await alice.get(f"/api/contacts/{ids['contact_id']}")
+    assert contact.json()["name"] == "Vertraulich"

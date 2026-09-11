@@ -25,6 +25,7 @@ from app.services.event_recurrence import (
 COPY_FIELDS = (
     "area_id", "title", "description", "location", "url", "all_day", "tzid", "status",
     "transparency", "is_fixed", "source", "tags", "attendees", "reminders", "created_by",
+    "contact_id", "channel", "agreed_on", "agreed_with", "priority",
 )  # fmt: skip
 
 
@@ -186,6 +187,7 @@ def copy_event(source: Event, **changes: object) -> Event:
     values["attendees"] = list(source.attendees or [])
     values["reminders"] = list(source.reminders or [])
     values["area"] = source.area
+    values["contact"] = source.contact
     values.update(changes)
     return Event(**values)
 

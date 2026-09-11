@@ -10,7 +10,7 @@ from sqlalchemy import ScalarSelect, func, select, update
 from sqlalchemy.exc import IntegrityError
 
 from app.api.deps import DB, CurrentUser
-from app.models import Area, Task, User
+from app.models import Area, AreaMember, Task, User
 from app.policy import Action, Role, authorize, role_for, visible_areas
 from app.schemas.areas import AreaIn, AreaOut, AreaPatch
 
@@ -19,9 +19,10 @@ router = APIRouter(prefix="/api/areas", tags=["areas"])
 MAX_AREAS = 50
 
 
-def area_out(area: Area, user: User, open_count: int = 0) -> AreaOut:
+def area_out(area: Area, user: User, open_count: int = 0, members: int = 0) -> AreaOut:
     role = role_for(user, area)
     return AreaOut(
+        shared=members > 0 or role != Role.OWNER,
         id=area.id,
         name=area.name,
         color=area.color,
@@ -46,10 +47,18 @@ def _open_count() -> ScalarSelect[int]:
 
 @router.get("", response_model=list[AreaOut])
 async def list_areas(db: DB, user: CurrentUser) -> list[AreaOut]:
-    rows = await db.execute(
-        select(Area, _open_count()).where(visible_areas(user)).order_by(Area.sort_order, Area.name)
+    members = (
+        select(func.count(AreaMember.id))
+        .where(AreaMember.area_id == Area.id)
+        .correlate(Area)
+        .scalar_subquery()
     )
-    return [area_out(area, user, count) for area, count in rows.tuples()]
+    rows = await db.execute(
+        select(Area, _open_count(), members)
+        .where(visible_areas(user))
+        .order_by(Area.sort_order, Area.name)
+    )
+    return [area_out(area, user, count, shared) for area, count, shared in rows.tuples()]
 
 
 @router.post("", response_model=AreaOut, status_code=status.HTTP_201_CREATED)

@@ -143,6 +143,10 @@ EXACT: dict[str, str] = {
     "Die Einladung ist ungültig oder abgelaufen.": "The invitation is invalid or has expired.",
     "Das ist dein eigener Bereich.": "This is your own area.",
     "Nur der Besitzer kann den Bereich löschen.": "Only the owner can delete the area.",
+    "Diese Person kann in diesem Bereich keine Aufgaben übernehmen.": (
+        "This person cannot take on tasks in this area."
+    ),
+    "Bitte einen Kommentar eingeben.": "Please enter a comment.",
     "Mindestens eine Bedingung angeben.": "Enter at least one condition.",
     "Mindestens eine Aktion wählen.": "Choose at least one action.",
     "Unbekannter Push-Dienst": "Unknown push service",
@@ -180,6 +184,7 @@ NOUNS = {
     "Kalenderverbindungen": "calendar connections",
     "Einladungen": "invitations",
     "Mitglieder": "members",
+    "Kommentare": "comments",
 }
 
 Render = Callable[[re.Match[str]], str]

@@ -14,6 +14,7 @@ from app.models.mail_rule import MailRule
 from app.models.passkey import Passkey
 from app.models.push import PushSubscription, ReminderLog, ServerKey
 from app.models.task import ChecklistItem, Task
+from app.models.task_comment import TaskComment
 from app.models.user import RecoveryCode, User, UserSession
 
 __all__ = [
@@ -38,6 +39,7 @@ __all__ = [
     "ReminderLog",
     "ServerKey",
     "Task",
+    "TaskComment",
     "User",
     "UserSession",
 ]

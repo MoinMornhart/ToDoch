@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { CalendarDays, Check, ListChecks, Repeat } from '@lucide/svelte';
+	import { CalendarDays, Check, ListChecks, Repeat, UserRound } from '@lucide/svelte';
 	import { formatDay, formatTime } from '$lib/dates';
 	import { i18n, t } from '$lib/i18n/index.svelte';
 	import { dayLabels } from '$lib/labels';
@@ -21,7 +21,12 @@
 	);
 	const hasMeta = $derived(
 		Boolean(
-			task.due_date || task.recurrence || task.tags.length || task.checklist.length || showArea
+			task.due_date ||
+			task.recurrence ||
+			task.tags.length ||
+			task.checklist.length ||
+			task.assignee_name ||
+			showArea
 		)
 	);
 </script>
@@ -67,6 +72,11 @@
 					</span>
 				{/if}
 				{#each task.tags as tag (tag)}<span>#{tag}</span>{/each}
+				{#if task.assignee_name}
+					<span class="inline-flex items-center gap-1">
+						<UserRound size={12} aria-hidden="true" />{task.assignee_name}
+					</span>
+				{/if}
 				{#if showArea && area}
 					<span class="inline-flex items-center gap-1">
 						<span class="size-2 rounded-full" style:background-color={area.color}></span>

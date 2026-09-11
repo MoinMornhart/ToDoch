@@ -10,10 +10,11 @@ from zoneinfo import ZoneInfo
 
 from fastapi import APIRouter, HTTPException, Query, status
 from sqlalchemy import Select, func, or_, select
+from sqlalchemy import inspect as sa_inspect
 
 from app.api.deps import DB, CurrentUser, user_now, user_today
 from app.markdown import render_markdown
-from app.models import Area, ChecklistItem, Event, Task, User
+from app.models import Area, AreaMember, ChecklistItem, Event, Task, User
 from app.policy import Action, authorize, visible_areas
 from app.quickadd import parse_quick_add
 from app.schemas.events import EventSearchOut, SearchOut
@@ -54,7 +55,35 @@ def task_out(task: Task) -> TaskOut:
         checklist=[ChecklistItemOut(id=i.id, text=i.text, done=i.done) for i in task.checklist],
         created_at=task.created_at,
         updated_at=task.updated_at,
+        assignee_id=task.assignee_id,
+        assignee_name=_assignee_name(task),
     )
+
+
+def _assignee_name(task: Task) -> str | None:
+    # Nur, was schon geladen ist – nie nachladen (asynchrone Sitzung)
+    person = sa_inspect(task).attrs.assignee.loaded_value
+    return person.display_name if isinstance(person, User) else None
+
+
+async def _assignee(db: DB, area: Area, user_id: uuid.UUID | None) -> User | None:
+    """Zuständig sein kann, wer im Bereich schreiben darf (Besitzer, Admin, Mitglied)."""
+    if user_id is None:
+        return None
+    allowed = user_id == area.owner_id or await db.scalar(
+        select(AreaMember.id).where(
+            AreaMember.area_id == area.id,
+            AreaMember.user_id == user_id,
+            AreaMember.role != "viewer",
+        )
+    )
+    person = await db.get(User, user_id) if allowed else None
+    if person is None:
+        raise HTTPException(
+            status.HTTP_422_UNPROCESSABLE_CONTENT,
+            "Diese Person kann in diesem Bereich keine Aufgaben übernehmen.",
+        )
+    return person
 
 
 def _visible_tasks(user: User) -> Select[tuple[Task]]:
@@ -113,11 +142,14 @@ async def list_tasks(
     limit: int = Query(default=300, ge=1, le=1000),
     start: Annotated[date | None, Query(alias="from")] = None,
     end: Annotated[date | None, Query(alias="to")] = None,
+    assigned: Literal["me"] | None = None,
 ) -> list[TaskOut]:
     today = user_today(user)
     query = _visible_tasks(user)
     if area_id is not None:
         query = query.where(Task.area_id == area_id)
+    if assigned == "me":
+        query = query.where(Task.assignee_id == user.id)
     if tag:
         query = query.where(Task.tags.contains([tag.lower()]))
 
@@ -158,6 +190,7 @@ async def list_tasks(
 @router.post("/tasks", response_model=TaskOut, status_code=status.HTTP_201_CREATED)
 async def create_task(body: TaskIn, db: DB, user: CurrentUser) -> TaskOut:
     area = await area_for_new_item(db, user, body.area_id)
+    assignee = await _assignee(db, area, body.assignee_id)
     task = Task(
         area_id=area.id,
         area=area,
@@ -170,6 +203,8 @@ async def create_task(body: TaskIn, db: DB, user: CurrentUser) -> TaskOut:
         tags=body.tags,
         recurrence=body.recurrence,
         checklist=[],
+        assignee_id=assignee.id if assignee else None,
+        assignee=assignee,
     )
     _apply_checklist(task, body.checklist)
     db.add(task)
@@ -248,6 +283,16 @@ async def update_task(task_id: uuid.UUID, body: TaskPatch, db: DB, user: Current
         authorize(user, Action.CREATE, target)
         assert target is not None
         task.area_id, task.area = target.id, target
+
+    if "assignee_id" in fields:
+        person = await _assignee(db, task.area, body.assignee_id)
+        task.assignee_id, task.assignee = (person.id if person else None), person
+    elif "area_id" in fields and task.assignee_id is not None:
+        # Anderer Bereich: wer dort nicht mitarbeitet, ist nicht mehr zuständig
+        try:
+            await _assignee(db, task.area, task.assignee_id)
+        except HTTPException:
+            task.assignee_id, task.assignee = None, None
 
     for field in ("title", "notes", "priority", "tags", "sort_order", *nullable):
         if field not in fields:

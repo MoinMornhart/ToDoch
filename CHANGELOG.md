@@ -4,6 +4,15 @@ Alle Änderungen an Todoch – die neueste Version steht oben.
 Versionsschema: `0.0.1 → 0.0.2 → … → 0.0.9 → 0.1.0 → … → 0.9.9 → 1.0.0`.
 Im Container spielt der Befehl `update` immer die neueste Version ein.
 
+## [0.2.9] – 2026-09-11
+
+Aufgaben zuweisen und kommentieren – Meilenstein 7 abgeschlossen
+
+- In geteilten Bereichen: „Zuständig“ im Aufgaben-Editor – nur Personen, die dort schreiben dürfen; der Name erscheint in der Aufgabenliste
+- Neue Ansicht „Mir zugewiesen“ (erscheint, sobald es geteilte Bereiche gibt); wandert eine Aufgabe in einen Bereich ohne diese Person, ist sie nicht mehr zuständig
+- Kommentare unter jeder Aufgabe mit Markdown (serverseitig bereinigt); eigene löscht man selbst, fremde nur Admins und Besitzer; wer nur lesen darf, sieht sie, schreibt aber nicht
+- Autorisierungstests decken auch Kommentare ab; README und SECURITY.md ergänzt
+
 ## [0.2.8] – 2026-09-11
 
 Bereiche teilen mit Rollen und Einladungslinks (Meilenstein 7, Teil 1)

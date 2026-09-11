@@ -12,7 +12,8 @@
 		Mail,
 		Search,
 		Settings,
-		Sun
+		Sun,
+		UserCheck
 	} from '@lucide/svelte';
 	import { onMount, type Snippet } from 'svelte';
 	import { goto } from '$app/navigation';
@@ -53,6 +54,13 @@
 	// Handy: Übersicht, Heute, Alle offen, Kalender, E-Mail, Einstellungen
 	const tabs = [primary[0]!, primary[1]!, primary[3]!, secondary[0]!, secondary[1]!, secondary[3]!];
 	const wide = ['/calendar', '/mail'];
+	// „Mir zugewiesen“ nur, wenn es geteilte Bereiche gibt
+	const assigned = { href: '/assigned', label: 'nav.assigned' as MessageKey, icon: UserCheck };
+	const primaryItems = $derived(
+		areas.list.some((area) => area.shared)
+			? [...primary.slice(0, 4), assigned, ...primary.slice(4)]
+			: primary
+	);
 
 	const isActive = (href: string) => page.url.pathname === href;
 
@@ -116,7 +124,7 @@
 			ToDoch
 		</a>
 		<div class="mb-4"><NewMenu /></div>
-		{#each primary as item (item.href)}
+		{#each primaryItems as item (item.href)}
 			<a
 				href={item.href}
 				aria-current={isActive(item.href) ? 'page' : undefined}

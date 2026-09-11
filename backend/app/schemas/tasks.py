@@ -66,6 +66,7 @@ class TaskIn(_TaskFields):
     tags: Tags = []
     recurrence: RecurrenceRule = None
     checklist: Annotated[list[ChecklistItemIn], Field(max_length=100)] = []
+    assignee_id: uuid.UUID | None = None
 
 
 class TaskPatch(_TaskFields):
@@ -80,6 +81,7 @@ class TaskPatch(_TaskFields):
     status: Status | None = None
     checklist: Annotated[list[ChecklistItemIn], Field(max_length=100)] | None = None
     sort_order: Annotated[int, Field(ge=0, le=1_000_000)] | None = None
+    assignee_id: uuid.UUID | None = None
 
 
 class TaskOut(BaseModel):
@@ -101,6 +103,21 @@ class TaskOut(BaseModel):
     checklist: list[ChecklistItemOut]
     created_at: datetime
     updated_at: datetime
+    assignee_id: uuid.UUID | None = None
+    assignee_name: str | None = None
+
+
+class CommentIn(BaseModel):
+    body: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=5000)]
+
+
+class CommentOut(BaseModel):
+    id: uuid.UUID
+    author_name: str
+    body: str
+    body_html: str
+    created_at: datetime
+    mine: bool
 
 
 class CompleteOut(BaseModel):

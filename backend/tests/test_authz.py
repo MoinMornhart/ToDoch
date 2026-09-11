@@ -181,6 +181,7 @@ def test_every_object_route_is_covered() -> None:
         "connection_id",
         "member_id",
         "invite_id",
+        "comment_id",
     }
     assert params <= known, params
 
@@ -223,7 +224,11 @@ async def test_every_object_route_rejects_foreign_ids(
     assert (await carol.post("/api/invites/accept", json={"token": token})).status_code == 200
     members = (await alice.get(f"/api/areas/{area_id}/members")).json()
     member_id = next(m["id"] for m in members if m["display_name"] == "carol")
+    comment = await alice.post(
+        f"/api/tasks/{objects['task']['id']}/comments", json={"body": "vertraulich"}
+    )
     ids = {
+        "comment_id": comment.json()["id"],
         "member_id": member_id,
         "invite_id": open_invite,
         "connection_id": connection_id,

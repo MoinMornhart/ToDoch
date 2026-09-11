@@ -19,6 +19,7 @@
 	import { deleteTask } from '$lib/tasks.svelte';
 	import type { Priority, Task } from '$lib/types';
 	import Dialog from './Dialog.svelte';
+	import TaskComments from './TaskComments.svelte';
 
 	interface Item {
 		key: string;
@@ -37,6 +38,13 @@
 		notes: string;
 		recurrence: RecurrenceForm;
 		checklist: Item[];
+		assignee_id: string;
+	}
+
+	interface Member {
+		user_id: string;
+		display_name: string;
+		role: string;
 	}
 
 	const PRIORITIES: Priority[] = [0, 1, 2, 3];
@@ -51,6 +59,22 @@
 	let showPreview = $state(false);
 	let titleInput: HTMLInputElement | undefined = $state();
 	let keySequence = 0;
+	let members = $state<Member[]>([]);
+	const role = $derived(task ? areas.byId(task.area_id)?.role : undefined);
+
+	// Zuständig sein können alle, die im (geteilten) Bereich schreiben dürfen
+	$effect(() => {
+		const areaId = form?.area_id;
+		if (!areaId || !areas.byId(areaId)?.shared) {
+			members = [];
+			return;
+		}
+		api<Member[]>(`/areas/${areaId}/members`)
+			.then((list) => {
+				if (form?.area_id === areaId) members = list.filter((m) => m.role !== 'viewer');
+			})
+			.catch(() => (members = []));
+	});
 
 	function message(err: unknown): string {
 		return err instanceof ApiError ? err.message : t('error.generic');
@@ -66,7 +90,8 @@
 			tags: source.tags.join(' '),
 			notes: source.notes,
 			recurrence: parseRule(source.recurrence),
-			checklist: source.checklist.map((item) => ({ ...item, key: `k${keySequence++}` }))
+			checklist: source.checklist.map((item) => ({ ...item, key: `k${keySequence++}` })),
+			assignee_id: source.assignee_id ?? ''
 		};
 	}
 
@@ -107,7 +132,8 @@
 			tags: '',
 			notes: '',
 			recurrence: parseRule(null),
-			checklist: []
+			checklist: [],
+			assignee_id: ''
 		};
 		newItem = '';
 		confirmDelete = false;
@@ -148,7 +174,8 @@
 			tags: parseTags(form.tags),
 			notes: form.notes,
 			recurrence: buildRule(form.recurrence),
-			checklist
+			checklist,
+			assignee_id: form.assignee_id || null
 		};
 		try {
 			if (task) await api<Task>(`/tasks/${task.id}`, { method: 'PATCH', body });
@@ -259,6 +286,18 @@
 					/>
 				</div>
 			</div>
+
+			{#if members.length > 1}
+				<div>
+					<label class="label" for="{uid}-assignee">{t('task.assignee')}</label>
+					<select id="{uid}-assignee" class="input" bind:value={form.assignee_id}>
+						<option value="">{t('task.nobody')}</option>
+						{#each members as member (member.user_id)}
+							<option value={member.user_id}>{member.display_name}</option>
+						{/each}
+					</select>
+				</div>
+			{/if}
 
 			<fieldset>
 				<legend class="label">{t('task.priority')}</legend>
@@ -425,6 +464,14 @@
 				{/if}
 				<p id="{uid}-notes-hint" class="mt-1 text-xs text-muted">{t('task.notesHint')}</p>
 			</div>
+
+			{#if task}
+				<TaskComments
+					taskId={task.id}
+					canWrite={role !== 'viewer'}
+					canManage={role === 'owner' || role === 'admin'}
+				/>
+			{/if}
 
 			<div class="flex items-center justify-between gap-2 border-t border-line pt-4">
 				<button

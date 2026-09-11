@@ -101,7 +101,10 @@ Rechte gelten also sofort. Einladungen sind Links mit 256 Bit Zufall hinter `#` 
 Server-Protokollen), gespeichert wird nur der SHA-256; ein Link gilt einmal und 7 Tage und wird
 im Body statt in der Adresse an den Server geschickt. Es gibt keine Suche nach Konten per E-Mail
 (keine Konto-Enumeration). Löschen kann nur der Besitzer; die Autorisierungstests prüfen auch
-Mitglieder- und Einladungs-Routen gegen Fremdzugriff.
+Mitglieder- und Einladungs-Routen gegen Fremdzugriff. Zuständig kann nur sein, wer im Bereich
+schreiben darf (wird serverseitig geprüft, beim Verschieben in einen anderen Bereich erneut).
+Kommentare werden wie Notizen per Allowlist bereinigt angezeigt; schreiben darf, wer die Aufgabe
+ändern darf, fremde Kommentare löschen nur Admins und Besitzer (seit v0.2.9).
 
 **CalDAV (Nextcloud, iCloud & Co., seit v0.2.7)**: Benutzername und App-Passwort werden erst
 nach einem erfolgreichen Abruf gespeichert, das Passwort AES-256-GCM-verschlüsselt und nie

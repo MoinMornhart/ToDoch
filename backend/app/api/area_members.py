@@ -80,6 +80,7 @@ async def list_members(area_id: uuid.UUID, db: DB, user: CurrentUser) -> list[Me
     result = [
         MemberOut(
             id=None,
+            user_id=area.owner_id,
             display_name=owner.display_name if owner else "?",
             role="owner",
             you=area.owner_id == user.id,
@@ -92,6 +93,7 @@ async def list_members(area_id: uuid.UUID, db: DB, user: CurrentUser) -> list[Me
         result.append(
             MemberOut(
                 id=member.id,
+                user_id=member.user_id,
                 display_name=member.user.display_name,
                 role=member.role,
                 you=member.user_id == user.id,
@@ -125,6 +127,7 @@ async def change_role(
     await db.commit()
     return MemberOut(
         id=member.id,
+        user_id=member.user_id,
         display_name=member.user.display_name,
         role=member.role,
         you=member.user_id == user.id,

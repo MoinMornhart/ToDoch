@@ -27,6 +27,7 @@ from app.api import (
     meta,
     passkeys,
     push,
+    task_comments,
     tasks,
     totp,
 )
@@ -100,6 +101,7 @@ def create_app(settings: Settings | None = None, resources: Resources | None = N
         areas,
         area_members,
         tasks,
+        task_comments,
         events,
         feeds,
         calendars,

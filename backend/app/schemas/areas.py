@@ -52,6 +52,8 @@ class AreaOut(BaseModel):
     sort_order: int
     open_count: int
     role: str
+    # Mit anderen geteilt (als Besitzer mit Mitgliedern oder selbst Mitglied)
+    shared: bool = False
     week_days: int
     day_start: int
     day_end: int

@@ -38,6 +38,8 @@ export interface Area {
 	sort_order: number;
 	open_count: number;
 	role: string;
+	/** Mit anderen geteilt (als Besitzer mit Mitgliedern oder selbst Mitglied). */
+	shared: boolean;
 	/** Kalender: Wochentage als Bitmaske (Bit 0 = Montag) und sichtbare Stunden. */
 	week_days: number;
 	day_start: number;
@@ -70,6 +72,9 @@ export interface Task {
 	checklist: ChecklistItem[];
 	created_at: string;
 	updated_at: string;
+	/** Zuständige Person (in geteilten Bereichen). */
+	assignee_id: string | null;
+	assignee_name: string | null;
 }
 
 export interface TaskSection {

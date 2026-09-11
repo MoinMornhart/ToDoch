@@ -180,6 +180,10 @@ and events. Roles: **Admin** (can manage and invite), **Member** (read and write
 the owner can delete the area; every member can leave it. A link is valid for 7 days and for exactly
 one person.
 
+In shared areas the task editor has an **“Assignee”** field – the task then shows up for that person
+under **Assigned to me** and carries their name in the list. Every task can have **comments**
+(Markdown supported); you delete your own comments, only admins delete other people's.
+
 ### 🔄 Google Calendar & Outlook – both ways
 
 **No setup at all (subscription link):** under **Areas**, click “Create subscription link”, then
@@ -399,7 +403,7 @@ todoch logs [app|web|db|worker]  # view logs
 | ✅ | **4 · Email** | Own “Email” section, mailboxes via IMAP, task from email, automatic appointment detection with confirmation inbox, rules |
 | ✅ | **5 · Sync** | Gmail & Microsoft via OAuth (“Connect with …”), two-way sync with Google Calendar, Outlook and CalDAV (Nextcloud, iCloud & co.), subscription links without setup |
 | ✅ | **6 · Passkeys & two-factor** | Passkeys (Face ID / Touch ID / Windows Hello / security keys), two-factor with an authenticator app (TOTP), recovery codes |
-| 🚧 | **7 · Groups** | ✅ Shared areas, roles, invitation links · ⏳ assignments, comments |
+| ✅ | **7 · Groups** | Shared areas, roles, invitation links, assignments, comments |
 | ⏳ | **8 · Hardening** | Data export, account deletion, restore tests, security review against OWASP ASVS L2 |
 
 Every change ships as a new version (`0.0.1 → 0.0.2 → … → 0.0.9 → 0.1.0`) with a description in the

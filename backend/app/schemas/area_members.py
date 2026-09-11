@@ -14,6 +14,7 @@ InviteToken = Annotated[
 
 class MemberOut(BaseModel):
     id: uuid.UUID | None  # None: Besitzer (kein eigener Eintrag)
+    user_id: uuid.UUID
     display_name: str
     role: str
     you: bool

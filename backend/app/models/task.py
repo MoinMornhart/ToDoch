@@ -18,6 +18,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.area import Area
 from app.models.base import Base, Timestamps, UUIDPk
+from app.models.user import User
 
 TASK_STATUSES = ("open", "done", "archived")
 
@@ -52,6 +53,10 @@ class Task(UUIDPk, Timestamps, Base):
     event_id: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("events.id", ondelete="SET NULL"), index=True
     )
+    # Zuständige Person – in geteilten Bereichen jemand, der dort schreiben darf
+    assignee_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("users.id", ondelete="SET NULL"), index=True
+    )
     sort_order: Mapped[int] = mapped_column(default=0)
     search_vector: Mapped[Any] = mapped_column(
         TSVECTOR,
@@ -63,6 +68,7 @@ class Task(UUIDPk, Timestamps, Base):
     )
 
     area: Mapped[Area] = relationship(lazy="joined", innerjoin=True)
+    assignee: Mapped[User | None] = relationship(lazy="joined", foreign_keys=[assignee_id])
     checklist: Mapped[list[ChecklistItem]] = relationship(
         back_populates="task",
         cascade="all, delete-orphan",

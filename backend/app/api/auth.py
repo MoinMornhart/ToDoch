@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import secrets
 import uuid
 from datetime import UTC, datetime
 
@@ -9,10 +10,13 @@ from fastapi import APIRouter, HTTPException, Request, Response, status
 from sqlalchemy import select
 
 from app.api.deps import DB, CurrentSession, CurrentUser, Res, client_ip
+from app.api.totp import check_second_factor
 from app.models import User, UserSession
 from app.schemas.auth import (
     LoginIn,
+    LoginTotpIn,
     MePatch,
+    MfaRequiredOut,
     PasswordChangeIn,
     SessionOut,
     UserOut,
@@ -42,8 +46,34 @@ router = APIRouter(prefix="/api/auth", tags=["auth"])
 LOGIN_FAILED = "E-Mail-Adresse oder Passwort ist falsch."
 
 
-@router.post("/login", response_model=UserOut)
-async def login(body: LoginIn, request: Request, response: Response, db: DB, res: Res) -> User:
+MFA_TTL = 300
+MFA_FAILED = "Der Code ist falsch."
+
+
+def _mfa_key(token: str) -> str:
+    return f"mfa:{token}"
+
+
+async def _start_session(
+    db: DB, res: Res, request: Request, response: Response, user: User, method: str
+) -> None:
+    ip = client_ip(request)
+    previous = await resolve_session(db, request.cookies.get(SESSION_COOKIE), res.settings)
+    if previous is not None:
+        await revoke_session(db, previous)
+    _, token = await create_session(
+        db, user, res.settings, method=method, ip=ip,
+        user_agent=request.headers.get("user-agent"),
+    )  # fmt: skip
+    audit.record(db, "login.success", user_id=user.id, ip=ip, method=method)
+    await db.commit()
+    set_session_cookies(response, token, res.settings)
+
+
+@router.post("/login", response_model=UserOut | MfaRequiredOut)
+async def login(
+    body: LoginIn, request: Request, response: Response, db: DB, res: Res
+) -> User | MfaRequiredOut:
     ip = client_ip(request)
     await res.limiter.enforce("login-ip", ip or "unknown", limit=30, window=600)
     account = hashed(body.email)
@@ -70,16 +100,41 @@ async def login(body: LoginIn, request: Request, response: Response, db: DB, res
     if needs_rehash:
         user.password_hash = await hash_password_async(body.password)
 
-    previous = await resolve_session(db, request.cookies.get(SESSION_COOKIE), res.settings)
-    if previous is not None:
-        await revoke_session(db, previous)
-    _, token = await create_session(
-        db, user, res.settings, method="password", ip=ip,
-        user_agent=request.headers.get("user-agent"),
-    )  # fmt: skip
-    audit.record(db, "login.success", user_id=user.id, ip=ip, method="password")
-    await db.commit()
-    set_session_cookies(response, token, res.settings)
+    if user.totp_enabled:
+        # Passwort stimmt – die Sitzung gibt es erst mit dem zweiten Faktor
+        token = secrets.token_urlsafe(24)
+        await res.redis.set(_mfa_key(token), str(user.id), ex=MFA_TTL)
+        audit.record(db, "login.mfa_required", user_id=user.id, ip=ip)
+        await db.commit()
+        return MfaRequiredOut(mfa_token=token)
+
+    await _start_session(db, res, request, response, user, "password")
+    return user
+
+
+@router.post("/login/totp", response_model=UserOut)
+async def login_totp(
+    body: LoginTotpIn, request: Request, response: Response, db: DB, res: Res
+) -> User:
+    ip = client_ip(request)
+    await res.limiter.enforce("mfa-ip", ip or "unknown", limit=30, window=600)
+    await res.limiter.enforce("mfa-token", body.mfa_token, limit=5, window=MFA_TTL)
+    stored = await res.redis.get(_mfa_key(body.mfa_token))
+    if stored is None:
+        raise HTTPException(
+            status.HTTP_401_UNAUTHORIZED, "Die Anmeldung ist abgelaufen. Bitte erneut anmelden."
+        )
+    user = await db.get(User, uuid.UUID(stored.decode() if isinstance(stored, bytes) else stored))
+    if user is None or not user.is_active:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, MFA_FAILED)
+    await res.limiter.enforce("mfa-user", str(user.id), limit=10, window=600)
+    kind = await check_second_factor(db, res, user, body.code)
+    if kind is None:
+        audit.record(db, "login.failure", user_id=user.id, ip=ip, method="totp")
+        await db.commit()
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, MFA_FAILED)
+    await res.redis.delete(_mfa_key(body.mfa_token))
+    await _start_session(db, res, request, response, user, f"password+{kind}")
     return user
 
 

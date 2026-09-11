@@ -23,6 +23,7 @@ from app.api import (
     passkeys,
     push,
     tasks,
+    totp,
 )
 from app.config import Settings, load_settings
 from app.i18n import language_from, translate
@@ -90,6 +91,7 @@ def create_app(settings: Settings | None = None, resources: Resources | None = N
         meta,
         auth,
         passkeys,
+        totp,
         areas,
         tasks,
         events,

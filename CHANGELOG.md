@@ -4,6 +4,16 @@ Alle Änderungen an Todoch – die neueste Version steht oben.
 Versionsschema: `0.0.1 → 0.0.2 → … → 0.0.9 → 0.1.0 → … → 0.9.9 → 1.0.0`.
 Im Container spielt der Befehl `update` immer die neueste Version ein.
 
+## [0.1.9] – 2026-09-11
+
+Zwei-Faktor mit Authenticator-App – Meilenstein 6 abgeschlossen
+
+- Zwei-Faktor per Authenticator-App (TOTP) unter Einstellungen: QR-Code scannen, mit Code bestätigen – danach fragt die Anmeldung nach dem Passwort noch den Code ab
+- Zehn Wiederherstellungscodes für den Notfall, je einmal gültig, jederzeit neu erzeugbar; Abschalten mit Passwort und Code
+- Neuer Befehl im Container: todoch disable-2fa <e-mail>, falls die App verloren ist
+- Sicherheit: jeder Code nur einmal (Replay-Schutz), begrenzte Versuche, Geheimnis verschlüsselt, Einrichtung und Änderungen im Audit-Log; Anmeldung per Passkey ohne zweiten Code
+- README, Webseite und SECURITY.md ergänzt
+
 ## [0.1.8] – 2026-09-11
 
 Stabilerer Passkey-Test

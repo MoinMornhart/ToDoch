@@ -45,6 +45,18 @@ melden, nicht als öffentliches Issue.
 - Tests prüfen den kompletten Ablauf mit einem Software-Authenticator (echte ES256-Signaturen) und
   im Browser mit Chromiums virtuellem Authenticator.
 
+**Zwei-Faktor (TOTP, seit v0.1.9)**
+- Optional je Konto: 6-stellige Codes nach RFC 6238 (30 s, ±1 Schritt Toleranz). Das Geheimnis
+  liegt AES-256-GCM-verschlüsselt in der Datenbank, während der Einrichtung nur verschlüsselt und
+  zehn Minuten lang in Redis (an die Sitzung gebunden).
+- Jeder Zeitschritt gilt nur einmal (Replay-Schutz). Nach dem Passwort gibt es statt einer Sitzung
+  ein fünf Minuten gültiges Einmal-Token; höchstens fünf Versuche je Token, zehn je Konto in zehn
+  Minuten.
+- Zehn Wiederherstellungscodes, nur als SHA-256 gespeichert, je einmal gültig. Einrichten,
+  Abschalten (Passwort + Code) und neue Codes stehen im Audit-Log.
+- Anmeldung per Passkey braucht keinen zweiten Faktor (Besitz + Gerätesperre). Notfall im Container:
+  `todoch disable-2fa <e-mail>`.
+
 **Anfragen**
 - Größenlimit für Anfragen (Standard 1 MB, geprüft per `Content-Length` und beim Lesen).
 - Strikte Validierung aller Eingaben (Pydantic), Längenlimits für alle Felder.
@@ -82,7 +94,7 @@ gebunden (kein Umkopieren zwischen Datensätzen möglich).
 
 ## Offene Punkte (geplant)
 
-- TOTP und Wiederherstellungscodes (M6), danach kürzere Sitzungs-Standardwerte.
+- Kürzere Sitzungs-Standardwerte, nachdem Passkeys und Zwei-Faktor verbreitet genutzt werden.
 - Upload-Prüfung per Magic Bytes, Anhänge außerhalb des Webroots (M3).
 - SSRF-Schutz, ReDoS-Timeouts, Härtung des ICS-Parsers (M4/M5).
 - Datenexport und Kontolöschung (DSGVO), getesteter Restore in der CI, Review nach OWASP ASVS L2 (M8).

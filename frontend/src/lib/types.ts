@@ -15,6 +15,19 @@ export interface User {
 	is_admin: boolean;
 	timezone: string;
 	locale: Locale;
+	totp_enabled: boolean;
+}
+
+export interface TotpStatus {
+	enabled: boolean;
+	enabled_at: string | null;
+	recovery_codes_left: number;
+}
+
+export interface TotpSetup {
+	secret: string;
+	uri: string;
+	qr_svg: string;
 }
 
 export interface Area {

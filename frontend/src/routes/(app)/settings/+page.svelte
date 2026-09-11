@@ -6,6 +6,7 @@
 	import { api, ApiError } from '$lib/api';
 	import ContactsSettings from '$lib/components/ContactsSettings.svelte';
 	import PasskeySettings from '$lib/components/PasskeySettings.svelte';
+	import TotpSettings from '$lib/components/TotpSettings.svelte';
 	import PageHeader from '$lib/components/PageHeader.svelte';
 	import PushSettings from '$lib/components/PushSettings.svelte';
 	import { i18n, t } from '$lib/i18n/index.svelte';
@@ -200,6 +201,8 @@
 	</section>
 
 	<PasskeySettings />
+
+	<TotpSettings />
 
 	<section aria-labelledby="sessions-title">
 		<h2 id="sessions-title" class="mb-3 text-base font-semibold">{t('settings.sessions')}</h2>

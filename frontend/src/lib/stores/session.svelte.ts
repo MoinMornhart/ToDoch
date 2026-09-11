@@ -37,8 +37,15 @@ class Session {
 		this.status = 'ready';
 	}
 
-	async login(email: string, password: string): Promise<void> {
-		this.signedIn(await api<User>('/auth/login', { method: 'POST', body: { email, password } }));
+	/** Anmelden mit Passwort. Liefert ein Token, wenn noch der Code aus der App fehlt. */
+	async login(email: string, password: string): Promise<string | null> {
+		const result = await api<User | { mfa_required: true; mfa_token: string }>('/auth/login', {
+			method: 'POST',
+			body: { email, password }
+		});
+		if ('mfa_required' in result) return result.mfa_token;
+		this.signedIn(result);
+		return null;
 	}
 
 	/** Nach jeder Anmeldung (Passwort oder Passkey): alten Offline-Stand verwerfen. */

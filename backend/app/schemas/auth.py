@@ -61,6 +61,51 @@ class UserOut(BaseModel):
     is_admin: bool
     timezone: str
     locale: str
+    totp_enabled: bool = False
+
+
+class MfaRequiredOut(BaseModel):
+    """Passwort stimmt, jetzt fehlt noch der Code aus der Authenticator-App."""
+
+    mfa_required: bool = True
+    mfa_token: str
+
+
+MfaCode = Annotated[str, StringConstraints(strip_whitespace=True, min_length=6, max_length=20)]
+
+
+class LoginTotpIn(BaseModel):
+    mfa_token: Annotated[str, StringConstraints(pattern=r"^[A-Za-z0-9_-]{16,64}$")]
+    code: MfaCode
+
+
+class TotpSetupIn(BaseModel):
+    password: Password
+
+
+class TotpSetupOut(BaseModel):
+    secret: str
+    uri: str
+    qr_svg: str
+
+
+class TotpConfirmIn(BaseModel):
+    code: MfaCode
+
+
+class TotpDisableIn(BaseModel):
+    password: Password
+    code: MfaCode
+
+
+class RecoveryCodesOut(BaseModel):
+    recovery_codes: list[str]
+
+
+class TotpStatusOut(BaseModel):
+    enabled: bool
+    enabled_at: datetime | None
+    recovery_codes_left: int
 
 
 class MePatch(BaseModel):

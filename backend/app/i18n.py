@@ -61,6 +61,15 @@ EXACT: dict[str, str] = {
     "Dieses Vorkommen gehört nicht zur Serie.": "This occurrence does not belong to the series.",
     "Link muss mit http:// oder https:// beginnen": "Link must start with http:// or https://",
     "Unbekannte Zeitzone": "Unknown time zone",
+    "Der Code ist falsch.": "The code is incorrect.",
+    "Die Anmeldung ist abgelaufen. Bitte erneut anmelden.": (
+        "The sign-in has expired. Please sign in again."
+    ),
+    "Zwei-Faktor ist bereits eingerichtet.": "Two-factor authentication is already set up.",
+    "Zwei-Faktor ist nicht eingerichtet.": "Two-factor authentication is not set up.",
+    "Die Einrichtung ist abgelaufen. Bitte neu beginnen.": (
+        "The setup has expired. Please start again."
+    ),
     "Die Adresse ist ungültig.": "The address is invalid.",
     "Die Adresse muss mit http:// oder https:// beginnen.": (
         "The address must start with http:// or https://."

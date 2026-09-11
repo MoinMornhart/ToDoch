@@ -21,6 +21,7 @@ HELP="ToDoch – Verwaltung
   todoch users                         Benutzer auflisten
   todoch reset-password <e-mail>       Neues Zufallspasswort setzen (beendet alle Sitzungen)
   todoch make-admin <e-mail>           Verwaltungsrechte vergeben
+  todoch disable-2fa <e-mail>          Zwei-Faktor abschalten (Authenticator-App verloren)
 
   todoch backup                        Datenbank sichern (nach ${TODOCH_BACKUPS})
   todoch restore <datei>               Sicherung wiederherstellen
@@ -230,7 +231,7 @@ main() {
     ;;
   setup-code) cmd_setup_code ;;
   users) run_admin users ;;
-  reset-password | make-admin)
+  reset-password | make-admin | disable-2fa)
     [[ -n "${2-}" ]] || {
       msg_error "Aufruf: todoch $1 <e-mail>"
       exit 1

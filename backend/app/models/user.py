@@ -3,7 +3,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime
 
-from sqlalchemy import ForeignKey, LargeBinary, String
+from sqlalchemy import BigInteger, ForeignKey, LargeBinary, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, Timestamps, UUIDPk, utcnow
@@ -20,10 +20,31 @@ class User(UUIDPk, Timestamps, Base):
     is_active: Mapped[bool] = mapped_column(default=True)
     timezone: Mapped[str] = mapped_column(String(64), default="Europe/Berlin")
     locale: Mapped[str] = mapped_column(String(8), default="de")
+    # Zwei-Faktor (TOTP): Geheimnis verschlüsselt, letzter benutzter Zeitschritt gegen Replay
+    totp_secret: Mapped[str | None] = mapped_column(Text)
+    totp_enabled_at: Mapped[datetime | None]
+    totp_last_step: Mapped[int | None] = mapped_column(BigInteger)
 
     sessions: Mapped[list[UserSession]] = relationship(
         back_populates="user", cascade="all, delete-orphan", passive_deletes=True
     )
+
+    @property
+    def totp_enabled(self) -> bool:
+        return self.totp_secret is not None
+
+
+class RecoveryCode(UUIDPk, Base):
+    """Einmal-Code für den Fall, dass die Authenticator-App fehlt. Nur als SHA-256."""
+
+    __tablename__ = "recovery_codes"
+
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), index=True
+    )
+    code_hash: Mapped[bytes] = mapped_column(LargeBinary(32), unique=True)
+    created_at: Mapped[datetime] = mapped_column(default=utcnow)
+    used_at: Mapped[datetime | None]
 
 
 class UserSession(UUIDPk, Base):

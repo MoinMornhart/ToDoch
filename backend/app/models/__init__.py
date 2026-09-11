@@ -10,7 +10,7 @@ from app.models.feed import FeedToken
 from app.models.passkey import Passkey
 from app.models.push import PushSubscription, ReminderLog, ServerKey
 from app.models.task import ChecklistItem, Task
-from app.models.user import User, UserSession
+from app.models.user import RecoveryCode, User, UserSession
 
 __all__ = [
     "Area",
@@ -23,6 +23,7 @@ __all__ = [
     "FeedToken",
     "Passkey",
     "PushSubscription",
+    "RecoveryCode",
     "ReminderLog",
     "ServerKey",
     "Task",

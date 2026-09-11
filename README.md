@@ -168,7 +168,7 @@ nur ein Admin eintragen, interne Adressen des Servers sind gesperrt.
 
 | | |
 | --- | --- |
-| 🔑 **Anmeldung** | **Passkeys** (Face ID, Touch ID, Windows Hello, Sicherheitsschlüssel) ohne Benutzernamen, Einrichtung nur mit Einmalcode, Argon2id-Passwörter mit Abgleich gegen Leak-Listen, Sperre mit wachsender Wartezeit nach Fehlversuchen |
+| 🔑 **Anmeldung** | **Passkeys** (Face ID, Touch ID, Windows Hello, Sicherheitsschlüssel) ohne Benutzernamen, **Zwei-Faktor** per Authenticator-App mit Wiederherstellungscodes, Einrichtung nur mit Einmalcode, Argon2id-Passwörter mit Abgleich gegen Leak-Listen, Sperre mit wachsender Wartezeit nach Fehlversuchen |
 | 🍪 **Sitzungen** | Serverseitig und einzeln widerrufbar, Geräteübersicht, „Überall abmelden“, Idle- und Absolut-Timeout |
 | 🛡️ **Browser** | Strenge Content-Security-Policy ohne `unsafe-inline`, CSRF-Schutz, HSTS und alle wichtigen Security-Header |
 | 🧾 **Nachvollziehbar** | Audit-Log, das sich per Datenbank-Trigger nicht nachträglich ändern lässt |
@@ -297,6 +297,7 @@ todoch info                      # Adresse, Betriebsart, Zustand aller Dienste
 todoch setup-code                # Einrichtungslink erneut anzeigen
 todoch users                     # Benutzer auflisten
 todoch reset-password <e-mail>   # Passwort vergessen? Neues Zufallspasswort
+todoch disable-2fa <e-mail>      # Authenticator-App verloren? Zwei-Faktor abschalten
 todoch backup                    # Datenbank sichern → /var/backups/todoch
 todoch restore <datei>           # Sicherung einspielen (sichert vorher den aktuellen Stand)
 todoch logs [app|web|db|worker]  # Protokolle ansehen
@@ -333,7 +334,7 @@ todoch logs [app|web|db|worker]  # Protokolle ansehen
 | ✅ | **2 · Kalender** | Termine, Serien, Monat / Woche / Tag / Agenda, Drag & Drop, Konflikte, ICS-Abos für Apple, Google & Outlook, Erinnerungen per Push, Übersicht, Dunkelmodus |
 | ⏳ | **4 · E-Mail** | Eigener Bereich „E-Mail“ in der Navigation, Postfächer per IMAP, Regeln, automatische Terminerkennung, Bestätigungs-Inbox |
 | ⏳ | **5 · Synchronisation** | Gmail & Microsoft per OAuth, Zwei-Wege-Sync mit CalDAV, Google und Microsoft |
-| 🚧 | **6 · Passkeys** | ✅ Anmeldung mit Face ID / Touch ID / Windows Hello / Sicherheitsschlüssel · ⏳ TOTP, Wiederherstellungscodes |
+| ✅ | **6 · Passkeys & Zwei-Faktor** | Passkeys (Face ID / Touch ID / Windows Hello / Sicherheitsschlüssel), Zwei-Faktor per Authenticator-App (TOTP), Wiederherstellungscodes |
 | ⏳ | **7 · Gruppen** | Gemeinsame Bereiche, Rollen, Einladungen, Zuweisungen, Kommentare |
 | ⏳ | **8 · Härtung** | Datenexport, Kontolöschung, Restore-Tests, Security-Review nach OWASP ASVS L2 |
 

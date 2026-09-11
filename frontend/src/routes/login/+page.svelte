@@ -2,7 +2,7 @@
 	import { KeyRound } from '@lucide/svelte';
 	import { onDestroy, onMount } from 'svelte';
 	import { goto } from '$app/navigation';
-	import { ApiError } from '$lib/api';
+	import { api, ApiError } from '$lib/api';
 	import Logo from '$lib/components/Logo.svelte';
 	import { i18n, t } from '$lib/i18n/index.svelte';
 	import { signInWithPasskey } from '$lib/passkeys';
@@ -80,11 +80,39 @@
 		error = null;
 		try {
 			await stopAutofill();
-			await session.login(email, password);
+			const token = await session.login(email, password);
 			password = '';
+			if (token) {
+				// Zwei-Faktor: jetzt noch der Code aus der App
+				mfaToken = token;
+				code = '';
+				return;
+			}
 			await goto('/', { replaceState: true });
 		} catch (err) {
 			error = message(err);
+		} finally {
+			busy = false;
+		}
+	}
+
+	let mfaToken = $state<string | null>(null);
+	let code = $state('');
+
+	async function submitCode(event: SubmitEvent) {
+		event.preventDefault();
+		if (!mfaToken) return;
+		busy = true;
+		error = null;
+		try {
+			const user = await api<User>('/auth/login/totp', {
+				method: 'POST',
+				body: { mfa_token: mfaToken, code: code.trim() }
+			});
+			await done(user);
+		} catch (err) {
+			error = message(err);
+			code = '';
 		} finally {
 			busy = false;
 		}
@@ -100,46 +128,69 @@
 		</p>
 		<h1 class="mb-6 text-2xl font-semibold tracking-tight">{t('login.title')}</h1>
 		{#if error}<p role="alert" class="mb-4 text-sm text-danger">{error}</p>{/if}
-		{#if supported}
-			<button type="button" class="btn btn-primary w-full" disabled={busy} onclick={withPasskey}>
-				<KeyRound size={16} aria-hidden="true" />{t('login.passkey')}
-			</button>
-			<p class="my-5 flex items-center gap-3 text-xs text-muted">
-				<span class="h-px flex-1 bg-line"></span>{t('login.or')}<span class="h-px flex-1 bg-line"
-				></span>
-			</p>
+		{#if mfaToken}
+			<form class="flex flex-col gap-4" onsubmit={submitCode}>
+				<div>
+					<label class="label" for="code">{t('login.codeTitle')}</label>
+					<input
+						id="code"
+						class="input text-center font-mono text-lg tracking-widest"
+						autocomplete="one-time-code"
+						maxlength="20"
+						required
+						bind:value={code}
+					/>
+					<p class="mt-1 text-xs text-muted">{t('login.codeHint')}</p>
+				</div>
+				<button type="submit" class="btn btn-primary w-full" disabled={busy}>
+					{t('login.verify')}
+				</button>
+				<button type="button" class="btn btn-ghost" onclick={() => (mfaToken = null)}>
+					{t('login.back')}
+				</button>
+			</form>
+		{:else}
+			{#if supported}
+				<button type="button" class="btn btn-primary w-full" disabled={busy} onclick={withPasskey}>
+					<KeyRound size={16} aria-hidden="true" />{t('login.passkey')}
+				</button>
+				<p class="my-5 flex items-center gap-3 text-xs text-muted">
+					<span class="h-px flex-1 bg-line"></span>{t('login.or')}<span class="h-px flex-1 bg-line"
+					></span>
+				</p>
+			{/if}
+			<form class="flex flex-col gap-4" onsubmit={submit}>
+				<div>
+					<label class="label" for="email">{t('login.email')}</label>
+					<input
+						id="email"
+						type="email"
+						class="input"
+						autocomplete="username webauthn"
+						required
+						bind:value={email}
+					/>
+				</div>
+				<div>
+					<label class="label" for="password">{t('login.password')}</label>
+					<input
+						id="password"
+						type="password"
+						class="input"
+						autocomplete="current-password"
+						required
+						bind:value={password}
+					/>
+				</div>
+				<button
+					type="submit"
+					class="btn mt-2 w-full {supported ? '' : 'btn-primary'}"
+					disabled={busy}
+				>
+					{t('login.submit')}
+				</button>
+			</form>
 		{/if}
-		<form class="flex flex-col gap-4" onsubmit={submit}>
-			<div>
-				<label class="label" for="email">{t('login.email')}</label>
-				<input
-					id="email"
-					type="email"
-					class="input"
-					autocomplete="username webauthn"
-					required
-					bind:value={email}
-				/>
-			</div>
-			<div>
-				<label class="label" for="password">{t('login.password')}</label>
-				<input
-					id="password"
-					type="password"
-					class="input"
-					autocomplete="current-password"
-					required
-					bind:value={password}
-				/>
-			</div>
-			<button
-				type="submit"
-				class="btn mt-2 w-full {supported ? '' : 'btn-primary'}"
-				disabled={busy}
-			>
-				{t('login.submit')}
-			</button>
-		</form>
 		<div
 			class="mt-8 flex justify-center gap-1 text-xs"
 			role="group"

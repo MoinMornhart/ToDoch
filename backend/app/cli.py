@@ -11,12 +11,12 @@ import secrets
 import sys
 from datetime import UTC, datetime
 
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import Settings, load_settings
 from app.db import create_engine, create_sessionmaker
-from app.models import User
+from app.models import RecoveryCode, User
 from app.security.passwords import hash_password
 from app.security.sessions import revoke_all_sessions
 from app.services import audit
@@ -59,6 +59,18 @@ async def run(command: str, email: str | None, settings: Settings) -> tuple[int,
                     "„Einstellungen“ ein eigenes Passwort setzen."
                 )
 
+            if command == "disable-2fa":
+                user.totp_secret = None
+                user.totp_enabled_at = None
+                user.totp_last_step = None
+                await db.execute(delete(RecoveryCode).where(RecoveryCode.user_id == user.id))
+                audit.record(db, "totp.disabled_cli", user_id=user.id)
+                await db.commit()
+                return 0, (
+                    f"Zwei-Faktor für {user.email} ist abgeschaltet – Anmeldung wieder nur mit "
+                    "Passwort oder Passkey. Bitte danach unter „Einstellungen“ neu einrichten."
+                )
+
             if command == "make-admin":
                 user.is_admin = True
                 audit.record(db, "role.admin_granted_cli", user_id=user.id)
@@ -77,6 +89,7 @@ def main(argv: list[str] | None = None) -> int:
     for name, text in (
         ("reset-password", "Neues Zufallspasswort setzen und alle Sitzungen beenden"),
         ("make-admin", "Verwaltungsrechte vergeben"),
+        ("disable-2fa", "Zwei-Faktor abschalten (Authenticator-App verloren)"),
     ):
         commands.add_parser(name, help=text).add_argument("email")
     args = parser.parse_args(argv)

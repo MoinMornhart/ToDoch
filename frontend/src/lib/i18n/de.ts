@@ -439,6 +439,34 @@ export const de = {
 	'event.subscribed': 'Aus einem abonnierten Kalender',
 	'event.readOnly': 'Aus dem abonnierten Kalender „{name}“ – nur dort änderbar.',
 
+	'totp.title': 'Zwei-Faktor (Authenticator-App)',
+	'totp.intro':
+		'Zusätzlich zum Passwort ein Code aus einer App wie Aegis, Google Authenticator, 1Password oder Bitwarden. Die Anmeldung per Passkey braucht keinen zweiten Code.',
+	'totp.off': 'Nicht eingerichtet.',
+	'totp.on': 'Aktiv seit {date} · {count} Wiederherstellungscodes übrig',
+	'totp.password': 'Passwort zur Bestätigung',
+	'totp.start': 'Einrichten',
+	'totp.scan': 'QR-Code mit der Authenticator-App scannen oder den Schlüssel von Hand eintragen:',
+	'totp.secret': 'Schlüssel',
+	'totp.code': 'Code aus der App',
+	'totp.confirm': 'Bestätigen',
+	'totp.enabled': 'Zwei-Faktor ist eingerichtet',
+	'totp.codesTitle': 'Deine Wiederherstellungscodes',
+	'totp.codesHint':
+		'Jeder Code gilt einmal, falls die App fehlt. Jetzt sicher aufbewahren – sie werden nur dieses eine Mal angezeigt.',
+	'totp.copy': 'Alle kopieren',
+	'totp.copied': 'Codes kopiert',
+	'totp.done': 'Ich habe sie gesichert',
+	'totp.newCodes': 'Neue Wiederherstellungscodes',
+	'totp.disable': 'Zwei-Faktor abschalten',
+	'totp.disableCode': 'Code aus der App oder Wiederherstellungscode',
+	'totp.disableHint': 'Zum Abschalten links das Passwort und hier einen Code eintragen.',
+	'totp.disabled': 'Zwei-Faktor abgeschaltet',
+	'login.codeTitle': 'Bestätigungscode',
+	'login.codeHint': 'Code aus deiner Authenticator-App – oder einen Wiederherstellungscode.',
+	'login.verify': 'Bestätigen',
+	'login.back': 'Zurück',
+
 	'error.generic': 'Etwas ist schiefgelaufen.'
 } as const;
 

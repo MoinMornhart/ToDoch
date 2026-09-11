@@ -176,7 +176,7 @@ container) can only be added by an admin, and the server's internal addresses ar
 
 | | |
 | --- | --- |
-| 🔑 **Sign-in** | **Passkeys** (Face ID, Touch ID, Windows Hello, security keys) without a username, setup only with a one-time code, Argon2id passwords checked against leak lists, lockout with increasing delay after failed attempts |
+| 🔑 **Sign-in** | **Passkeys** (Face ID, Touch ID, Windows Hello, security keys) without a username, **two-factor** with an authenticator app and recovery codes, setup only with a one-time code, Argon2id passwords checked against leak lists, lockout with increasing delay after failed attempts |
 | 🍪 **Sessions** | Server-side and individually revocable, device overview, “Sign out everywhere”, idle and absolute timeout |
 | 🛡️ **Browser** | Strict Content Security Policy without `unsafe-inline`, CSRF protection, HSTS and all important security headers |
 | 🧾 **Traceable** | Audit log that cannot be altered afterwards (database triggers) |
@@ -306,6 +306,7 @@ todoch info                      # address, mode, status of all services
 todoch setup-code                # show the setup link again
 todoch users                     # list users
 todoch reset-password <email>    # forgot your password? new random password
+todoch disable-2fa <email>       # lost your authenticator app? turn off two-factor
 todoch backup                    # back up the database → /var/backups/todoch
 todoch restore <file>            # restore a backup (backs up the current state first)
 todoch logs [app|web|db|worker]  # view logs
@@ -342,7 +343,7 @@ todoch logs [app|web|db|worker]  # view logs
 | ✅ | **2 · Calendar** | Events, series, month / week / day / agenda, drag & drop, conflicts, ICS subscriptions for Apple, Google & Outlook, push reminders, overview, dark mode |
 | ⏳ | **4 · Email** | Own “Email” section in the navigation, mailboxes via IMAP, rules, automatic appointment detection, confirmation inbox |
 | ⏳ | **5 · Sync** | Gmail & Microsoft via OAuth, two-way sync with CalDAV, Google and Microsoft |
-| 🚧 | **6 · Passkeys** | ✅ Sign-in with Face ID / Touch ID / Windows Hello / security keys · ⏳ TOTP, recovery codes |
+| ✅ | **6 · Passkeys & two-factor** | Passkeys (Face ID / Touch ID / Windows Hello / security keys), two-factor with an authenticator app (TOTP), recovery codes |
 | ⏳ | **7 · Groups** | Shared areas, roles, invitations, assignments, comments |
 | ⏳ | **8 · Hardening** | Data export, account deletion, restore tests, security review against OWASP ASVS L2 |
 

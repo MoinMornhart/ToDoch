@@ -440,5 +440,33 @@ export const en: Record<MessageKey, string> = {
 	'event.subscribed': 'From a subscribed calendar',
 	'event.readOnly': 'From the subscribed calendar “{name}” – change it there.',
 
+	'totp.title': 'Two-factor (authenticator app)',
+	'totp.intro':
+		'In addition to your password, a code from an app such as Aegis, Google Authenticator, 1Password or Bitwarden. Signing in with a passkey needs no second code.',
+	'totp.off': 'Not set up.',
+	'totp.on': 'Active since {date} · {count} recovery codes left',
+	'totp.password': 'Password to confirm',
+	'totp.start': 'Set up',
+	'totp.scan': 'Scan the QR code with your authenticator app or enter the key by hand:',
+	'totp.secret': 'Key',
+	'totp.code': 'Code from the app',
+	'totp.confirm': 'Confirm',
+	'totp.enabled': 'Two-factor is set up',
+	'totp.codesTitle': 'Your recovery codes',
+	'totp.codesHint':
+		'Each code works once if the app is missing. Store them safely now – they are shown only this one time.',
+	'totp.copy': 'Copy all',
+	'totp.copied': 'Codes copied',
+	'totp.done': 'I have saved them',
+	'totp.newCodes': 'New recovery codes',
+	'totp.disable': 'Turn off two-factor',
+	'totp.disableCode': 'Code from the app or recovery code',
+	'totp.disableHint': 'To turn it off, enter your password on the left and a code here.',
+	'totp.disabled': 'Two-factor turned off',
+	'login.codeTitle': 'Verification code',
+	'login.codeHint': 'Code from your authenticator app – or a recovery code.',
+	'login.verify': 'Confirm',
+	'login.back': 'Back',
+
 	'error.generic': 'Something went wrong.'
 };

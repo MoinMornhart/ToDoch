@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "ToDoch API",
-    "version": "0.1.5"
+    "version": "0.1.8"
   },
   "paths": {
     "/api/health": {
@@ -98,6 +98,55 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/LoginIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/UserOut"
+                    },
+                    {
+                      "$ref": "#/components/schemas/MfaRequiredOut"
+                    }
+                  ],
+                  "title": "Response Login Api Auth Login Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/login/totp": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Login Totp",
+        "operationId": "login_totp_api_auth_login_totp_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginTotpIn"
               }
             }
           },
@@ -551,6 +600,184 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/UserOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/totp": {
+      "get": {
+        "tags": [
+          "totp"
+        ],
+        "summary": "Totp Status",
+        "operationId": "totp_status_api_auth_totp_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TotpStatusOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/totp/setup": {
+      "post": {
+        "tags": [
+          "totp"
+        ],
+        "summary": "Totp Setup",
+        "operationId": "totp_setup_api_auth_totp_setup_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TotpSetupIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TotpSetupOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/totp/confirm": {
+      "post": {
+        "tags": [
+          "totp"
+        ],
+        "summary": "Totp Confirm",
+        "operationId": "totp_confirm_api_auth_totp_confirm_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TotpConfirmIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecoveryCodesOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/totp/disable": {
+      "post": {
+        "tags": [
+          "totp"
+        ],
+        "summary": "Totp Disable",
+        "operationId": "totp_disable_api_auth_totp_disable_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TotpDisableIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/totp/recovery-codes": {
+      "post": {
+        "tags": [
+          "totp"
+        ],
+        "summary": "New Recovery Codes",
+        "operationId": "new_recovery_codes_api_auth_totp_recovery_codes_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TotpSetupIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecoveryCodesOut"
                 }
               }
             }
@@ -4268,6 +4495,27 @@
         ],
         "title": "LoginOptionsOut"
       },
+      "LoginTotpIn": {
+        "properties": {
+          "mfa_token": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{16,64}$",
+            "title": "Mfa Token"
+          },
+          "code": {
+            "type": "string",
+            "maxLength": 20,
+            "minLength": 6,
+            "title": "Code"
+          }
+        },
+        "type": "object",
+        "required": [
+          "mfa_token",
+          "code"
+        ],
+        "title": "LoginTotpIn"
+      },
       "LoginVerifyIn": {
         "properties": {
           "challenge_id": {
@@ -4357,6 +4605,25 @@
           "rp_id"
         ],
         "title": "MetaOut"
+      },
+      "MfaRequiredOut": {
+        "properties": {
+          "mfa_required": {
+            "type": "boolean",
+            "title": "Mfa Required",
+            "default": true
+          },
+          "mfa_token": {
+            "type": "string",
+            "title": "Mfa Token"
+          }
+        },
+        "type": "object",
+        "required": [
+          "mfa_token"
+        ],
+        "title": "MfaRequiredOut",
+        "description": "Passwort stimmt, jetzt fehlt noch der Code aus der Authenticator-App."
       },
       "OccurrenceOut": {
         "properties": {
@@ -4723,6 +4990,22 @@
           "tokens"
         ],
         "title": "QuickAddPreview"
+      },
+      "RecoveryCodesOut": {
+        "properties": {
+          "recovery_codes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Recovery Codes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "recovery_codes"
+        ],
+        "title": "RecoveryCodesOut"
       },
       "RegisterOptionsIn": {
         "properties": {
@@ -5386,6 +5669,112 @@
         "type": "object",
         "title": "TaskPatch"
       },
+      "TotpConfirmIn": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "maxLength": 20,
+            "minLength": 6,
+            "title": "Code"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code"
+        ],
+        "title": "TotpConfirmIn"
+      },
+      "TotpDisableIn": {
+        "properties": {
+          "password": {
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Password"
+          },
+          "code": {
+            "type": "string",
+            "maxLength": 20,
+            "minLength": 6,
+            "title": "Code"
+          }
+        },
+        "type": "object",
+        "required": [
+          "password",
+          "code"
+        ],
+        "title": "TotpDisableIn"
+      },
+      "TotpSetupIn": {
+        "properties": {
+          "password": {
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Password"
+          }
+        },
+        "type": "object",
+        "required": [
+          "password"
+        ],
+        "title": "TotpSetupIn"
+      },
+      "TotpSetupOut": {
+        "properties": {
+          "secret": {
+            "type": "string",
+            "title": "Secret"
+          },
+          "uri": {
+            "type": "string",
+            "title": "Uri"
+          },
+          "qr_svg": {
+            "type": "string",
+            "title": "Qr Svg"
+          }
+        },
+        "type": "object",
+        "required": [
+          "secret",
+          "uri",
+          "qr_svg"
+        ],
+        "title": "TotpSetupOut"
+      },
+      "TotpStatusOut": {
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled"
+          },
+          "enabled_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Enabled At"
+          },
+          "recovery_codes_left": {
+            "type": "integer",
+            "title": "Recovery Codes Left"
+          }
+        },
+        "type": "object",
+        "required": [
+          "enabled",
+          "enabled_at",
+          "recovery_codes_left"
+        ],
+        "title": "TotpStatusOut"
+      },
       "UnsubscribeIn": {
         "properties": {
           "endpoint": {
@@ -5426,6 +5815,11 @@
           "locale": {
             "type": "string",
             "title": "Locale"
+          },
+          "totp_enabled": {
+            "type": "boolean",
+            "title": "Totp Enabled",
+            "default": false
           }
         },
         "type": "object",

@@ -4,6 +4,16 @@ Alle Änderungen an Todoch – die neueste Version steht oben.
 Versionsschema: `0.0.1 → 0.0.2 → … → 0.0.9 → 0.1.0 → … → 0.9.9 → 1.0.0`.
 Im Container spielt der Befehl `update` immer die neueste Version ein.
 
+## [0.1.4] – 2026-09-11
+
+Streamo × ToDoch: Kalender einbinden
+
+- Neu unter Bereiche: Kalender per ICS-Adresse einbinden – z. B. Streamo mit geplanten Filmen, Sehplänen und neuen Folgen
+- Abgleich automatisch im Hintergrund (alle 15 Minuten bis täglich) und auf Knopfdruck: neue Termine kommen dazu, geänderte werden aktualisiert, entfallene gelöscht
+- Übernommene Termine sind in ToDoch nur lesbar (Hinweis im Termin, kein Verschieben per Drag & Drop)
+- Sicherheit: Abo-Adresse verschlüsselt gespeichert, SSRF-Schutz auch bei Weiterleitungen, Heimnetz-Adressen nur für Admins, Größen- und Zeitlimits
+- README: Abschnitt „Streamo × ToDoch“
+
 ## [0.1.3] – 2026-09-11
 
 Sprachknopf neben der Suche und englische Bilder

@@ -202,8 +202,9 @@
 						{@const color = colorOf(occ)}
 						<button
 							type="button"
-							draggable="true"
+							draggable={!occ.read_only}
 							ondragstart={(event) => {
+								if (occ.read_only) return;
 								dragging.occ = occ;
 								dragging.grabMinutes = event.offsetY / PX;
 								event.dataTransfer?.setData('text/plain', occ.key);

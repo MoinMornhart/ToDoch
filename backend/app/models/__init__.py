@@ -3,6 +3,7 @@
 from app.models.area import Area
 from app.models.audit import AuditEvent
 from app.models.base import Base
+from app.models.calendar import ExternalCalendar
 from app.models.contact import Contact
 from app.models.event import Event
 from app.models.feed import FeedToken
@@ -18,6 +19,7 @@ __all__ = [
     "ChecklistItem",
     "Contact",
     "Event",
+    "ExternalCalendar",
     "FeedToken",
     "Passkey",
     "PushSubscription",

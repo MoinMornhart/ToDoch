@@ -24,6 +24,26 @@ from app.security.crypto import Crypto
 from app.security.middleware import CSRF_COOKIE
 from app.security.passwords import hash_password
 from app.security.ratelimit import RateLimiter
+from app.services import external_calendars
+
+EMPTY_ICS = b"BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Test//DE\r\nEND:VCALENDAR\r\n"
+
+
+@pytest.fixture(autouse=True)
+def no_network(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Tests rufen nie echte Kalender-Adressen ab: öffentliche IP, leerer Kalender."""
+
+    async def fake_resolve(host: str, port: int) -> list[str]:
+        return ["93.184.216.34"]
+
+    async def fake_fetch(
+        url: str, *, allow_private: bool, etag: str | None = None, **_: object
+    ) -> tuple[bytes | None, str | None]:
+        return EMPTY_ICS, None
+
+    monkeypatch.setattr(external_calendars, "resolve", fake_resolve)
+    monkeypatch.setattr(external_calendars, "fetch_ics", fake_fetch)
+
 
 BACKEND = Path(__file__).resolve().parent.parent
 TEST_DATABASE_URL = os.environ.get(

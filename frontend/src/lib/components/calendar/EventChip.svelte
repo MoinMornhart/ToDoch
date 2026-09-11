@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Lock, Repeat } from '@lucide/svelte';
+	import { Lock, Repeat, Rss } from '@lucide/svelte';
 	import { parseLocal, minutesToTime } from '$lib/calendar';
 	import { dragging } from '$lib/events.svelte';
 	import { t } from '$lib/i18n/index.svelte';
@@ -18,8 +18,9 @@
 
 <button
 	type="button"
-	draggable="true"
+	draggable={!occ.read_only}
 	ondragstart={(event) => {
+		if (occ.read_only) return;
 		dragging.occ = occ;
 		dragging.grabMinutes = 0;
 		event.dataTransfer?.setData('text/plain', occ.key);
@@ -40,4 +41,9 @@
 	<span class="truncate">{occ.title}</span>
 	{#if occ.is_fixed}<Lock size={10} class="shrink-0" aria-label={t('event.fixed')} />{/if}
 	{#if occ.recurring}<Repeat size={10} class="shrink-0 text-muted" aria-hidden="true" />{/if}
+	{#if occ.read_only}<Rss
+			size={10}
+			class="shrink-0 text-muted"
+			aria-label={t('event.subscribed')}
+		/>{/if}
 </button>

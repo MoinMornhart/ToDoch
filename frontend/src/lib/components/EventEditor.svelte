@@ -305,306 +305,320 @@
 		<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 		<form class="flex flex-col gap-4" onsubmit={save} onkeydown={onKeydown}>
 			{#if error}<p role="alert" class="text-sm text-danger">{error}</p>{/if}
-
-			{#if detail && (detail.contact || agreement || detail.tasks.length)}
-				<section
-					aria-label={t('event.contact')}
-					class="flex flex-col gap-2 rounded-lg border border-line bg-surface-2/60 p-3 text-sm"
-				>
-					{#if detail.contact}
-						{@const contact = detail.contact}
-						<div class="flex flex-wrap items-start justify-between gap-2">
-							<div class="min-w-0">
-								<p class="flex items-center gap-1.5 font-medium">
-									<UserRound size={15} aria-hidden="true" />{contact.name}
-									{#if contact.company}<span class="font-normal text-muted"
-											>· {contact.company}</span
-										>{/if}
-								</p>
-								<p class="mt-1 flex flex-wrap gap-x-4 gap-y-1">
-									{#if contact.phone}
-										<a
-											class="inline-flex items-center gap-1 text-accent"
-											href="tel:{contact.phone}"
-										>
-											<Phone size={13} aria-hidden="true" />{contact.phone}
-										</a>
-									{/if}
-									{#if contact.email}
-										<a
-											class="inline-flex items-center gap-1 text-accent"
-											href="mailto:{contact.email}"
-										>
-											<Mail size={13} aria-hidden="true" />{contact.email}
-										</a>
-									{/if}
-								</p>
-								{#if contact.address}
-									<p class="mt-1 whitespace-pre-line text-muted">{contact.address}</p>
-								{/if}
-							</div>
-							<button
-								type="button"
-								class="btn px-2.5 py-1 text-xs"
-								onclick={() => anotherAppointment(contact.id)}
-							>
-								{t('event.another')}
-							</button>
-						</div>
-					{/if}
-					{#if agreement}<p class="text-muted">{agreement}</p>{/if}
-					{#if detail.tasks.length}
-						<div>
-							<p class="text-xs font-medium text-muted">{t('event.tasks')}</p>
-							<ul class="mt-1 flex flex-col gap-0.5">
-								{#each detail.tasks as linked (linked.id)}
-									<li>
-										<button
-											type="button"
-											class="text-left {linked.status === 'done'
-												? 'text-muted line-through'
-												: 'text-accent'}"
-											onclick={() => openTask(linked.id)}
-										>
-											{linked.title}{#if linked.due_date}
-												<span class="text-muted">
-													· {formatLongDate(linked.due_date, i18n.locale)}</span
-												>{/if}
-										</button>
-									</li>
-								{/each}
-							</ul>
-						</div>
-					{/if}
-				</section>
+			{#if detail?.read_only}
+				<p class="rounded-lg bg-surface-2 px-3 py-2 text-sm">
+					{t('event.readOnly', { name: detail.calendar_name ?? '' })}
+				</p>
 			{/if}
+			<fieldset class="contents" disabled={detail?.read_only ?? false}>
+				{#if detail && (detail.contact || agreement || detail.tasks.length)}
+					<section
+						aria-label={t('event.contact')}
+						class="flex flex-col gap-2 rounded-lg border border-line bg-surface-2/60 p-3 text-sm"
+					>
+						{#if detail.contact}
+							{@const contact = detail.contact}
+							<div class="flex flex-wrap items-start justify-between gap-2">
+								<div class="min-w-0">
+									<p class="flex items-center gap-1.5 font-medium">
+										<UserRound size={15} aria-hidden="true" />{contact.name}
+										{#if contact.company}<span class="font-normal text-muted"
+												>· {contact.company}</span
+											>{/if}
+									</p>
+									<p class="mt-1 flex flex-wrap gap-x-4 gap-y-1">
+										{#if contact.phone}
+											<a
+												class="inline-flex items-center gap-1 text-accent"
+												href="tel:{contact.phone}"
+											>
+												<Phone size={13} aria-hidden="true" />{contact.phone}
+											</a>
+										{/if}
+										{#if contact.email}
+											<a
+												class="inline-flex items-center gap-1 text-accent"
+												href="mailto:{contact.email}"
+											>
+												<Mail size={13} aria-hidden="true" />{contact.email}
+											</a>
+										{/if}
+									</p>
+									{#if contact.address}
+										<p class="mt-1 whitespace-pre-line text-muted">{contact.address}</p>
+									{/if}
+								</div>
+								<button
+									type="button"
+									class="btn px-2.5 py-1 text-xs"
+									onclick={() => anotherAppointment(contact.id)}
+								>
+									{t('event.another')}
+								</button>
+							</div>
+						{/if}
+						{#if agreement}<p class="text-muted">{agreement}</p>{/if}
+						{#if detail.tasks.length}
+							<div>
+								<p class="text-xs font-medium text-muted">{t('event.tasks')}</p>
+								<ul class="mt-1 flex flex-col gap-0.5">
+									{#each detail.tasks as linked (linked.id)}
+										<li>
+											<button
+												type="button"
+												class="text-left {linked.status === 'done'
+													? 'text-muted line-through'
+													: 'text-accent'}"
+												onclick={() => openTask(linked.id)}
+											>
+												{linked.title}{#if linked.due_date}
+													<span class="text-muted">
+														· {formatLongDate(linked.due_date, i18n.locale)}</span
+													>{/if}
+											</button>
+										</li>
+									{/each}
+								</ul>
+							</div>
+						{/if}
+					</section>
+				{/if}
 
-			<div>
-				<label class="label" for="{uid}-title">{t('event.title')}</label>
-				<input
-					id="{uid}-title"
-					bind:this={titleInput}
-					class="input"
-					bind:value={form.title}
-					maxlength="300"
-					required
-				/>
-			</div>
+				<div>
+					<label class="label" for="{uid}-title">{t('event.title')}</label>
+					<input
+						id="{uid}-title"
+						bind:this={titleInput}
+						class="input"
+						bind:value={form.title}
+						maxlength="300"
+						required
+					/>
+				</div>
 
-			<label class="flex items-center gap-2 text-sm">
-				<input type="checkbox" class="size-4 accent-accent" bind:checked={form.all_day} />
-				{t('event.allDay')}
-			</label>
+				<label class="flex items-center gap-2 text-sm">
+					<input type="checkbox" class="size-4 accent-accent" bind:checked={form.all_day} />
+					{t('event.allDay')}
+				</label>
 
-			<div class="grid gap-3 sm:grid-cols-2">
-				<div class="flex gap-2">
-					<div class="flex-1">
-						<label class="label" for="{uid}-start">{t('event.start')}</label>
-						<input
-							id="{uid}-start"
-							type="date"
-							class="input"
-							bind:value={form.start_date}
-							onchange={keepEndAfterStart}
-							required
-						/>
-					</div>
-					{#if !form.all_day}
-						<div class="w-28">
-							<label class="label" for="{uid}-start-time">{t('event.time')}</label>
+				<div class="grid gap-3 sm:grid-cols-2">
+					<div class="flex gap-2">
+						<div class="flex-1">
+							<label class="label" for="{uid}-start">{t('event.start')}</label>
 							<input
-								id="{uid}-start-time"
-								type="time"
+								id="{uid}-start"
+								type="date"
 								class="input"
-								aria-label={t('event.startTime')}
-								bind:value={form.start_time}
+								bind:value={form.start_date}
 								onchange={keepEndAfterStart}
 								required
 							/>
 						</div>
-					{/if}
-				</div>
-				<div class="flex gap-2">
-					<div class="flex-1">
-						<label class="label" for="{uid}-end">{t('event.end')}</label>
-						<input
-							id="{uid}-end"
-							type="date"
-							class="input"
-							bind:value={form.end_date}
-							min={form.start_date}
-						/>
-					</div>
-					{#if !form.all_day}
-						<div class="w-28">
-							<label class="label" for="{uid}-end-time">{t('event.time')}</label>
-							<input
-								id="{uid}-end-time"
-								type="time"
-								class="input"
-								aria-label={t('event.endTime')}
-								bind:value={form.end_time}
-							/>
-						</div>
-					{/if}
-				</div>
-			</div>
-
-			<div class="grid gap-3 sm:grid-cols-2">
-				<div>
-					<label class="label" for="{uid}-area">{t('task.area')}</label>
-					<select id="{uid}-area" class="input" bind:value={form.area_id}>
-						{#each areas.list as area (area.id)}
-							<option value={area.id}>{area.name}</option>
-						{/each}
-					</select>
-				</div>
-				<div>
-					<label class="label" for="{uid}-location">{t('event.location')}</label>
-					<input id="{uid}-location" class="input" bind:value={form.location} maxlength="500" />
-				</div>
-			</div>
-
-			{#if !isOverride}
-				<fieldset>
-					<legend class="label">{t('task.recurrence')}</legend>
-					<div class="flex flex-wrap items-center gap-3">
-						<select
-							aria-label={t('task.recurrence')}
-							class="input w-auto"
-							bind:value={form.recurrence.freq}
-							onchange={() => form && (form.recurrenceDirty = true)}
-						>
-							<option value="NONE">{t('rec.none')}</option>
-							{#each FREQUENCIES as freq (freq)}
-								<option value={freq}>{t(`rec.${freq}`)}</option>
-							{/each}
-						</select>
-						{#if form.recurrence.freq !== 'NONE'}
-							<label class="flex items-center gap-2 text-sm">
-								{t('rec.every')}
+						{#if !form.all_day}
+							<div class="w-28">
+								<label class="label" for="{uid}-start-time">{t('event.time')}</label>
 								<input
-									type="number"
-									min="1"
-									max="365"
-									class="input w-20"
-									bind:value={form.recurrence.interval}
-									oninput={() => form && (form.recurrenceDirty = true)}
+									id="{uid}-start-time"
+									type="time"
+									class="input"
+									aria-label={t('event.startTime')}
+									bind:value={form.start_time}
+									onchange={keepEndAfterStart}
+									required
 								/>
-								{t(`rec.unit.${form.recurrence.freq}`)}
-							</label>
-							<label class="flex items-center gap-2 text-sm">
-								{t('rec.until')}
-								<input
-									type="date"
-									class="input w-auto"
-									bind:value={form.recurrence.until}
-									onchange={() => form && (form.recurrenceDirty = true)}
-								/>
-							</label>
+							</div>
 						{/if}
 					</div>
-					{#if form.recurrence.freq === 'WEEKLY'}
-						<div class="mt-2 flex flex-wrap gap-1" role="group" aria-label={t('rec.weekdays')}>
-							{#each WEEKDAYS as day (day)}
-								<button
-									type="button"
-									class="btn px-2.5 py-1 {form.recurrence.byday.includes(day)
-										? 'border-accent text-accent'
-										: ''}"
-									aria-pressed={form.recurrence.byday.includes(day)}
-									onclick={() => toggleWeekday(day)}
-								>
-									{weekdayName(day, i18n.locale)}
-								</button>
-							{/each}
+					<div class="flex gap-2">
+						<div class="flex-1">
+							<label class="label" for="{uid}-end">{t('event.end')}</label>
+							<input
+								id="{uid}-end"
+								type="date"
+								class="input"
+								bind:value={form.end_date}
+								min={form.start_date}
+							/>
 						</div>
-					{/if}
-				</fieldset>
-			{/if}
+						{#if !form.all_day}
+							<div class="w-28">
+								<label class="label" for="{uid}-end-time">{t('event.time')}</label>
+								<input
+									id="{uid}-end-time"
+									type="time"
+									class="input"
+									aria-label={t('event.endTime')}
+									bind:value={form.end_time}
+								/>
+							</div>
+						{/if}
+					</div>
+				</div>
 
-			<fieldset>
-				<legend class="label">{t('event.reminders')}</legend>
-				<div class="flex flex-wrap gap-1.5">
-					{#each REMINDER_PRESETS as minutes (minutes)}
-						<button
-							type="button"
-							class="btn px-2.5 py-1 text-xs {form.reminders.includes(minutes)
-								? 'border-accent text-accent'
-								: ''}"
-							aria-pressed={form.reminders.includes(minutes)}
-							onclick={() => toggleReminder(minutes)}
-						>
-							{reminderLabel(minutes)}
-						</button>
-					{/each}
+				<div class="grid gap-3 sm:grid-cols-2">
+					<div>
+						<label class="label" for="{uid}-area">{t('task.area')}</label>
+						<select id="{uid}-area" class="input" bind:value={form.area_id}>
+							{#each areas.list as area (area.id)}
+								<option value={area.id}>{area.name}</option>
+							{/each}
+						</select>
+					</div>
+					<div>
+						<label class="label" for="{uid}-location">{t('event.location')}</label>
+						<input id="{uid}-location" class="input" bind:value={form.location} maxlength="500" />
+					</div>
+				</div>
+
+				{#if !isOverride}
+					<fieldset>
+						<legend class="label">{t('task.recurrence')}</legend>
+						<div class="flex flex-wrap items-center gap-3">
+							<select
+								aria-label={t('task.recurrence')}
+								class="input w-auto"
+								bind:value={form.recurrence.freq}
+								onchange={() => form && (form.recurrenceDirty = true)}
+							>
+								<option value="NONE">{t('rec.none')}</option>
+								{#each FREQUENCIES as freq (freq)}
+									<option value={freq}>{t(`rec.${freq}`)}</option>
+								{/each}
+							</select>
+							{#if form.recurrence.freq !== 'NONE'}
+								<label class="flex items-center gap-2 text-sm">
+									{t('rec.every')}
+									<input
+										type="number"
+										min="1"
+										max="365"
+										class="input w-20"
+										bind:value={form.recurrence.interval}
+										oninput={() => form && (form.recurrenceDirty = true)}
+									/>
+									{t(`rec.unit.${form.recurrence.freq}`)}
+								</label>
+								<label class="flex items-center gap-2 text-sm">
+									{t('rec.until')}
+									<input
+										type="date"
+										class="input w-auto"
+										bind:value={form.recurrence.until}
+										onchange={() => form && (form.recurrenceDirty = true)}
+									/>
+								</label>
+							{/if}
+						</div>
+						{#if form.recurrence.freq === 'WEEKLY'}
+							<div class="mt-2 flex flex-wrap gap-1" role="group" aria-label={t('rec.weekdays')}>
+								{#each WEEKDAYS as day (day)}
+									<button
+										type="button"
+										class="btn px-2.5 py-1 {form.recurrence.byday.includes(day)
+											? 'border-accent text-accent'
+											: ''}"
+										aria-pressed={form.recurrence.byday.includes(day)}
+										onclick={() => toggleWeekday(day)}
+									>
+										{weekdayName(day, i18n.locale)}
+									</button>
+								{/each}
+							</div>
+						{/if}
+					</fieldset>
+				{/if}
+
+				<fieldset>
+					<legend class="label">{t('event.reminders')}</legend>
+					<div class="flex flex-wrap gap-1.5">
+						{#each REMINDER_PRESETS as minutes (minutes)}
+							<button
+								type="button"
+								class="btn px-2.5 py-1 text-xs {form.reminders.includes(minutes)
+									? 'border-accent text-accent'
+									: ''}"
+								aria-pressed={form.reminders.includes(minutes)}
+								onclick={() => toggleReminder(minutes)}
+							>
+								{reminderLabel(minutes)}
+							</button>
+						{/each}
+					</div>
+				</fieldset>
+
+				<div class="grid gap-3 sm:grid-cols-2">
+					<div>
+						<label class="label" for="{uid}-status">{t('event.status')}</label>
+						<select id="{uid}-status" class="input" bind:value={form.status}>
+							{#each STATUSES as status (status)}
+								<option value={status}>{t(`event.status.${status}`)}</option>
+							{/each}
+						</select>
+					</div>
+					<div>
+						<label class="label" for="{uid}-url">{t('event.url')}</label>
+						<input
+							id="{uid}-url"
+							type="url"
+							class="input"
+							bind:value={form.url}
+							placeholder="https://"
+							maxlength="1000"
+						/>
+					</div>
+				</div>
+
+				<div class="flex flex-col gap-2 text-sm">
+					<label class="flex items-start gap-2">
+						<input
+							type="checkbox"
+							class="mt-0.5 size-4 accent-accent"
+							bind:checked={form.is_fixed}
+						/>
+						<span>{t('event.fixed')} <span class="text-muted">– {t('event.fixedHint')}</span></span>
+					</label>
+					<label class="flex items-center gap-2">
+						<input type="checkbox" class="size-4 accent-accent" bind:checked={form.free} />
+						{t('event.free')}
+					</label>
+				</div>
+
+				<div>
+					<label class="label" for="{uid}-attendees">{t('event.attendees')}</label>
+					<textarea
+						id="{uid}-attendees"
+						class="input min-h-16"
+						bind:value={form.attendees}
+						aria-describedby="{uid}-attendees-hint"></textarea>
+					<p id="{uid}-attendees-hint" class="mt-1 text-xs text-muted">
+						{t('event.attendeesHint')}
+					</p>
+				</div>
+
+				<div>
+					<label class="label" for="{uid}-description">{t('event.description')}</label>
+					<textarea
+						id="{uid}-description"
+						class="input min-h-24"
+						bind:value={form.description}
+						maxlength="50000"></textarea>
+				</div>
+
+				<div>
+					<label class="label" for="{uid}-tags">{t('task.tags')}</label>
+					<input id="{uid}-tags" class="input" bind:value={form.tags} autocomplete="off" />
 				</div>
 			</fieldset>
-
-			<div class="grid gap-3 sm:grid-cols-2">
-				<div>
-					<label class="label" for="{uid}-status">{t('event.status')}</label>
-					<select id="{uid}-status" class="input" bind:value={form.status}>
-						{#each STATUSES as status (status)}
-							<option value={status}>{t(`event.status.${status}`)}</option>
-						{/each}
-					</select>
-				</div>
-				<div>
-					<label class="label" for="{uid}-url">{t('event.url')}</label>
-					<input
-						id="{uid}-url"
-						type="url"
-						class="input"
-						bind:value={form.url}
-						placeholder="https://"
-						maxlength="1000"
-					/>
-				</div>
-			</div>
-
-			<div class="flex flex-col gap-2 text-sm">
-				<label class="flex items-start gap-2">
-					<input type="checkbox" class="mt-0.5 size-4 accent-accent" bind:checked={form.is_fixed} />
-					<span>{t('event.fixed')} <span class="text-muted">– {t('event.fixedHint')}</span></span>
-				</label>
-				<label class="flex items-center gap-2">
-					<input type="checkbox" class="size-4 accent-accent" bind:checked={form.free} />
-					{t('event.free')}
-				</label>
-			</div>
-
-			<div>
-				<label class="label" for="{uid}-attendees">{t('event.attendees')}</label>
-				<textarea
-					id="{uid}-attendees"
-					class="input min-h-16"
-					bind:value={form.attendees}
-					aria-describedby="{uid}-attendees-hint"></textarea>
-				<p id="{uid}-attendees-hint" class="mt-1 text-xs text-muted">{t('event.attendeesHint')}</p>
-			</div>
-
-			<div>
-				<label class="label" for="{uid}-description">{t('event.description')}</label>
-				<textarea
-					id="{uid}-description"
-					class="input min-h-24"
-					bind:value={form.description}
-					maxlength="50000"></textarea>
-			</div>
-
-			<div>
-				<label class="label" for="{uid}-tags">{t('task.tags')}</label>
-				<input id="{uid}-tags" class="input" bind:value={form.tags} autocomplete="off" />
-			</div>
 
 			<div class="flex items-center justify-between gap-2 border-t border-line pt-4">
 				{#if request?.mode === 'edit'}
 					<div class="flex flex-wrap gap-1">
-						<button type="button" class="btn btn-ghost btn-danger" onclick={remove}>
-							<Trash size={16} aria-hidden="true" />
-							{confirmDelete ? t('task.deleteConfirm') : t('task.delete')}
-						</button>
+						{#if !detail?.read_only}
+							<button type="button" class="btn btn-ghost btn-danger" onclick={remove}>
+								<Trash size={16} aria-hidden="true" />
+								{confirmDelete ? t('task.deleteConfirm') : t('task.delete')}
+							</button>
+						{/if}
 						<a
 							class="btn btn-ghost"
 							href="/api/events/{request.eventId}/ics"
@@ -623,7 +637,10 @@
 					<button type="button" class="btn" onclick={() => (open = false)}
 						>{t('task.cancel')}</button
 					>
-					<button type="submit" class="btn btn-primary" disabled={saving}>{t('task.save')}</button>
+					{#if !detail?.read_only}
+						<button type="submit" class="btn btn-primary" disabled={saving}>{t('task.save')}</button
+						>
+					{/if}
 				</div>
 			</div>
 		</form>

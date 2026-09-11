@@ -98,6 +98,7 @@ def occurrence_out(occ: Occurrence, tzid: str) -> OccurrenceOut:
         status=event.status,
         is_fixed=event.is_fixed,
         recurring=occ.recurrence_id is not None,
+        read_only=event.calendar_id is not None,
         tags=list(event.tags or []),
         start=occ.start,
         end=occ.end,
@@ -144,6 +145,9 @@ def event_out(
         transparency=event.transparency,
         is_fixed=event.is_fixed,
         source=event.source,
+        calendar_id=event.calendar_id,
+        calendar_name=event.calendar.name if event.calendar else None,
+        read_only=event.calendar_id is not None,
         tags=list(event.tags or []),
         attendees=[
             AttendeeOut(name=a.get("name", ""), email=a.get("email")) for a in event.attendees
@@ -162,6 +166,16 @@ def event_out(
         created_at=event.created_at,
         updated_at=event.updated_at,
     )
+
+
+def _ensure_writable(event: Event) -> None:
+    """Termine aus abonnierten Kalendern gehören der Quelle – der nächste Abgleich würde
+    Änderungen ohnehin überschreiben."""
+    if event.calendar_id is not None:
+        raise HTTPException(
+            status.HTTP_409_CONFLICT,
+            "Dieser Termin kommt aus einem abonnierten Kalender und lässt sich nur dort ändern.",
+        )
 
 
 def conflicts_out(conflicts: list[Occurrence], tzid: str) -> list[ConflictOut]:
@@ -389,6 +403,7 @@ async def update_event(
     occurrence: datetime | None = None,
 ) -> EventWriteOut:
     event = await _load(db, user, event_id, Action.EDIT)
+    _ensure_writable(event)
     occ = _utc(occurrence)
 
     # Geändertes Vorkommen: „folgende“/„alle“ wirken auf die Serie.
@@ -465,6 +480,7 @@ async def delete_event(
     occurrence: datetime | None = None,
 ) -> None:
     event = await _load(db, user, event_id, Action.DELETE)
+    _ensure_writable(event)
     occ = _utc(occurrence)
 
     if event.series_id is not None:  # geändertes Vorkommen

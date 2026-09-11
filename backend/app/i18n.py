@@ -61,6 +61,30 @@ EXACT: dict[str, str] = {
     "Dieses Vorkommen gehört nicht zur Serie.": "This occurrence does not belong to the series.",
     "Link muss mit http:// oder https:// beginnen": "Link must start with http:// or https://",
     "Unbekannte Zeitzone": "Unknown time zone",
+    "Die Adresse ist ungültig.": "The address is invalid.",
+    "Die Adresse muss mit http:// oder https:// beginnen.": (
+        "The address must start with http:// or https://."
+    ),
+    "Der Name der Adresse lässt sich nicht auflösen.": (
+        "The address's host name cannot be resolved."
+    ),
+    "Diese Adresse ist nicht erlaubt.": "This address is not allowed.",
+    "Adressen im eigenen Netz kann nur ein Admin einbinden.": (
+        "Only an admin can add addresses in the local network."
+    ),
+    "Der Kalender ist nicht erreichbar.": "The calendar cannot be reached.",
+    "Der Kalender ist zu groß (höchstens 2 MB).": "The calendar is too large (at most 2 MB).",
+    "Zu viele Weiterleitungen.": "Too many redirects.",
+    "Das ist keine gültige Kalenderdatei (ICS).": "This is not a valid calendar file (ICS).",
+    "Der Kalender enthält zu viele Termine (höchstens 5000).": (
+        "The calendar contains too many events (at most 5000)."
+    ),
+    "Die gespeicherte Adresse lässt sich nicht entschlüsseln.": (
+        "The stored address cannot be decrypted."
+    ),
+    "Dieser Termin kommt aus einem abonnierten Kalender und lässt sich nur dort ändern.": (
+        "This event comes from a subscribed calendar and can only be changed there."
+    ),
     "Unbekannter Push-Dienst": "Unknown push service",
     "Zu viele Geräte registriert.": "Too many devices registered.",
     "Auf keinem Gerät aktiviert.": "Not enabled on any device.",
@@ -86,6 +110,7 @@ EXACT: dict[str, str] = {
 }
 
 NOUNS = {
+    "Kalender": "calendars",
     "Bereiche": "areas",
     "Kontakte": "contacts",
     "Abo-Links": "subscription links",
@@ -120,6 +145,10 @@ PATTERNS: list[tuple[re.Pattern[str], Render]] = [
         lambda m: f"Unsupported recurrence rule: {m[1]}",
     ),
     (re.compile(r"^Nicht unterstützt: (.+)$"), lambda m: f"Not supported: {m[1]}"),
+    (
+        re.compile(r"^Der Server antwortet mit Status (\d+)\.$"),
+        lambda m: f"The server responds with status {m[1]}.",
+    ),
 ]
 
 

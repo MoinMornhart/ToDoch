@@ -21,6 +21,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.area import Area
 from app.models.base import Base, Timestamps, UUIDPk
+from app.models.calendar import ExternalCalendar
 from app.models.contact import Contact
 
 CHANNELS = ("phone", "in_person", "mail", "other")
@@ -80,6 +81,10 @@ class Event(UUIDPk, Timestamps, Base):
     transparency: Mapped[str] = mapped_column(String(12), default="opaque")
     is_fixed: Mapped[bool] = mapped_column(default=False)
     source: Mapped[str] = mapped_column(String(20), default="manual")
+    # Aus einem abonnierten Kalender (z. B. Streamo) – dann nur lesbar
+    calendar_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("external_calendars.id", ondelete="CASCADE"), index=True
+    )
     # Telefontermin: Kontakt, wie und wann vereinbart, mit wem gesprochen
     contact_id: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("contacts.id", ondelete="SET NULL"), index=True
@@ -104,3 +109,4 @@ class Event(UUIDPk, Timestamps, Base):
 
     area: Mapped[Area] = relationship(lazy="joined", innerjoin=True)
     contact: Mapped[Contact | None] = relationship(lazy="joined")
+    calendar: Mapped[ExternalCalendar | None] = relationship(lazy="joined")

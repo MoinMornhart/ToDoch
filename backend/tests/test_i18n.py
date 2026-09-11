@@ -14,7 +14,15 @@ APP = Path(__file__).resolve().parent.parent / "app"
 EN = {"Accept-Language": "en"}
 # Interne Meldungen (Start-Konfiguration, Kryptografie, CLI) sind nicht für die Oberfläche
 INTERNAL = {"config.py", "crypto.py", "cli.py"}
-RAISERS = {"HTTPException", "_bad", "PasswordPolicyError", "RuleError", "ValueError", "_reject"}
+RAISERS = {
+    "HTTPException",
+    "_bad",
+    "PasswordPolicyError",
+    "RuleError",
+    "ValueError",
+    "_reject",
+    "FeedError",
+}
 
 
 def _messages() -> set[str]:

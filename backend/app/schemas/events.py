@@ -143,6 +143,9 @@ class EventOut(BaseModel):
     transparency: str
     is_fixed: bool
     source: str
+    calendar_id: uuid.UUID | None
+    calendar_name: str | None
+    read_only: bool
     tags: list[str]
     attendees: list[AttendeeOut]
     reminders: list[int]
@@ -169,6 +172,7 @@ class OccurrenceOut(BaseModel):
     status: str
     is_fixed: bool
     recurring: bool
+    read_only: bool
     tags: list[str]
     start: datetime
     end: datetime

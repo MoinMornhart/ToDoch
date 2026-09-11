@@ -415,5 +415,30 @@ export const en: Record<MessageKey, string> = {
 
 	'nav.switchLanguage': 'Switch language: Deutsch',
 
+	'calendars.title': 'Add calendars (ICS)',
+	'calendars.intro':
+		'Bring in events from other calendars – e.g. Streamo, public holidays or your work calendar. They are synced regularly and read-only in ToDoch.',
+	'calendars.streamoHint':
+		'In Streamo, copy the subscription address under “Calendar” and paste it here. Planned films, watch plans and new episodes then show up in your calendar automatically – ideally in an area of their own called “Streamo”.',
+	'calendars.name': 'Name',
+	'calendars.namePlaceholder': 'e.g. Streamo',
+	'calendars.url': 'Subscription address (https://, http:// or webcal://)',
+	'calendars.refresh': 'Sync',
+	'calendars.everyMinutes': 'every {n} minutes',
+	'calendars.everyHours': 'every {n} hours',
+	'calendars.daily': 'daily',
+	'calendars.add': 'Add',
+	'calendars.added': 'Calendar added – {count} events imported',
+	'calendars.synced': 'Synced – {count} events',
+	'calendars.count': '{count} events',
+	'calendars.lastSync': 'last {date}',
+	'calendars.syncNow': 'Sync now',
+	'calendars.remove': 'Remove',
+	'calendars.removeConfirm': 'Remove with all events?',
+	'calendars.removed': 'Calendar removed',
+	'calendars.none': 'No calendars added yet.',
+	'event.subscribed': 'From a subscribed calendar',
+	'event.readOnly': 'From the subscribed calendar “{name}” – change it there.',
+
 	'error.generic': 'Something went wrong.'
 };

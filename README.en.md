@@ -164,6 +164,24 @@ or by letter – press <kbd>t</kbd> or use **New → Arranged appointment**:
 - Afterwards: **download ICS** (without internal notes), **send by email** or
   **another appointment for the same contact**
 
+### 🍿 Streamo × ToDoch
+
+[Streamo](https://github.com/MoinMornhart/Streamo) knows which films you plan to watch, when new
+episodes air and what is about to leave your subscriptions – ToDoch brings all of that into your
+calendar automatically:
+
+1. In Streamo, copy the subscription address under **Calendar**
+2. In ToDoch, paste it under **Areas → Add calendars** and pick an area (e.g. “Streamo”)
+
+From then on ToDoch keeps the calendar in sync (every 15 minutes up to daily, or instantly at the push
+of a button): plan a film in Streamo for Saturday 8:15 pm and it shows up in your ToDoch calendar
+shortly after – with running time, watch plans and new episodes. The events are read-only in ToDoch;
+you change them in Streamo. Any other ICS calendar works the same way, e.g. public holidays or a work
+calendar.
+
+The subscription address is stored encrypted; addresses in your home network (like a Streamo
+container) can only be added by an admin, and the server's internal addresses are blocked.
+
 <details>
 <summary><b>See the month view</b></summary>
 <br>

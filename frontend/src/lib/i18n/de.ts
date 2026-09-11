@@ -414,6 +414,31 @@ export const de = {
 
 	'nav.switchLanguage': 'Sprache wechseln: English',
 
+	'calendars.title': 'Kalender einbinden (ICS)',
+	'calendars.intro':
+		'Termine aus anderen Kalendern übernehmen – z. B. Streamo, Feiertage oder den Arbeitskalender. Sie werden regelmäßig abgeglichen und sind in ToDoch nur lesbar.',
+	'calendars.streamoHint':
+		'In Streamo unter „Kalender“ die Abo-Adresse kopieren und hier einfügen. Geplante Filme, Sehpläne und neue Folgen erscheinen dann automatisch im Kalender – am besten in einem eigenen Bereich „Streamo“.',
+	'calendars.name': 'Name',
+	'calendars.namePlaceholder': 'z. B. Streamo',
+	'calendars.url': 'Abo-Adresse (https://, http:// oder webcal://)',
+	'calendars.refresh': 'Abgleich',
+	'calendars.everyMinutes': 'alle {n} Minuten',
+	'calendars.everyHours': 'alle {n} Stunden',
+	'calendars.daily': 'täglich',
+	'calendars.add': 'Einbinden',
+	'calendars.added': 'Kalender eingebunden – {count} Termine übernommen',
+	'calendars.synced': 'Abgeglichen – {count} Termine',
+	'calendars.count': '{count} Termine',
+	'calendars.lastSync': 'zuletzt {date}',
+	'calendars.syncNow': 'Jetzt abgleichen',
+	'calendars.remove': 'Entfernen',
+	'calendars.removeConfirm': 'Mit allen Terminen entfernen?',
+	'calendars.removed': 'Kalender entfernt',
+	'calendars.none': 'Noch keine eingebundenen Kalender.',
+	'event.subscribed': 'Aus einem abonnierten Kalender',
+	'event.readOnly': 'Aus dem abonnierten Kalender „{name}“ – nur dort änderbar.',
+
 	'error.generic': 'Etwas ist schiefgelaufen.'
 } as const;
 

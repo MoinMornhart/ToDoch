@@ -16,6 +16,7 @@ from app.api import (
     appointments,
     areas,
     auth,
+    calendars,
     contacts,
     events,
     feeds,
@@ -86,7 +87,19 @@ def create_app(settings: Settings | None = None, resources: Resources | None = N
             detail = translate(detail, language_from(request.headers.get("accept-language")))
         return JSONResponse({"detail": detail}, status_code=exc.status_code, headers=exc.headers)
 
-    modules = (meta, auth, passkeys, areas, tasks, events, feeds, push, contacts, appointments)
+    modules = (
+        meta,
+        auth,
+        passkeys,
+        areas,
+        tasks,
+        events,
+        feeds,
+        calendars,
+        push,
+        contacts,
+        appointments,
+    )
     for module in modules:
         app.include_router(module.router)
 

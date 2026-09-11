@@ -157,6 +157,23 @@ oder per Post vereinbart wurde – mit <kbd>t</kbd> oder über **Neu → Vereinb
 - Danach: **ICS herunterladen** (ohne interne Notizen), **per E-Mail senden** oder
   **weiterer Termin für denselben Kontakt**
 
+### 🍿 Streamo × ToDoch
+
+[Streamo](https://github.com/MoinMornhart/Streamo) weiß, welche Filme du dir vorgenommen hast,
+wann neue Folgen erscheinen und was bald aus deinem Abo verschwindet – ToDoch holt das automatisch in
+deinen Kalender:
+
+1. In Streamo unter **Kalender** die Abo-Adresse kopieren
+2. In ToDoch unter **Bereiche → Kalender einbinden** einfügen und einen Bereich wählen (z. B. „Streamo“)
+
+Ab dann gleicht ToDoch den Kalender regelmäßig ab (einstellbar von 15 Minuten bis täglich, auf Knopfdruck
+sofort): Plant du in Streamo einen Film für Samstag 20:15, steht er kurz darauf im ToDoch-Kalender –
+mit Laufzeit, Sehplänen und neuen Episoden. Die Termine sind in ToDoch nur lesbar, geändert wird in Streamo.
+Genauso lassen sich andere ICS-Kalender einbinden, etwa Feiertage oder ein Arbeitskalender.
+
+Die Abo-Adresse wird verschlüsselt gespeichert; Adressen im Heimnetz (wie ein Streamo-Container) kann
+nur ein Admin eintragen, interne Adressen des Servers sind gesperrt.
+
 <details>
 <summary><b>Monatsansicht ansehen</b></summary>
 <br>

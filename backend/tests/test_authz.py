@@ -44,6 +44,12 @@ async def _alice_objects(alice: AsyncClient) -> dict[str, Any]:
     ).json()
     contact = (await alice.post("/api/contacts", json={"name": "Vertraulich"})).json()
     passkey = await register_passkey(alice, SoftAuthenticator())
+    calendar = (
+        await alice.post(
+            "/api/calendars",
+            json={"name": "Streamo", "url": "https://s.example/c.ics", "area_id": areas[0]["id"]},
+        )
+    ).json()
     return {
         "area": areas[0],
         "task": task,
@@ -53,6 +59,7 @@ async def _alice_objects(alice: AsyncClient) -> dict[str, Any]:
         "subscription": subscription,
         "contact": contact,
         "passkey": passkey,
+        "calendar": calendar,
     }
 
 
@@ -147,6 +154,7 @@ def test_every_object_route_is_covered() -> None:
         "subscription_id",
         "contact_id",
         "passkey_id",
+        "calendar_id",
     }
     assert params <= known, params
 
@@ -165,6 +173,7 @@ async def test_every_object_route_rejects_foreign_ids(
         "subscription_id": objects["subscription"]["id"],
         "contact_id": objects["contact"]["id"],
         "passkey_id": objects["passkey"]["id"],
+        "calendar_id": objects["calendar"]["id"],
     }
     url = re.sub(r"\{(\w+_id)\}", lambda m: ids[m.group(1)], path)
     body = {} if method in ("PATCH", "PUT") else None

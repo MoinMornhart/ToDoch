@@ -79,6 +79,7 @@ export async function moveOccurrence(
 	occ: Occurrence,
 	target: { date: string; minutes: number | null; allDay?: boolean }
 ): Promise<void> {
+	if (occ.read_only) return; // aus einem abonnierten Kalender – nur dort änderbar
 	const start = parseLocal(occ.start_local);
 	let body: Record<string, unknown>;
 	if (occ.all_day || target.allDay) {

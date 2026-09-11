@@ -99,6 +99,8 @@ export interface Occurrence {
 	status: EventStatus;
 	is_fixed: boolean;
 	recurring: boolean;
+	/** Aus einem abonnierten Kalender (z. B. Streamo) – nur dort änderbar. */
+	read_only: boolean;
 	tags: string[];
 	start: string;
 	end: string;
@@ -133,6 +135,9 @@ export interface EventDetail {
 	transparency: 'opaque' | 'transparent';
 	is_fixed: boolean;
 	source: string;
+	calendar_id: string | null;
+	calendar_name: string | null;
+	read_only: boolean;
 	tags: string[];
 	attendees: Attendee[];
 	reminders: number[];
@@ -227,6 +232,21 @@ export interface PushDevice {
 	user_agent: string | null;
 	created_at: string;
 	last_success_at: string | null;
+}
+
+export interface ExternalCalendarInfo {
+	id: string;
+	name: string;
+	host: string;
+	area_id: string;
+	area_name: string;
+	refresh_minutes: number;
+	enabled: boolean;
+	event_count: number;
+	last_synced_at: string | null;
+	last_success_at: string | null;
+	last_error: string | null;
+	created_at: string;
 }
 
 export interface PasskeyInfo {

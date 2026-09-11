@@ -1,0 +1,4 @@
+# SC1090: build.func wird zur Laufzeit von GitHub nachgeladen (source <(curl …)).
+# SC1111: Deutsche Anführungszeichen „…“ stehen bewusst in Ausgabetexten.
+# SC2154: var_* setzt ct/todoch.sh, bevor die Funktionen aus build.func laufen.
+disable=SC1090,SC1111,SC2154

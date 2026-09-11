@@ -4,6 +4,13 @@ Alle Änderungen an Todoch – die neueste Version steht oben.
 Versionsschema: `0.0.1 → 0.0.2 → … → 0.0.9 → 0.1.0 → … → 0.9.9 → 1.0.0`.
 Im Container spielt der Befehl `update` immer die neueste Version ein.
 
+## [0.0.2] – 2026-09-11
+
+CI: Shell-Prüfung und aktuelle GitHub-Actions
+
+- shellcheck-Regeln für bewusst nachgeladene Skripte und deutsche Anführungszeichen begründet abgeschaltet (.shellcheckrc)
+- GitHub-Actions setup-uv v10 und upload-artifact v7 (keine Node-20-Warnung mehr)
+
 ## [0.0.1] – 2026-09-11
 
 Neustart von Todoch: minimalistische, sicherheitsorientierte To-do-App (Meilenstein 1 – Grundgerüst)

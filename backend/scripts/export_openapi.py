@@ -25,7 +25,8 @@ def main() -> None:
         redis_url="memory://",
     )
     schema = create_app(settings).openapi()
-    TARGET.write_text(json.dumps(schema, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    content = json.dumps(schema, indent=2, ensure_ascii=False) + "\n"
+    TARGET.write_text(content, encoding="utf-8", newline="\n")
     print(f"OpenAPI → {TARGET}")
 
 

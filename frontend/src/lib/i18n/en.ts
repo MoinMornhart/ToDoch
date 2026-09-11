@@ -215,5 +215,32 @@ export const en: Record<MessageKey, string> = {
 	'help.calViews': 'Month, week, day, agenda',
 	'search.event': 'Event',
 
+	'feeds.title': 'Subscribe to calendar (ICS)',
+	'feeds.intro':
+		'Create a secret link to show your events in Apple Calendar, Google Calendar, Outlook or Thunderbird. They are read-only there – edit them in Todoch.',
+	'feeds.name': 'Link name',
+	'feeds.namePlaceholder': 'e.g. iPhone',
+	'feeds.area': 'Area',
+	'feeds.allAreas': 'All areas',
+	'feeds.detail': 'Details',
+	'feeds.detail.full': 'Everything (title, location, description)',
+	'feeds.detail.title': 'Title only',
+	'feeds.detail.busy': 'Only “busy”',
+	'feeds.create': 'Create link',
+	'feeds.createdTitle': 'Your subscription link',
+	'feeds.createdHint':
+		'Shown only now – copy it or open it directly. Anyone with the link can see the events; revoke it any time.',
+	'feeds.copy': 'Copy',
+	'feeds.copied': 'Link copied',
+	'feeds.openApple': 'Apple Calendar',
+	'feeds.openGoogle': 'Google Calendar',
+	'feeds.openOutlook': 'Outlook',
+	'feeds.lastUsed': 'Last fetched {date}',
+	'feeds.neverUsed': 'Never fetched',
+	'feeds.revoke': 'Revoke',
+	'feeds.revokeConfirm': 'Really revoke?',
+	'feeds.revoked': 'Link revoked',
+	'feeds.none': 'No subscription links yet.',
+
 	'error.generic': 'Something went wrong.'
 };

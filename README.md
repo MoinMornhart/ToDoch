@@ -111,6 +111,12 @@ erscheinen direkt daneben. Wiederkehrende Termine (auch „jeden letzten Freitag
 Videolink, Teilnehmer, Erinnerungen, **feste Termine** mit Rückfrage beim Verschieben und eine
 **Warnung bei Überschneidungen** im selben Bereich. Die Termine des Tages stehen auch auf „Heute“.
 
+**In anderen Kalendern anzeigen:** Unter *Bereiche → Kalender abonnieren* erzeugst du einen geheimen
+ICS-Link – für alle oder nur einen Bereich, mit allen Details, nur Titeln oder nur „Belegt“. Ein Klick
+öffnet ihn in Apple Kalender, Google Kalender oder Outlook; jeder Link lässt sich einzeln widerrufen.
+Google und Outlook.com holen den Kalender aus dem Internet – dafür muss Todoch öffentlich erreichbar
+sein (z. B. hinter einem Reverse-Proxy).
+
 <details>
 <summary><b>Monatsansicht ansehen</b></summary>
 <br>
@@ -281,7 +287,7 @@ todoch logs [app|web|db|worker]  # Protokolle ansehen
 | | Meilenstein | Inhalt |
 | :---: | --- | --- |
 | ✅ | **1 · Grundgerüst** | Anmeldung, Sitzungen, Bereiche, Aufgaben, Schnellerfassung, Suche, PWA, Proxmox-Quickstart |
-| 🚧 | **2 · Kalender** | ✅ Termine, Serien, Monat / Woche / Tag / Agenda, Drag & Drop, Konflikte · ⏳ Erinnerungen, ICS-Abos für Apple, Google & Outlook |
+| 🚧 | **2 · Kalender** | ✅ Termine, Serien, Monat / Woche / Tag / Agenda, Drag & Drop, Konflikte, ICS-Abos für Apple, Google & Outlook · ⏳ Erinnerungen |
 | ⏳ | **3 · Telefontermine** | Formular für telefonisch vereinbarte Termine, Kontakte, Folgeaufgaben |
 | ⏳ | **4 · E-Mail** | Postfächer per IMAP, Regeln, automatische Terminerkennung, Bestätigungs-Inbox |
 | ⏳ | **5 · Synchronisation** | Gmail & Microsoft per OAuth, Zwei-Wege-Sync mit CalDAV, Google und Microsoft |

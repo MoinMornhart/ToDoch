@@ -4,6 +4,17 @@ Alle Änderungen an Todoch – die neueste Version steht oben.
 Versionsschema: `0.0.1 → 0.0.2 → … → 0.0.9 → 0.1.0 → … → 0.9.9 → 1.0.0`.
 Im Container spielt der Befehl `update` immer die neueste Version ein.
 
+## [0.0.6] – 2026-09-11
+
+ICS-Abos für Apple, Google und Outlook
+
+- Kalender in der Navigation jetzt bei Bereiche
+- Neu unter Bereiche: geheime ICS-Abo-Links für alle oder einen Bereich, mit Detailstufe (alles, nur Titel, nur Belegt)
+- Abo-Link mit einem Klick in Apple Kalender, Google Kalender oder Outlook öffnen, jederzeit einzeln widerrufbar
+- Serien, Ausnahmen, geänderte Einzeltermine und Zeitzonen werden korrekt übertragen (VTIMEZONE, RRULE, EXDATE, RECURRENCE-ID)
+- Abo-Links nur als Hash gespeichert, Rate-Limit, ETag-Caching; geheime Links werden aus den Caddy-Protokollen gefiltert
+- CI prüft zusätzlich alle drei Caddy-Konfigurationen
+
 ## [0.0.5] – 2026-09-11
 
 Kalender mit Terminen, Serien und Drag & Drop

@@ -33,16 +33,16 @@
 	const primary: { href: string; label: MessageKey; icon: typeof Sun }[] = [
 		{ href: '/today', label: 'nav.today', icon: Sun },
 		{ href: '/upcoming', label: 'nav.upcoming', icon: CalendarDays },
-		{ href: '/calendar', label: 'nav.calendar', icon: CalendarRange },
 		{ href: '/open', label: 'nav.open', icon: ListTodo },
 		{ href: '/done', label: 'nav.done', icon: CircleCheckBig }
 	];
 	const secondary: typeof primary = [
+		{ href: '/calendar', label: 'nav.calendar', icon: CalendarRange },
 		{ href: '/areas', label: 'nav.areas', icon: Layers },
 		{ href: '/settings', label: 'nav.settings', icon: Settings }
 	];
-	// Handy: Heute, Demnächst, Kalender, Alle offen, Einstellungen
-	const tabs = [...primary.slice(0, 4), ...secondary.slice(1)];
+	// Handy: Heute, Demnächst, Alle offen, Kalender, Einstellungen
+	const tabs = [...primary.slice(0, 3), secondary[0]!, secondary[2]!];
 
 	const isActive = (href: string) => page.url.pathname === href;
 

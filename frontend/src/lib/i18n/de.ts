@@ -214,6 +214,33 @@ export const de = {
 	'help.calViews': 'Monat, Woche, Tag, Agenda',
 	'search.event': 'Termin',
 
+	'feeds.title': 'Kalender abonnieren (ICS)',
+	'feeds.intro':
+		'Erzeuge einen geheimen Link, um deine Termine in Apple Kalender, Google Kalender, Outlook oder Thunderbird anzuzeigen. Dort werden sie nur angezeigt – ändern kannst du sie in Todoch.',
+	'feeds.name': 'Name des Links',
+	'feeds.namePlaceholder': 'z. B. iPhone',
+	'feeds.area': 'Bereich',
+	'feeds.allAreas': 'Alle Bereiche',
+	'feeds.detail': 'Details',
+	'feeds.detail.full': 'Alles (Titel, Ort, Beschreibung)',
+	'feeds.detail.title': 'Nur Titel',
+	'feeds.detail.busy': 'Nur „Belegt“',
+	'feeds.create': 'Link erstellen',
+	'feeds.createdTitle': 'Dein Abo-Link',
+	'feeds.createdHint':
+		'Nur jetzt sichtbar – kopieren oder direkt öffnen. Wer den Link kennt, sieht die Termine; bei Bedarf einfach widerrufen.',
+	'feeds.copy': 'Kopieren',
+	'feeds.copied': 'Link kopiert',
+	'feeds.openApple': 'Apple Kalender',
+	'feeds.openGoogle': 'Google Kalender',
+	'feeds.openOutlook': 'Outlook',
+	'feeds.lastUsed': 'Zuletzt abgerufen {date}',
+	'feeds.neverUsed': 'Noch nie abgerufen',
+	'feeds.revoke': 'Widerrufen',
+	'feeds.revokeConfirm': 'Wirklich widerrufen?',
+	'feeds.revoked': 'Link widerrufen',
+	'feeds.none': 'Noch keine Abo-Links.',
+
 	'error.generic': 'Etwas ist schiefgelaufen.'
 } as const;
 

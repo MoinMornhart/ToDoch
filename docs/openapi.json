@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Todoch API",
-    "version": "0.0.4"
+    "version": "0.0.5"
   },
   "paths": {
     "/api/health": {
@@ -1347,6 +1347,146 @@
           }
         }
       }
+    },
+    "/api/feeds": {
+      "get": {
+        "tags": [
+          "feeds"
+        ],
+        "summary": "List Feeds",
+        "operationId": "list_feeds_api_feeds_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/FeedOut"
+                  },
+                  "type": "array",
+                  "title": "Response List Feeds Api Feeds Get"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "feeds"
+        ],
+        "summary": "Create Feed",
+        "operationId": "create_feed_api_feeds_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FeedIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeedCreatedOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/feeds/{feed_id}": {
+      "delete": {
+        "tags": [
+          "feeds"
+        ],
+        "summary": "Revoke Feed",
+        "operationId": "revoke_feed_api_feeds__feed_id__delete",
+        "parameters": [
+          {
+            "name": "feed_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Feed Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/feeds/{token}.ics": {
+      "get": {
+        "tags": [
+          "feeds"
+        ],
+        "summary": "Feed Calendar",
+        "operationId": "feed_calendar_api_feeds__token__ics_get",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -2320,6 +2460,133 @@
           "conflicts"
         ],
         "title": "EventWriteOut"
+      },
+      "FeedCreatedOut": {
+        "properties": {
+          "feed": {
+            "$ref": "#/components/schemas/FeedOut"
+          },
+          "url": {
+            "type": "string",
+            "title": "Url"
+          },
+          "webcal_url": {
+            "type": "string",
+            "title": "Webcal Url"
+          }
+        },
+        "type": "object",
+        "required": [
+          "feed",
+          "url",
+          "webcal_url"
+        ],
+        "title": "FeedCreatedOut"
+      },
+      "FeedIn": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "area_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Area Id"
+          },
+          "detail": {
+            "type": "string",
+            "enum": [
+              "full",
+              "title",
+              "busy"
+            ],
+            "title": "Detail",
+            "default": "full"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "title": "FeedIn"
+      },
+      "FeedOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "area_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Area Id"
+          },
+          "area_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Area Name"
+          },
+          "detail": {
+            "type": "string",
+            "title": "Detail"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "last_used_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Used At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "area_id",
+          "area_name",
+          "detail",
+          "created_at",
+          "last_used_at"
+        ],
+        "title": "FeedOut"
       },
       "HTTPValidationError": {
         "properties": {

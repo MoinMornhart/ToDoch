@@ -36,6 +36,12 @@
 
 	log {
 		output stdout
-		format json
+		# Geheime Abo-Links (ICS-Feeds) nie ins Protokoll schreiben.
+		format filter {
+			wrap json
+			fields {
+				request>uri regexp ^/api/feeds/[^/?]+ /api/feeds/REDACTED
+			}
+		}
 	}
 }

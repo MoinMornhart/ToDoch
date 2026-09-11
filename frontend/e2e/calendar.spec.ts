@@ -74,5 +74,21 @@ test('Kalender: Serie anlegen, ein Vorkommen ändern und löschen', async ({ pag
 	await page.getByRole('link', { name: 'Heute' }).first().click();
 	await expect(page.getByRole('region', { name: 'Termine' })).toContainText('Teammeeting');
 
+	// ICS-Abo auf der Bereiche-Seite anlegen und abrufen
+	await page.getByRole('link', { name: 'Bereiche' }).first().click();
+	await page.getByLabel('Name des Links').fill('iPhone');
+	await page.getByRole('button', { name: 'Link erstellen' }).click();
+	const link = page.getByRole('textbox', { name: 'Dein Abo-Link' });
+	await expect(link).toHaveValue(/\/api\/feeds\/[\w-]+\.ics$/);
+	const url = await link.inputValue();
+	const ics = await page.request.get(new URL(url).pathname);
+	expect(ics.status()).toBe(200);
+	expect(await ics.text()).toContain('SUMMARY:Teammeeting');
+	await expect(page.getByText('iPhone', { exact: true })).toBeVisible();
+	await page.getByRole('button', { name: 'Widerrufen' }).click();
+	await page.getByRole('button', { name: 'Wirklich widerrufen?' }).click();
+	await expect(page.getByText('Noch keine Abo-Links.')).toBeVisible();
+	expect((await page.request.get(new URL(url).pathname)).status()).toBe(404);
+
 	expect(problems).toEqual([]);
 });

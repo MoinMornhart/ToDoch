@@ -31,7 +31,8 @@ async def _alice_objects(alice: AsyncClient) -> dict[str, Any]:
             },
         )
     ).json()["event"]
-    return {"area": areas[0], "task": task, "session": session, "event": event}
+    feed = (await alice.post("/api/feeds", json={"name": "Alice"})).json()["feed"]
+    return {"area": areas[0], "task": task, "session": session, "event": event, "feed": feed}
 
 
 async def test_foreign_task_is_invisible(alice: AsyncClient, bob: AsyncClient) -> None:
@@ -116,7 +117,7 @@ OBJECT_ROUTES = _object_routes()
 def test_every_object_route_is_covered() -> None:
     assert len(OBJECT_ROUTES) >= 8
     params = {p for _, path in OBJECT_ROUTES for p in re.findall(r"\{(\w+_id)\}", path)}
-    assert params <= {"task_id", "area_id", "session_id", "event_id"}, params
+    assert params <= {"task_id", "area_id", "session_id", "event_id", "feed_id"}, params
 
 
 @pytest.mark.parametrize(("method", "path"), OBJECT_ROUTES)
@@ -129,6 +130,7 @@ async def test_every_object_route_rejects_foreign_ids(
         "area_id": objects["area"]["id"],
         "session_id": objects["session"]["id"],
         "event_id": objects["event"]["id"],
+        "feed_id": objects["feed"]["id"],
     }
     url = re.sub(r"\{(\w+_id)\}", lambda m: ids[m.group(1)], path)
     body = {} if method in ("PATCH", "PUT") else None

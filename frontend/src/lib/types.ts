@@ -165,6 +165,24 @@ export type EventEditorRequest =
 	| { mode: 'edit'; eventId: string; occurrence: string | null }
 	| { mode: 'new'; date: string; time?: string; allDay?: boolean };
 
+export type FeedDetail = 'full' | 'title' | 'busy';
+
+export interface FeedInfo {
+	id: string;
+	name: string;
+	area_id: string | null;
+	area_name: string | null;
+	detail: FeedDetail;
+	created_at: string;
+	last_used_at: string | null;
+}
+
+export interface FeedCreated {
+	feed: FeedInfo;
+	url: string;
+	webcal_url: string;
+}
+
 export interface SessionInfo {
 	id: string;
 	created_at: string;

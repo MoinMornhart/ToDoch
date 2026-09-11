@@ -3,6 +3,7 @@
 	import { onMount } from 'svelte';
 	import { api, ApiError } from '$lib/api';
 	import AreaIcon from '$lib/components/AreaIcon.svelte';
+	import CalendarFeeds from '$lib/components/CalendarFeeds.svelte';
 	import PageHeader from '$lib/components/PageHeader.svelte';
 	import { t } from '$lib/i18n/index.svelte';
 	import { AREA_ICONS } from '$lib/labels';
@@ -198,3 +199,5 @@
 		<button type="submit" class="btn btn-primary">{t('areas.add')}</button>
 	</div>
 </form>
+
+<CalendarFeeds />

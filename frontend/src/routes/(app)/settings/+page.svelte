@@ -4,6 +4,7 @@
 	import { describeAgent } from '$lib/agent';
 	import { api, ApiError } from '$lib/api';
 	import PageHeader from '$lib/components/PageHeader.svelte';
+	import PushSettings from '$lib/components/PushSettings.svelte';
 	import { i18n, t } from '$lib/i18n/index.svelte';
 	import { session } from '$lib/stores/session.svelte';
 	import { toasts } from '$lib/stores/toasts.svelte';
@@ -193,6 +194,8 @@
 			{t('settings.logoutAll')}
 		</button>
 	</section>
+
+	<PushSettings />
 
 	<section aria-labelledby="about-title">
 		<h2 id="about-title" class="mb-1 text-base font-semibold">{t('settings.about')}</h2>

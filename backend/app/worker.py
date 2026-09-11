@@ -13,6 +13,8 @@ from sqlalchemy import delete, or_
 from app.config import load_settings
 from app.db import create_engine, create_sessionmaker
 from app.models import UserSession
+from app.security.crypto import Crypto
+from app.services.reminders import cleanup_reminder_log, send_due_reminders
 
 
 async def cleanup_sessions(ctx: dict[str, Any]) -> int:
@@ -24,7 +26,13 @@ async def cleanup_sessions(ctx: dict[str, Any]) -> int:
             )
         )
         await db.commit()
+        await cleanup_reminder_log(db)
         return int(result.rowcount or 0)
+
+
+async def send_reminders(ctx: dict[str, Any]) -> int:
+    async with ctx["sessionmaker"]() as db:
+        return await send_due_reminders(db, ctx["crypto"], subject=ctx["settings"].origin)
 
 
 async def startup(ctx: dict[str, Any]) -> None:
@@ -33,6 +41,7 @@ async def startup(ctx: dict[str, Any]) -> None:
     ctx["settings"] = settings
     ctx["engine"] = engine
     ctx["sessionmaker"] = create_sessionmaker(engine)
+    ctx["crypto"] = Crypto(settings.key_ring, settings.active_key_id)
 
 
 async def shutdown(ctx: dict[str, Any]) -> None:
@@ -40,8 +49,12 @@ async def shutdown(ctx: dict[str, Any]) -> None:
 
 
 class WorkerSettings:
-    functions: ClassVar[list[Any]] = [cleanup_sessions]
-    cron_jobs: ClassVar[list[Any]] = [cron(cleanup_sessions, minute={17}, run_at_startup=True)]
+    functions: ClassVar[list[Any]] = [cleanup_sessions, send_reminders]
+    cron_jobs: ClassVar[list[Any]] = [
+        cron(cleanup_sessions, minute={17}, run_at_startup=True),
+        # Jede Minute: fällige Terminerinnerungen verschicken
+        cron(send_reminders, second={0}, timeout=50),
+    ]
     on_startup = startup
     on_shutdown = shutdown
     redis_settings = RedisSettings.from_dsn(

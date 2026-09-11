@@ -183,6 +183,13 @@ export interface FeedCreated {
 	webcal_url: string;
 }
 
+export interface PushDevice {
+	id: string;
+	user_agent: string | null;
+	created_at: string;
+	last_success_at: string | null;
+}
+
 export interface SessionInfo {
 	id: string;
 	created_at: string;

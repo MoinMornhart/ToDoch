@@ -4,6 +4,16 @@ Alle Änderungen an Todoch – die neueste Version steht oben.
 Versionsschema: `0.0.1 → 0.0.2 → … → 0.0.9 → 0.1.0 → … → 0.9.9 → 1.0.0`.
 Im Container spielt der Befehl `update` immer die neueste Version ein.
 
+## [0.0.7] – 2026-09-11
+
+Erinnerungen per Push – Meilenstein 2 (Kalender) abgeschlossen
+
+- Terminerinnerungen als Push-Benachrichtigung auf Handy und Desktop, auch wenn die App geschlossen ist
+- Unter Einstellungen pro Gerät aktivieren, Testnachricht senden, Geräte verwalten
+- Serverschlüssel (VAPID) erzeugt Todoch selbst und speichert sie verschlüsselt – keine Konfiguration nötig
+- Jede Erinnerung kommt genau einmal, auch bei Serien; abgemeldete Geräte werden automatisch entfernt
+- Sicherheit: Push nur an bekannte Dienste (Google, Mozilla, Apple, Microsoft), Geräte-Schlüssel verschlüsselt gespeichert
+
 ## [0.0.6] – 2026-09-11
 
 ICS-Abos für Apple, Google und Outlook

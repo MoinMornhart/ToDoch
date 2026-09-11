@@ -5,6 +5,7 @@ from app.models.audit import AuditEvent
 from app.models.base import Base
 from app.models.event import Event
 from app.models.feed import FeedToken
+from app.models.push import PushSubscription, ReminderLog, ServerKey
 from app.models.task import ChecklistItem, Task
 from app.models.user import User, UserSession
 
@@ -15,6 +16,9 @@ __all__ = [
     "ChecklistItem",
     "Event",
     "FeedToken",
+    "PushSubscription",
+    "ReminderLog",
+    "ServerKey",
     "Task",
     "User",
     "UserSession",

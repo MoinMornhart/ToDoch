@@ -27,7 +27,7 @@ def main() -> None:
     schema = create_app(settings).openapi()
     content = json.dumps(schema, indent=2, ensure_ascii=False) + "\n"
     TARGET.write_text(content, encoding="utf-8", newline="\n")
-    print(f"OpenAPI → {TARGET}")
+    print(f"OpenAPI -> {TARGET}")
 
 
 if __name__ == "__main__":

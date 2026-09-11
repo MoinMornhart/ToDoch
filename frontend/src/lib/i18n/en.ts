@@ -242,5 +242,22 @@ export const en: Record<MessageKey, string> = {
 	'feeds.revoked': 'Link revoked',
 	'feeds.none': 'No subscription links yet.',
 
+	'push.title': 'Reminders as notifications',
+	'push.intro':
+		'Todoch notifies you before events with a reminder – even when the app is closed. Enable it on each device.',
+	'push.enable': 'Enable on this device',
+	'push.disable': 'Disable on this device',
+	'push.test': 'Send test notification',
+	'push.testSent': 'Test notification sent',
+	'push.enabled': 'Active on this device',
+	'push.disabledState': 'Not active on this device',
+	'push.denied':
+		'Notifications are blocked in the browser. Please allow them in the site settings.',
+	'push.unsupported': 'This browser does not support push notifications.',
+	'push.iosHint':
+		'iPhone/iPad: first install Todoch via “Share → Add to Home Screen”, open it from there, then enable here.',
+	'push.devices': 'Devices with reminders',
+	'push.remove': 'Remove',
+
 	'error.generic': 'Something went wrong.'
 };

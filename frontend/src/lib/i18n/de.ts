@@ -241,6 +241,23 @@ export const de = {
 	'feeds.revoked': 'Link widerrufen',
 	'feeds.none': 'Noch keine Abo-Links.',
 
+	'push.title': 'Erinnerungen als Benachrichtigung',
+	'push.intro':
+		'Todoch meldet sich vor Terminen mit Erinnerung – auch wenn die App geschlossen ist. Für jedes Gerät einzeln aktivieren.',
+	'push.enable': 'Auf diesem Gerät aktivieren',
+	'push.disable': 'Auf diesem Gerät deaktivieren',
+	'push.test': 'Testnachricht senden',
+	'push.testSent': 'Testnachricht gesendet',
+	'push.enabled': 'Auf diesem Gerät aktiv',
+	'push.disabledState': 'Auf diesem Gerät nicht aktiv',
+	'push.denied':
+		'Benachrichtigungen sind im Browser blockiert. Bitte in den Website-Einstellungen erlauben.',
+	'push.unsupported': 'Dieser Browser unterstützt keine Push-Benachrichtigungen.',
+	'push.iosHint':
+		'iPhone/iPad: Todoch zuerst über „Teilen → Zum Home-Bildschirm“ installieren und von dort öffnen, dann hier aktivieren.',
+	'push.devices': 'Geräte mit Erinnerungen',
+	'push.remove': 'Entfernen',
+
 	'error.generic': 'Etwas ist schiefgelaufen.'
 } as const;
 

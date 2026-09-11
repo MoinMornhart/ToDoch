@@ -38,6 +38,44 @@ sw.addEventListener('activate', (event) => {
 	);
 });
 
+// Erinnerungen per Web-Push anzeigen
+sw.addEventListener('push', (event) => {
+	let data: { title?: string; body?: string; url?: string; tag?: string } = {};
+	try {
+		data = event.data?.json() ?? {};
+	} catch {
+		data = { body: event.data?.text() };
+	}
+	event.waitUntil(
+		sw.registration.showNotification(data.title ?? 'Todoch', {
+			body: data.body,
+			tag: data.tag,
+			icon: '/icon-192.png',
+			badge: '/icon-192.png',
+			data: { url: data.url ?? '/' }
+		})
+	);
+});
+
+sw.addEventListener('notificationclick', (event) => {
+	event.notification.close();
+	const target = new URL(
+		(event.notification.data as { url?: string } | null)?.url ?? '/',
+		sw.location.origin
+	);
+	if (target.origin !== sw.location.origin) return;
+	event.waitUntil(
+		sw.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(async (clients) => {
+			const client = clients[0];
+			if (client) {
+				await client.navigate(target.href).catch(() => undefined);
+				return client.focus();
+			}
+			return sw.clients.openWindow(target.href);
+		})
+	);
+});
+
 sw.addEventListener('message', (event) => {
 	if (event.data === 'clear-api-cache') event.waitUntil(caches.delete(API_CACHE));
 });

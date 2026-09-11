@@ -75,6 +75,12 @@ passkey_hint() {
   echo -e "${TAB}   und unter ${BOLD}Einstellungen → Sicherheit${CL} einen neuen Passkey hinzufügen."
 }
 
+# Fingerabdruck der ToDoch-CA: /ca.crt kommt per HTTP – wer vergleicht, merkt einen Austausch im LAN.
+ca_fingerprint() {
+  todoch_compose exec -T web cat /data/caddy/pki/authorities/local/root.crt 2>/dev/null |
+    openssl x509 -noout -fingerprint -sha256 2>/dev/null | cut -d= -f2
+}
+
 cmd_info() {
   local ip mode
   ip=$(host_ip)
@@ -83,7 +89,11 @@ cmd_info() {
   echo -e "  Adresse:   ${BGN}$(get_env TODOCH_ORIGIN)${CL}"
   case "$mode" in
   proxy) echo -e "  HTTPS:     macht der Reverse-Proxy · Ziel: ${BOLD}http://${ip}$(http_suffix "$(get_env TODOCH_HTTP_PORT)")${CL}" ;;
-  internal) echo -e "  HTTPS:     ToDoch-CA · Zertifikat: ${BOLD}http://${ip}$(http_suffix "$(get_env TODOCH_HTTP_PORT)")/ca.crt${CL}" ;;
+  internal)
+    echo -e "  HTTPS:     ToDoch-CA · Zertifikat: ${BOLD}http://${ip}$(http_suffix "$(get_env TODOCH_HTTP_PORT)")/ca.crt${CL}"
+    echo -e "  CA-Fingerabdruck (SHA-256) – vor dem Installieren vergleichen:"
+    echo -e "  ${BOLD}$(ca_fingerprint || echo '–')${CL}"
+    ;;
   acme) echo -e "  HTTPS:     Let's Encrypt" ;;
   esac
   echo -e "  Ports:     HTTP $(get_env TODOCH_HTTP_PORT) · HTTPS $(get_env TODOCH_HTTPS_PORT)"

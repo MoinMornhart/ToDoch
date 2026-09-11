@@ -4,15 +4,33 @@
 /// <reference lib="webworker" />
 
 /**
- * Service Worker: App-Shell offline verfügbar, GET-Antworten der API als
- * Lesestand für den Offline-Betrieb. Beim Ab- und Anmelden wird der API-Cache gelöscht.
+ * Service Worker: App-Shell offline verfügbar, Aufgaben, Termine und Bereiche als
+ * Lesestand für den Offline-Betrieb. Nie im Gerät: Mails, Konto, Sitzungen, Passkeys,
+ * Zwei-Faktor, Einladungen. Beim Ab- und Anmelden und bei abgelaufener Sitzung (401)
+ * wird der API-Cache gelöscht.
  */
 import { build, files, version } from '$service-worker';
 
 const sw = self as unknown as ServiceWorkerGlobalScope;
 const SHELL_CACHE = `todoch-shell-${version}`;
-const API_CACHE = 'todoch-api-v1';
+const API_CACHE = 'todoch-api-v2';
 const ASSETS = [...build, ...files, '/'];
+const OFFLINE_API = ['/api/meta', '/api/auth/me', '/api/tasks', '/api/events', '/api/areas'];
+
+function offlineReadable(path: string): boolean {
+	if (path.includes('/invites')) return false;
+	return OFFLINE_API.some((prefix) => path === prefix || path.startsWith(`${prefix}/`));
+}
+
+/** Sitzung abgelaufen oder anderswo beendet: Offline-Stand nicht im Gerät lassen. */
+async function dropCacheIfSignedOut(): Promise<void> {
+	try {
+		const response = await fetch('/api/auth/me', { credentials: 'same-origin' });
+		if (response.status === 401) await caches.delete(API_CACHE);
+	} catch {
+		// offline – Stand behalten, dafür ist er da
+	}
+}
 
 sw.addEventListener('install', (event) => {
 	event.waitUntil(
@@ -30,10 +48,16 @@ sw.addEventListener('activate', (event) => {
 			.then((keys) =>
 				Promise.all(
 					keys
-						.filter((key) => key.startsWith('todoch-shell-') && key !== SHELL_CACHE)
+						// alte Shell-Stände und alte API-Caches (v1 speicherte noch alles, auch Mails)
+						.filter(
+							(key) =>
+								(key.startsWith('todoch-shell-') && key !== SHELL_CACHE) ||
+								(key.startsWith('todoch-api-') && key !== API_CACHE)
+						)
 						.map((key) => caches.delete(key))
 				)
 			)
+			.then(() => dropCacheIfSignedOut())
 			.then(() => sw.clients.claim())
 	);
 });
@@ -84,7 +108,8 @@ async function networkFirst(request: Request): Promise<Response> {
 	const cache = await caches.open(API_CACHE);
 	try {
 		const response = await fetch(request);
-		if (response.ok) await cache.put(request, response.clone());
+		if (response.status === 401) await caches.delete(API_CACHE);
+		else if (response.ok) await cache.put(request, response.clone());
 		return response;
 	} catch {
 		const cached = await cache.match(request);
@@ -103,7 +128,7 @@ sw.addEventListener('fetch', (event) => {
 	if (url.origin !== sw.location.origin) return;
 
 	if (url.pathname.startsWith('/api/')) {
-		if (url.pathname === '/api/health' || url.pathname.startsWith('/api/feeds/')) return;
+		if (!offlineReadable(url.pathname)) return; // direkt ans Netz, nie in den Cache
 		event.respondWith(networkFirst(request));
 		return;
 	}

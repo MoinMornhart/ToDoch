@@ -347,6 +347,9 @@ ToDoch kennt drei Betriebsarten, umschaltbar mit einem Befehl:
 | Windows | Datei doppelklicken → Zertifikat installieren → „Vertrauenswürdige Stammzertifizierungsstellen“ |
 | Android | Einstellungen → Sicherheit → Verschlüsselung & Anmeldedaten → CA-Zertifikat installieren |
 
+Vor dem Installieren den Fingerabdruck vergleichen: `todoch info` zeigt ihn in der Konsole, das
+Gerät beim Profil bzw. in den Zertifikatsdetails (SHA-256). Stimmt er nicht, nicht installieren.
+
 </details>
 
 ---

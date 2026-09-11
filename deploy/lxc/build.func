@@ -139,9 +139,13 @@ latest_version() {
 download_release() {
   local version=$1 target=$2 tmp
   tmp=$(mktemp -d)
-  if [[ "$TODOCH_BRANCH" == "main" ]] &&
-    curl -fsSL "https://github.com/${REPO}/archive/refs/tags/v${version}.tar.gz" -o "$tmp/src.tar.gz"; then
-    :
+  if [[ "$TODOCH_BRANCH" == "main" ]]; then
+    # Nur der Tag dieser Version – nie still den aktuellen Stand von main unter ihrer Nummer
+    if ! curl -fsSL "https://github.com/${REPO}/archive/refs/tags/v${version}.tar.gz" -o "$tmp/src.tar.gz"; then
+      rm -rf "$tmp"
+      msg_error "v${version} lässt sich (noch) nicht herunterladen – bitte später erneut versuchen."
+      return 1
+    fi
   else
     curl -fsSL "https://github.com/${REPO}/archive/refs/heads/${TODOCH_BRANCH}.tar.gz" -o "$tmp/src.tar.gz"
   fi
@@ -286,7 +290,7 @@ echo ""
 echo -e "  \033[1;92mToDoch\033[0m v$(cat /opt/todoch/VERSION 2>/dev/null) · LXC \033[1m$(hostname)\033[0m · IP ${_t_ip}"
 echo -e "  🌐 $(_t_get TODOCH_ORIGIN)"
 [ "$_t_mode" = proxy ] && echo -e "  ↪  Ziel im Reverse-Proxy: http://${_t_ip}${_t_http_suffix}"
-[ "$_t_mode" = internal ] && echo -e "  🔐 Zertifikat für deine Geräte: http://${_t_ip}${_t_http_suffix}/ca.crt"
+[ "$_t_mode" = internal ] && echo -e "  🔐 Zertifikat für deine Geräte: http://${_t_ip}${_t_http_suffix}/ca.crt (Fingerabdruck: todoch info)"
 echo -e "  ⬆️  \033[1mupdate\033[0m – neueste Version   🛠  \033[1mtodoch help\033[0m – Verwaltung"
 echo ""
 unset -f _t_get

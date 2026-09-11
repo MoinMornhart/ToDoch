@@ -355,6 +355,9 @@ ToDoch knows three modes, switchable with one command:
 | Windows | Double-click the file → Install certificate → “Trusted Root Certification Authorities” |
 | Android | Settings → Security → Encryption & credentials → Install CA certificate |
 
+Compare the fingerprint before installing: `todoch info` shows it in the console, the device shows
+it in the profile or certificate details (SHA-256). If they differ, don't install it.
+
 </details>
 
 ---

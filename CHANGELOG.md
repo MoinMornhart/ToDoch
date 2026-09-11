@@ -4,6 +4,16 @@ Alle Änderungen an Todoch – die neueste Version steht oben.
 Versionsschema: `0.0.1 → 0.0.2 → … → 0.0.9 → 0.1.0 → … → 0.9.9 → 1.0.0`.
 Im Container spielt der Befehl `update` immer die neueste Version ein.
 
+## [0.3.5] – 2026-09-11
+
+Offline-Speicher ohne Mails, Updates nur vom Tag, CA-Fingerabdruck (Sicherheitsprüfung, Teil 4)
+
+- Offline-Speicher im Browser enthält nur noch Aufgaben, Termine und Bereiche – nie Mails, Konto, Sitzungen, Passkeys oder Zwei-Faktor; der alte, weiter gefasste Speicher wird beim Aktualisieren gelöscht
+- Offline-Speicher wird auch gelöscht, sobald die Sitzung abgelaufen ist oder auf einem anderen Gerät „Überall abmelden“ gewählt wurde
+- update lädt nur noch den Tag der neuen Version und springt nicht mehr still auf den aktuellen Stand von main
+- todoch info zeigt den SHA-256-Fingerabdruck der ToDoch-CA zum Vergleich vor dem Installieren; Hinweis auch in der Begrüßung und im README
+- Doku: Sicherheitskonzept ergänzt
+
 ## [0.3.4] – 2026-09-11
 
 Passkeys nur mit Gerätesperre, Passwortwechsel nur mit Bestätigung (Sicherheitsprüfung, Teil 3)

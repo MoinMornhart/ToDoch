@@ -157,6 +157,20 @@ Meilenstein 4, sobald verschlüsselte Zugangsdaten gespeichert werden). Danach k
 Schlüssel entfernt werden. Jedes Chiffrat enthält die Schlüssel-ID und ist per AAD an sein Feld
 gebunden (kein Umkopieren zwischen Datensätzen möglich).
 
+## Gerät, Updates und Zertifikat (seit v0.3.5)
+
+- **Offline-Speicher im Browser:** Der Service Worker legt nur Aufgaben, Termine, Bereiche und den
+  Anmeldestand ab – nie Mails, Konto, Sitzungen, Passkeys, Zwei-Faktor oder Einladungen. Beim An-
+  und Abmelden und sobald der Server eine abgelaufene Sitzung meldet (401, auch nach „Überall
+  abmelden“ von einem anderen Gerät), wird der Speicher gelöscht; der ältere, weiter gefasste
+  Speicher früherer Versionen wird beim Aktualisieren entfernt.
+- **Updates:** `update` lädt ausschließlich den Tag der neuen Version. Früher sprang es ohne Tag
+  still auf den aktuellen Stand von `main` – das ist entfernt. Bleibendes Restrisiko: Wer das
+  GitHub-Konto übernimmt, kann Versionen veröffentlichen; signierte Releases sind geplant.
+- **ToDoch-CA:** Das Stammzertifikat kommt im Heimnetz per HTTP (`/ca.crt`), damit Geräte es ohne
+  Warnung laden können. `todoch info` zeigt seinen SHA-256-Fingerabdruck – vor dem Installieren
+  vergleichen, dann fällt ein Austausch im LAN auf.
+
 ## Anmeldung nachgeschärft (seit v0.3.4)
 
 - **Passkeys nur mit Gerätesperre:** Registrierung und Anmeldung verlangen Benutzerverifikation

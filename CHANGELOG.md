@@ -4,6 +4,17 @@ Alle Änderungen an Todoch – die neueste Version steht oben.
 Versionsschema: `0.0.1 → 0.0.2 → … → 0.0.9 → 0.1.0 → … → 0.9.9 → 1.0.0`.
 Im Container spielt der Befehl `update` immer die neueste Version ein.
 
+## [0.2.5] – 2026-09-11
+
+Google Kalender in beide Richtungen abgleichen (Meilenstein 5, Teil 2)
+
+- Neu unter Bereiche: „Google Kalender verbinden“ – Termine eines Bereichs erscheinen in Google Kalender, Einträge von dort erscheinen in ToDoch
+- Änderungen und Löschungen gehen in beide Richtungen; Abgleich alle 5 Minuten oder per Knopf, nur geänderte Termine werden übertragen (Fingerabdruck), bei Google nur Änderungen seit dem letzten Mal
+- Serien und Ausnahmen (abgesagte Vorkommen) werden übernommen; beim ersten Verbinden nur die letzten 90 Tage und die Zukunft; Termine, die in einen anderen Bereich wandern, verschwinden bei Google
+- Einrichtung über denselben Befehl todoch oauth google und dieselbe Rücksprungadresse – nur die Google Calendar API zusätzlich aktivieren
+- Sicherheit: eigene Zustimmung nur für Termine, Bereich wird beim Rücksprung erneut geprüft, Refresh-Token verschlüsselt, Grabsteine nur mit der ID beim Anbieter
+- README, SECURITY.md und Webseite ergänzt
+
 ## [0.2.4] – 2026-09-11
 
 Mit Google und Microsoft verbinden – Postfach per Knopfdruck (Meilenstein 5, Teil 1)

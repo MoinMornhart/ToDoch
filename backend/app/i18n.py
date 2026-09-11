@@ -118,6 +118,13 @@ EXACT: dict[str, str] = {
     "Die Anmeldung bei diesem Anbieter ist auf dem Server nicht eingerichtet.": (
         "Signing in with this provider is not set up on the server."
     ),
+    "Google Kalender ist nicht erreichbar.": "Google Calendar cannot be reached.",
+    "Google Kalender hat die Anmeldung abgelehnt. Bitte neu verbinden.": (
+        "Google Calendar rejected the sign-in. Please reconnect."
+    ),
+    "Das gespeicherte Token lässt sich nicht entschlüsseln.": (
+        "The stored token cannot be decrypted."
+    ),
     "Mindestens eine Bedingung angeben.": "Enter at least one condition.",
     "Mindestens eine Aktion wählen.": "Choose at least one action.",
     "Unbekannter Push-Dienst": "Unknown push service",

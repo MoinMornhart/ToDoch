@@ -87,6 +87,15 @@ melden, nicht als öffentliches Issue.
 - Die E-Mail-Adresse kommt aus dem ID-Token, das ToDoch direkt per TLS vom Token-Endpunkt erhält
   (OpenID Connect Core 3.1.3.7).
 
+**Google Kalender abgleichen (seit v0.2.5)**
+- Eigene Zustimmung nur für Termine (`calendar.events`), getrennt vom Postfach; dasselbe
+  State-/PKCE-Verfahren und derselbe Rücksprung. Der Bereich steht im State und wird beim
+  Rücksprung erneut gegen die Rechte des Nutzers geprüft.
+- Nur die feste Google-API-Adresse wird angesprochen; Refresh-Token verschlüsselt wie oben.
+- Übernommene Texte werden wie alle Beschreibungen serverseitig per Allowlist bereinigt angezeigt.
+- Gelöschte Termine hinterlassen einen Grabstein (nur die ID beim Anbieter), bis die Löschung bei
+  Google angekommen ist.
+
 **Anfragen**
 - Größenlimit für Anfragen (Standard 1 MB, geprüft per `Content-Length` und beim Lesen).
 - Strikte Validierung aller Eingaben (Pydantic), Längenlimits für alle Felder.

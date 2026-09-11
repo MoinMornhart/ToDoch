@@ -55,6 +55,7 @@ class Event(UUIDPk, Timestamps, Base):
             name="uq_events_uid_recurrence",
             postgresql_nulls_not_distinct=True,
         ),
+        UniqueConstraint("connection_id", "remote_id", name="uq_events_connection_remote"),
         Index("ix_events_area_start", "area_id", "start_at"),
         Index("ix_events_series", "series_id"),
         Index("ix_events_search", "search_vector", postgresql_using="gin"),
@@ -85,6 +86,13 @@ class Event(UUIDPk, Timestamps, Base):
     calendar_id: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("external_calendars.id", ondelete="CASCADE"), index=True
     )
+    # Zwei-Wege-Abgleich (z. B. Google Kalender): Verbindung, ID beim Anbieter und Fingerabdruck
+    # der zuletzt abgeglichenen Inhalte – weicht er ab, wurde der Termin in ToDoch geändert
+    connection_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("calendar_connections.id", ondelete="SET NULL"), index=True
+    )
+    remote_id: Mapped[str | None] = mapped_column(String(1024))
+    remote_hash: Mapped[str | None] = mapped_column(String(64))
     # Telefontermin: Kontakt, wie und wann vereinbart, mit wem gesprochen
     contact_id: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("contacts.id", ondelete="SET NULL"), index=True

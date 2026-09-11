@@ -165,6 +165,17 @@ nur ein Admin eintragen, interne Adressen des Servers sind gesperrt.
 <img src="docs/images/kalender-monat.png" alt="Kalender in der Monatsansicht">
 </details>
 
+### 🔄 Google Kalender – in beide Richtungen
+
+Unter **Bereiche → Mit Google Kalender abgleichen** einen Bereich wählen und „Google Kalender
+verbinden“ klicken: Termine dieses Bereichs erscheinen in Google Kalender (und damit auf dem Handy),
+was du dort einträgst, erscheint in ToDoch. Änderungen und Löschungen gehen in beide Richtungen,
+abgeglichen wird alle 5 Minuten oder auf Knopfdruck. Nur geänderte Termine werden übertragen.
+
+Einrichtung wie beim Postfach über `todoch oauth google` – zusätzlich in der Google Cloud Console
+die „Google Calendar API“ aktivieren. Einzelne geänderte Vorkommen einer Serie werden noch nicht
+abgeglichen; Microsoft und CalDAV (Nextcloud, iCloud) folgen.
+
 ### 📬 E-Mail
 
 Eigener Bereich **E-Mail** in der Navigation: Postfach per IMAP einbinden (Server wird für GMX, Web.de,
@@ -360,7 +371,7 @@ todoch logs [app|web|db|worker]  # Protokolle ansehen
 | ✅ | **1 · Grundgerüst** | Anmeldung, Sitzungen, Bereiche, Aufgaben, Schnellerfassung, Suche, PWA, Proxmox-Quickstart |
 | ✅ | **2 · Kalender** | Termine, Serien, Monat / Woche / Tag / Agenda, Drag & Drop, Konflikte, ICS-Abos für Apple, Google & Outlook, Erinnerungen per Push, Übersicht, Dunkelmodus |
 | ✅ | **4 · E-Mail** | Eigener Bereich „E-Mail“, Postfächer per IMAP, Aufgabe aus Mail, automatische Terminerkennung mit Bestätigungs-Inbox, Regeln |
-| 🚧 | **5 · Synchronisation** | ✅ Gmail & Microsoft per OAuth („Mit … verbinden“) · ⏳ Zwei-Wege-Sync mit CalDAV, Google und Microsoft |
+| 🚧 | **5 · Synchronisation** | ✅ Gmail & Microsoft per OAuth („Mit … verbinden“), Zwei-Wege-Sync mit Google Kalender · ⏳ Microsoft, CalDAV |
 | ✅ | **6 · Passkeys & Zwei-Faktor** | Passkeys (Face ID / Touch ID / Windows Hello / Sicherheitsschlüssel), Zwei-Faktor per Authenticator-App (TOTP), Wiederherstellungscodes |
 | ⏳ | **7 · Gruppen** | Gemeinsame Bereiche, Rollen, Einladungen, Zuweisungen, Kommentare |
 | ⏳ | **8 · Härtung** | Datenexport, Kontolöschung, Restore-Tests, Security-Review nach OWASP ASVS L2 |

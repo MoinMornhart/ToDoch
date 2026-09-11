@@ -509,6 +509,24 @@ export const de = {
 	'mail.remove': 'Entfernen',
 	'mail.removeConfirm': 'Aus ToDoch entfernen?',
 	'mail.removed': 'Postfach entfernt',
+	'sync.title': 'Mit Google Kalender abgleichen',
+	'sync.intro':
+		'Termine eines Bereichs erscheinen in Google Kalender – und was du dort einträgst, erscheint hier. Änderungen und Löschungen auf beiden Seiten werden übernommen.',
+	'sync.area': 'Bereich',
+	'sync.connectGoogle': 'Google Kalender verbinden',
+	'sync.count': '{count} abgeglichene Termine',
+	'sync.lastSync': 'zuletzt {date}',
+	'sync.syncNow': 'Jetzt abgleichen',
+	'sync.synced': 'Abgeglichen',
+	'sync.remove': 'Trennen',
+	'sync.removeConfirm': 'Wirklich trennen? Die Termine bleiben erhalten.',
+	'sync.removed': 'Verbindung getrennt',
+	'sync.connected': 'Google Kalender verbunden – die Termine werden abgeglichen',
+	'sync.failed': 'Die Verbindung mit Google Kalender ist fehlgeschlagen.',
+	'sync.missing':
+		'Admin-Hinweis: Einmal im Container „todoch oauth google“ ausführen und in der Google Cloud Console zusätzlich die „Google Calendar API“ aktivieren.',
+	'sync.unavailable':
+		'Der Abgleich mit Google Kalender ist auf diesem Server noch nicht eingerichtet.',
 	'mail.settings': 'Postfächer & Regeln',
 	'rules.title': 'Regeln',
 	'rules.intro':

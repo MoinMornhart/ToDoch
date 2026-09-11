@@ -15,6 +15,7 @@ from app import __version__
 from app.api import (
     areas,
     auth,
+    calendar_sync,
     calendars,
     contacts,
     events,
@@ -100,6 +101,7 @@ def create_app(settings: Settings | None = None, resources: Resources | None = N
         events,
         feeds,
         calendars,
+        calendar_sync,
         push,
         contacts,
         mail_rules,

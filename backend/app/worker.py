@@ -14,6 +14,7 @@ from app.config import load_settings
 from app.db import create_engine, create_sessionmaker
 from app.models import UserSession
 from app.security.crypto import Crypto
+from app.services.calendar_sync import sync_due_connections
 from app.services.external_calendars import sync_due_calendars
 from app.services.mail import sync_due_accounts
 from app.services.reminders import cleanup_reminder_log, send_due_reminders
@@ -47,6 +48,11 @@ async def sync_mail(ctx: dict[str, Any]) -> int:
         return await sync_due_accounts(db, ctx["crypto"], ctx["settings"])
 
 
+async def sync_online_calendars(ctx: dict[str, Any]) -> int:
+    async with ctx["sessionmaker"]() as db:
+        return await sync_due_connections(db, ctx["crypto"], ctx["settings"])
+
+
 async def startup(ctx: dict[str, Any]) -> None:
     settings = load_settings()
     engine = create_engine(settings.database_url.get_secret_value())
@@ -61,7 +67,13 @@ async def shutdown(ctx: dict[str, Any]) -> None:
 
 
 class WorkerSettings:
-    functions: ClassVar[list[Any]] = [cleanup_sessions, send_reminders, sync_calendars, sync_mail]
+    functions: ClassVar[list[Any]] = [
+        cleanup_sessions,
+        send_reminders,
+        sync_calendars,
+        sync_mail,
+        sync_online_calendars,
+    ]
     cron_jobs: ClassVar[list[Any]] = [
         cron(cleanup_sessions, minute={17}, run_at_startup=True),
         # Jede Minute: fällige Terminerinnerungen verschicken
@@ -70,6 +82,8 @@ class WorkerSettings:
         cron(sync_calendars, minute=set(range(0, 60, 5)), second={30}, timeout=240),
         # Alle 5 Minuten (versetzt): fällige E-Mail-Postfächer abholen
         cron(sync_mail, minute=set(range(2, 60, 5)), second={15}, timeout=240),
+        # Alle 5 Minuten (versetzt): Zwei-Wege-Abgleich mit Google Kalender
+        cron(sync_online_calendars, minute=set(range(4, 60, 5)), second={0}, timeout=240),
     ]
     on_startup = startup
     on_shutdown = shutdown

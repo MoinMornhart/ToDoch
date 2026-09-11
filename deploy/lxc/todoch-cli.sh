@@ -236,7 +236,8 @@ cmd_oauth() {
   redirect="$(get_env TODOCH_ORIGIN)/api/mail/oauth/${provider}/callback"
   echo -e "\n${BOLD}Einmalige Einrichtung für ${provider^}${CL} (ca. 5 Minuten):\n"
   if [[ "$provider" == "google" ]]; then
-    echo -e "${TAB}1. ${BOLD}https://console.cloud.google.com${CL} → Projekt anlegen → „Gmail API“ aktivieren"
+    echo -e "${TAB}1. ${BOLD}https://console.cloud.google.com${CL} → Projekt anlegen → „Gmail API“ und"
+    echo -e "${TAB}   „Google Calendar API“ aktivieren (Kalender nur, wenn du ihn abgleichen willst)"
     echo -e "${TAB}2. OAuth-Zustimmungsbildschirm: „Extern“, danach Status ${BOLD}„In Produktion“${CL}"
     echo -e "${TAB}   (im Status „Test“ läuft die Verbindung nach 7 Tagen ab)"
     echo -e "${TAB}3. Anmeldedaten → OAuth-Client-ID → „Webanwendung“, autorisierte Weiterleitungs-URI:"

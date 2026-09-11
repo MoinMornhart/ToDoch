@@ -16,11 +16,13 @@ from fastapi import APIRouter, HTTPException, Query, Request, status
 from fastapi.responses import RedirectResponse
 from sqlalchemy import func, select
 
+from app.api import calendar_sync as calendar_api
 from app.api.deps import DB, CurrentUser, Res, client_ip
 from app.api.mail import MAX_ACCOUNTS
 from app.models import MailAccount, User
 from app.schemas.mail import OAuthProvidersOut, OAuthStartOut
 from app.services import audit, mail
+from app.services import calendar_sync as calendar_sync_service
 from app.services import mail_oauth as oauth
 
 router = APIRouter(prefix="/api/mail/oauth", tags=["mail"])
@@ -31,6 +33,15 @@ STATE_PREFIX = "mailoauth:"
 
 def _back(**params: str) -> RedirectResponse:
     return RedirectResponse(f"/mail?{urlencode(params)}", status_code=status.HTTP_303_SEE_OTHER)
+
+
+def _back_areas(**params: str) -> RedirectResponse:
+    """Kalender-Verbindung: zurück zu „Bereiche“ (?calendar_connected / ?calendar_error)."""
+    renamed = {
+        ("calendar_connected" if key == "connected" else "calendar_error"): value
+        for key, value in params.items()
+    }
+    return RedirectResponse(f"/areas?{urlencode(renamed)}", status_code=status.HTTP_303_SEE_OTHER)
 
 
 @router.get("/providers", response_model=OAuthProvidersOut)
@@ -145,19 +156,29 @@ async def callback(
     if raw is None:
         return _back(oauth_error="expired")
     record = json.loads(raw)
+    # Derselbe Rücksprung dient auch „Google Kalender verbinden“ (api/calendar_sync.py)
+    for_calendar = record.get("purpose") == "calendar"
+    back = _back_areas if for_calendar else _back
     if record.get("user") != str(user.id) or record.get("provider") != provider:
-        return _back(oauth_error="failed")
+        return back(oauth_error="failed")
     if error or not code:
-        return _back(oauth_error="denied")
-    config = oauth.provider(res.settings, provider)
+        return back(oauth_error="denied")
+    config = (
+        calendar_sync_service.calendar_provider(res.settings, provider)
+        if for_calendar
+        else oauth.provider(res.settings, provider)
+    )
     if config is None:
-        return _back(oauth_error="failed")
+        return back(oauth_error="failed")
     try:
         tokens = await oauth.exchange_code(
             config, code, record["verifier"], oauth.redirect_uri(res.settings, provider)
         )
     except oauth.OAuthError:
-        return _back(oauth_error="failed")
+        return back(oauth_error="failed")
+    if for_calendar:
+        failure = await calendar_api.finish(db, res, user, provider, record, tokens, request)
+        return back(oauth_error=failure) if failure else back(connected=provider)
     if not tokens.email:
         return _back(oauth_error="noemail")
     if not tokens.refresh_token:

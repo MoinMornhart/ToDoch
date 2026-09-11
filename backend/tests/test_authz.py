@@ -1,12 +1,15 @@
 """Autorisierung: Fremde Objekte sind nie sichtbar oder änderbar (IDOR-Tests)."""
 
 import re
+import uuid
 from typing import Any
 
 import pytest
 from httpx import AsyncClient
 
 from app.main import create_app
+from app.models import CalendarConnection
+from app.resources import Resources
 from tests.conftest import make_settings
 from tests.webauthn_soft import SoftAuthenticator, register_passkey
 
@@ -175,16 +178,33 @@ def test_every_object_route_is_covered() -> None:
         "account_id",
         "mail_id",
         "rule_id",
+        "connection_id",
     }
     assert params <= known, params
 
 
 @pytest.mark.parametrize(("method", "path"), OBJECT_ROUTES)
 async def test_every_object_route_rejects_foreign_ids(
-    alice: AsyncClient, bob: AsyncClient, method: str, path: str
+    alice: AsyncClient, bob: AsyncClient, resources: Resources, method: str, path: str
 ) -> None:
     objects = await _alice_objects(alice)
+    me = (await alice.get("/api/auth/me")).json()
+    async with resources.sessionmaker() as db:
+        connection = CalendarConnection(
+            owner_id=uuid.UUID(me["id"]),
+            area_id=uuid.UUID(objects["area"]["id"]),
+            provider="google",
+            account_email="alice@gmail.com",
+            remote_calendar_id="primary",
+            token_encrypted="verschlüsselt",
+            enabled=True,
+            event_count=0,
+        )
+        db.add(connection)
+        await db.commit()
+        connection_id = str(connection.id)
     ids = {
+        "connection_id": connection_id,
         "task_id": objects["task"]["id"],
         "area_id": objects["area"]["id"],
         "session_id": objects["session"]["id"],

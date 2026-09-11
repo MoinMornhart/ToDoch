@@ -24,6 +24,7 @@ RAISERS = {
     "FeedError",
     "MailError",
     "OAuthError",
+    "SyncError",
 }
 
 

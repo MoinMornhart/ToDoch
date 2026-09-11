@@ -3,7 +3,10 @@
 	import { onMount } from 'svelte';
 	import { api, ApiError } from '$lib/api';
 	import AreaIcon from '$lib/components/AreaIcon.svelte';
+	import { goto } from '$app/navigation';
+	import { page } from '$app/state';
 	import CalendarFeeds from '$lib/components/CalendarFeeds.svelte';
+	import CalendarSync from '$lib/components/CalendarSync.svelte';
 	import ExternalCalendars from '$lib/components/ExternalCalendars.svelte';
 	import PageHeader from '$lib/components/PageHeader.svelte';
 	import { i18n, t } from '$lib/i18n/index.svelte';
@@ -22,6 +25,13 @@
 
 	onMount(() => {
 		void areas.refresh();
+		// Rücksprung von „Google Kalender verbinden“
+		const params = page.url.searchParams;
+		if (params.get('calendar_connected')) toasts.show(t('sync.connected'));
+		if (params.get('calendar_error')) toasts.error(t('sync.failed'));
+		if (params.has('calendar_connected') || params.has('calendar_error')) {
+			void goto('/areas', { replaceState: true });
+		}
 	});
 
 	function report(error: unknown) {
@@ -258,6 +268,8 @@
 		<button type="submit" class="btn btn-primary">{t('areas.add')}</button>
 	</div>
 </form>
+
+<CalendarSync />
 
 <ExternalCalendars />
 

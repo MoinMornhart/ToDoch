@@ -440,6 +440,24 @@ export const en: Record<MessageKey, string> = {
 	'event.subscribed': 'From a subscribed calendar',
 	'event.readOnly': 'From the subscribed calendar “{name}” – change it there.',
 
+	'sync.title': 'Sync with Google Calendar',
+	'sync.intro':
+		'Events of an area show up in Google Calendar – and what you add there shows up here. Changes and deletions on both sides are applied.',
+	'sync.area': 'Area',
+	'sync.connectGoogle': 'Connect Google Calendar',
+	'sync.count': '{count} synced events',
+	'sync.lastSync': 'last {date}',
+	'sync.syncNow': 'Sync now',
+	'sync.synced': 'Synced',
+	'sync.remove': 'Disconnect',
+	'sync.removeConfirm': 'Really disconnect? The events are kept.',
+	'sync.removed': 'Disconnected',
+	'sync.connected': 'Google Calendar connected – syncing your events',
+	'sync.failed': 'Connecting Google Calendar failed.',
+	'sync.missing':
+		'Admin note: run “todoch oauth google” once in the container and also enable the “Google Calendar API” in the Google Cloud Console.',
+	'sync.unavailable': 'Syncing with Google Calendar is not set up on this server yet.',
+
 	'totp.title': 'Two-factor (authenticator app)',
 	'totp.intro':
 		'In addition to your password, a code from an app such as Aegis, Google Authenticator, 1Password or Bitwarden. Signing in with a passkey needs no second code.',

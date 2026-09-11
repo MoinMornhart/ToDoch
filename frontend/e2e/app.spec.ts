@@ -136,7 +136,7 @@ test('Abmelden, falsches Passwort, erneut anmelden', async ({ page }) => {
 	await page.goto('/today');
 
 	await page.getByRole('link', { name: 'Einstellungen' }).first().click();
-	await expect(page.getByText('Dieses Gerät')).toBeVisible();
+	await expect(page.getByText('Dieses Gerät', { exact: true })).toBeVisible();
 	await page.getByRole('button', { name: 'Abmelden' }).first().click();
 	await expect(page).toHaveURL(/\/login$/);
 

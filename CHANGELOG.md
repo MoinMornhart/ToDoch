@@ -4,6 +4,13 @@ Alle Änderungen an Todoch – die neueste Version steht oben.
 Versionsschema: `0.0.1 → 0.0.2 → … → 0.0.9 → 0.1.0 → … → 0.9.9 → 1.0.0`.
 Im Container spielt der Befehl `update` immer die neueste Version ein.
 
+## [0.1.5] – 2026-09-11
+
+Stabilere Tests nach Streamo × ToDoch
+
+- Ende-zu-Ende-Test sucht „Dieses Gerät“ jetzt exakt – der Hinweis „Gilt für dieses Gerät“ bei der Darstellung hatte ihn in der CI irritiert
+- Git-Remote auf den neuen Repo-Namen ToDoch umgestellt
+
 ## [0.1.4] – 2026-09-11
 
 Streamo × ToDoch: Kalender einbinden

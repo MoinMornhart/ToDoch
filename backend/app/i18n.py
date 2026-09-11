@@ -140,6 +140,9 @@ EXACT: dict[str, str] = {
     "Ohne Verschlüsselung (http://) ist CalDAV nur im eigenen Netz erlaubt.": (
         "Without encryption (http://), CalDAV is only allowed in the local network."
     ),
+    "Die Einladung ist ungültig oder abgelaufen.": "The invitation is invalid or has expired.",
+    "Das ist dein eigener Bereich.": "This is your own area.",
+    "Nur der Besitzer kann den Bereich löschen.": "Only the owner can delete the area.",
     "Mindestens eine Bedingung angeben.": "Enter at least one condition.",
     "Mindestens eine Aktion wählen.": "Choose at least one action.",
     "Unbekannter Push-Dienst": "Unknown push service",
@@ -175,6 +178,8 @@ NOUNS = {
     "Postfächer": "mailboxes",
     "Regeln": "rules",
     "Kalenderverbindungen": "calendar connections",
+    "Einladungen": "invitations",
+    "Mitglieder": "members",
 }
 
 Render = Callable[[re.Match[str]], str]

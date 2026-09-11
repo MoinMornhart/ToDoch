@@ -8,9 +8,10 @@ from typing import Annotated
 from zoneinfo import ZoneInfo
 
 from fastapi import Depends, HTTPException, Request, status
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models import User, UserSession
+from app.models import AreaMember, User, UserSession
 from app.resources import Resources
 from app.security.middleware import SESSION_COOKIE
 from app.security.sessions import resolve_session
@@ -42,8 +43,19 @@ async def get_current_session(request: Request, db: DB, res: Res) -> UserSession
 CurrentSession = Annotated[UserSession, Depends(get_current_session)]
 
 
-async def get_current_user(session: CurrentSession) -> User:
-    return session.user
+async def get_current_user(session: CurrentSession, db: DB) -> User:
+    """Der angemeldete Nutzer – samt seiner Rollen in geteilten Bereichen (für app/policy.py)."""
+    user = session.user
+    await load_member_roles(db, user)
+    return user
+
+
+async def load_member_roles(db: AsyncSession, user: User) -> None:
+    rows = await db.execute(
+        select(AreaMember.area_id, AreaMember.role).where(AreaMember.user_id == user.id)
+    )
+    # Nur für diese Anfrage am Objekt – kein gespeichertes Feld
+    object.__setattr__(user, "area_roles", {area_id: role for area_id, role in rows.tuples()})
 
 
 CurrentUser = Annotated[User, Depends(get_current_user)]

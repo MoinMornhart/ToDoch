@@ -630,6 +630,35 @@ export const de = {
 		'Angemeldet, aber das Postfach lässt sich nicht öffnen – ist IMAP beim Anbieter eingeschaltet?',
 	'mail.oauthLimit': 'Höchstens 10 Postfächer möglich.',
 
+	'share.button': 'Teilen',
+	'share.title': 'Bereich „{name}“ teilen',
+	'share.you': 'du',
+	'share.roleOf': 'Rolle',
+	'share.remove': 'Entfernen',
+	'share.inviteAs': 'Einladen als',
+	'share.createLink': 'Einladungslink erzeugen',
+	'share.link': 'Einladungslink',
+	'share.copy': 'Kopieren',
+	'share.copied': 'Link kopiert',
+	'share.linkHint':
+		'Gilt 7 Tage und für genau eine Person. Wer ihn öffnet, braucht ein Konto auf diesem ToDoch.',
+	'share.open': '{count} offene Einladungen',
+	'share.until': 'gültig bis {date}',
+	'share.revoke': 'Einladung zurückziehen',
+	'share.role.owner': 'Besitzer',
+	'share.role.admin': 'Admin (darf verwalten)',
+	'share.role.member': 'Mitglied (lesen und schreiben)',
+	'share.role.viewer': 'Nur lesen',
+	'share.shared': 'geteilt · {role}',
+	'share.leave': 'Verlassen',
+	'share.left': 'Bereich verlassen',
+	'invite.title': 'Einladung',
+	'invite.missing': 'Der Einladungslink ist unvollständig.',
+	'invite.from': '{name} lädt dich ein – als {role}.',
+	'invite.already': 'Du hast schon Zugriff auf diesen Bereich.',
+	'invite.accept': 'Beitreten',
+	'invite.joined': 'Du bist jetzt im Bereich „{name}“',
+
 	'error.generic': 'Etwas ist schiefgelaufen.'
 } as const;
 

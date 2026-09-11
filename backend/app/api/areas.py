@@ -11,7 +11,7 @@ from sqlalchemy.exc import IntegrityError
 
 from app.api.deps import DB, CurrentUser
 from app.models import Area, Task, User
-from app.policy import Action, authorize, role_for, visible_areas
+from app.policy import Action, Role, authorize, role_for, visible_areas
 from app.schemas.areas import AreaIn, AreaOut, AreaPatch
 
 router = APIRouter(prefix="/api/areas", tags=["areas"])
@@ -104,6 +104,8 @@ async def delete_area(
     move_to: Annotated[uuid.UUID | None, Query()] = None,
 ) -> None:
     area = await _load(db, user, area_id, Action.MANAGE)
+    if role_for(user, area) != Role.OWNER:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Nur der Besitzer kann den Bereich löschen.")
     remaining = await db.scalar(
         select(func.count()).select_from(Area).where(Area.owner_id == user.id, Area.id != area.id)
     )

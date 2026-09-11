@@ -4,6 +4,16 @@ Alle Änderungen an Todoch – die neueste Version steht oben.
 Versionsschema: `0.0.1 → 0.0.2 → … → 0.0.9 → 0.1.0 → … → 0.9.9 → 1.0.0`.
 Im Container spielt der Befehl `update` immer die neueste Version ein.
 
+## [0.2.8] – 2026-09-11
+
+Bereiche teilen mit Rollen und Einladungslinks (Meilenstein 7, Teil 1)
+
+- Neu unter Bereiche: 👥 Teilen – Rolle wählen, Einladungslink erzeugen und verschicken; wer ihn öffnet, sieht eine Vorschau und tritt mit einem Klick bei
+- Rollen: Admin (verwalten und einladen), Mitglied (lesen und schreiben), Nur lesen; Löschen nur durch den Besitzer; Mitglieder können den Bereich verlassen
+- Geteilte Bereiche erscheinen bei allen Mitgliedern samt Aufgaben, Terminen und Suche; Rollen lassen sich ändern, Mitglieder entfernen, Einladungen zurückziehen
+- Sicherheit: Link gilt einmal und 7 Tage, Geheimnis nur als SHA-256 gespeichert und nie in Server-Protokollen, keine Konto-Suche per E-Mail, Autorisierungstests auch für Mitglieder und Einladungen
+- README, SECURITY.md und Webseite ergänzt
+
 ## [0.2.7] – 2026-09-11
 
 CalDAV-Abgleich ohne Einrichtung – Meilenstein 5 abgeschlossen

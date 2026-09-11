@@ -172,6 +172,14 @@ container) can only be added by an admin, and the server's internal addresses ar
 <img src="docs/images/en/kalender-monat.png" alt="Calendar month view">
 </details>
 
+### 👥 Share areas
+
+Under **Areas**, click 👥 next to an area, pick a role and “Create invitation link” – send the link via
+your messenger, done. Whoever opens it (with an account on your ToDoch) sees the area with its tasks
+and events. Roles: **Admin** (can manage and invite), **Member** (read and write), **Read only**. Only
+the owner can delete the area; every member can leave it. A link is valid for 7 days and for exactly
+one person.
+
 ### 🔄 Google Calendar & Outlook – both ways
 
 **No setup at all (subscription link):** under **Areas**, click “Create subscription link”, then
@@ -391,7 +399,7 @@ todoch logs [app|web|db|worker]  # view logs
 | ✅ | **4 · Email** | Own “Email” section, mailboxes via IMAP, task from email, automatic appointment detection with confirmation inbox, rules |
 | ✅ | **5 · Sync** | Gmail & Microsoft via OAuth (“Connect with …”), two-way sync with Google Calendar, Outlook and CalDAV (Nextcloud, iCloud & co.), subscription links without setup |
 | ✅ | **6 · Passkeys & two-factor** | Passkeys (Face ID / Touch ID / Windows Hello / security keys), two-factor with an authenticator app (TOTP), recovery codes |
-| ⏳ | **7 · Groups** | Shared areas, roles, invitations, assignments, comments |
+| 🚧 | **7 · Groups** | ✅ Shared areas, roles, invitation links · ⏳ assignments, comments |
 | ⏳ | **8 · Hardening** | Data export, account deletion, restore tests, security review against OWASP ASVS L2 |
 
 Every change ships as a new version (`0.0.1 → 0.0.2 → … → 0.0.9 → 0.1.0`) with a description in the

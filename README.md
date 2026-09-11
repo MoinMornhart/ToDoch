@@ -165,6 +165,14 @@ nur ein Admin eintragen, interne Adressen des Servers sind gesperrt.
 <img src="docs/images/kalender-monat.png" alt="Kalender in der Monatsansicht">
 </details>
 
+### 👥 Bereiche teilen
+
+Unter **Bereiche** beim Bereich auf 👥 klicken, Rolle wählen und „Einladungslink erzeugen“ – den Link
+per Messenger schicken, fertig. Wer ihn öffnet (mit Konto auf deinem ToDoch), sieht den Bereich samt
+Aufgaben und Terminen. Rollen: **Admin** (darf verwalten und einladen), **Mitglied** (lesen und
+schreiben), **Nur lesen**. Löschen kann nur der Besitzer; jedes Mitglied kann den Bereich verlassen.
+Ein Link gilt 7 Tage und für genau eine Person.
+
 ### 🔄 Google Kalender & Outlook – in beide Richtungen
 
 **Ohne jede Einrichtung (Abo-Link):** Unter **Bereiche** auf „Abo-Link erzeugen“ und dann
@@ -383,7 +391,7 @@ todoch logs [app|web|db|worker]  # Protokolle ansehen
 | ✅ | **4 · E-Mail** | Eigener Bereich „E-Mail“, Postfächer per IMAP, Aufgabe aus Mail, automatische Terminerkennung mit Bestätigungs-Inbox, Regeln |
 | ✅ | **5 · Synchronisation** | Gmail & Microsoft per OAuth („Mit … verbinden“), Zwei-Wege-Sync mit Google Kalender, Outlook und CalDAV (Nextcloud, iCloud & Co.), Abo-Links ohne Einrichtung |
 | ✅ | **6 · Passkeys & Zwei-Faktor** | Passkeys (Face ID / Touch ID / Windows Hello / Sicherheitsschlüssel), Zwei-Faktor per Authenticator-App (TOTP), Wiederherstellungscodes |
-| ⏳ | **7 · Gruppen** | Gemeinsame Bereiche, Rollen, Einladungen, Zuweisungen, Kommentare |
+| 🚧 | **7 · Gruppen** | ✅ Gemeinsame Bereiche, Rollen, Einladungslinks · ⏳ Zuweisungen, Kommentare |
 | ⏳ | **8 · Härtung** | Datenexport, Kontolöschung, Restore-Tests, Security-Review nach OWASP ASVS L2 |
 
 Jede Änderung erscheint als neue Version (`0.0.1 → 0.0.2 → … → 0.0.9 → 0.1.0`) mit Beschreibung im

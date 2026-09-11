@@ -1,8 +1,9 @@
 <script lang="ts">
-	import { ChevronDown, ChevronUp, Trash } from '@lucide/svelte';
+	import { ChevronDown, ChevronUp, LogOut, Trash, Users } from '@lucide/svelte';
 	import { onMount } from 'svelte';
 	import { api, ApiError } from '$lib/api';
 	import AreaIcon from '$lib/components/AreaIcon.svelte';
+	import AreaSharing from '$lib/components/AreaSharing.svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import CalendarFeeds from '$lib/components/CalendarFeeds.svelte';
@@ -11,7 +12,7 @@
 	import SubscribeLinks from '$lib/components/SubscribeLinks.svelte';
 	import { oauthReason } from '$lib/oauth';
 	import PageHeader from '$lib/components/PageHeader.svelte';
-	import { i18n, t } from '$lib/i18n/index.svelte';
+	import { i18n, t, type MessageKey } from '$lib/i18n/index.svelte';
 	import { AREA_ICONS } from '$lib/labels';
 	import { weekdayName } from '$lib/recurrence';
 	import { areas } from '$lib/stores/areas.svelte';
@@ -104,6 +105,19 @@
 		moveTo = areas.list.find((other) => other.id !== area.id)?.id ?? '';
 	}
 
+	let sharing = $state<string | null>(null);
+
+	async function leave(area: Area) {
+		try {
+			await api(`/areas/${area.id}/membership`, { method: 'DELETE' });
+			toasts.show(t('share.left'));
+			ui.changed();
+		} catch (error) {
+			report(error);
+		}
+		await areas.refresh();
+	}
+
 	async function remove(area: Area) {
 		try {
 			await api(`/areas/${area.id}`, {
@@ -151,7 +165,32 @@
 				}}
 			/>
 			<span class="text-xs text-muted">{t('areas.open', { count: area.open_count })}</span>
+			{#if area.role !== 'owner'}
+				<span class="rounded bg-surface-2 px-1.5 py-0.5 text-xs text-muted">
+					{t('share.shared', { role: t(`share.role.${area.role}` as MessageKey) })}
+				</span>
+			{/if}
 			<div class="flex">
+				{#if area.role === 'owner' || area.role === 'admin'}
+					<button
+						type="button"
+						class="icon-btn"
+						aria-label="{t('share.button')}: {area.name}"
+						aria-expanded={sharing === area.id}
+						onclick={() => (sharing = sharing === area.id ? null : area.id)}
+					>
+						<Users size={16} aria-hidden="true" />
+					</button>
+				{:else}
+					<button
+						type="button"
+						class="icon-btn hover:text-danger"
+						aria-label="{t('share.leave')}: {area.name}"
+						onclick={() => leave(area)}
+					>
+						<LogOut size={16} aria-hidden="true" />
+					</button>
+				{/if}
 				<button
 					type="button"
 					class="icon-btn"
@@ -174,7 +213,7 @@
 					type="button"
 					class="icon-btn hover:text-danger"
 					aria-label="{t('areas.delete')}: {area.name}"
-					disabled={areas.list.length < 2}
+					disabled={areas.list.length < 2 || area.role !== 'owner'}
 					onclick={() => startDelete(area)}
 				>
 					<Trash size={16} aria-hidden="true" />
@@ -226,6 +265,9 @@
 					</select>
 				</label>
 			</div>
+			{#if sharing === area.id}
+				<AreaSharing {area} />
+			{/if}
 			{#if deleting === area.id}
 				<div class="flex w-full flex-wrap items-center gap-2 pt-1 text-sm">
 					<label class="flex items-center gap-2">

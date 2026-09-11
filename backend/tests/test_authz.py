@@ -10,7 +10,7 @@ from httpx import AsyncClient
 from app.main import create_app
 from app.models import CalendarConnection
 from app.resources import Resources
-from tests.conftest import make_settings
+from tests.conftest import ClientFactory, create_user, login, make_settings
 from tests.webauthn_soft import SoftAuthenticator, register_passkey
 
 
@@ -179,13 +179,20 @@ def test_every_object_route_is_covered() -> None:
         "mail_id",
         "rule_id",
         "connection_id",
+        "member_id",
+        "invite_id",
     }
     assert params <= known, params
 
 
 @pytest.mark.parametrize(("method", "path"), OBJECT_ROUTES)
 async def test_every_object_route_rejects_foreign_ids(
-    alice: AsyncClient, bob: AsyncClient, resources: Resources, method: str, path: str
+    alice: AsyncClient,
+    bob: AsyncClient,
+    resources: Resources,
+    client_factory: ClientFactory,
+    method: str,
+    path: str,
 ) -> None:
     objects = await _alice_objects(alice)
     me = (await alice.get("/api/auth/me")).json()
@@ -203,7 +210,22 @@ async def test_every_object_route_rejects_foreign_ids(
         db.add(connection)
         await db.commit()
         connection_id = str(connection.id)
+    # Carol ist Mitglied in Alice' Bereich, Bob nicht; eine Einladung bleibt offen
+    area_id = objects["area"]["id"]
+    for _ in range(2):
+        created = await alice.post(f"/api/areas/{area_id}/invites", json={"role": "member"})
+        assert created.status_code == 201
+    token = created.json()["url"].split("#", 1)[1]
+    open_invite = (await alice.get(f"/api/areas/{area_id}/invites")).json()[0]["id"]
+    await create_user(resources, "carol@example.org")
+    carol = await client_factory()
+    await login(carol, "carol@example.org")
+    assert (await carol.post("/api/invites/accept", json={"token": token})).status_code == 200
+    members = (await alice.get(f"/api/areas/{area_id}/members")).json()
+    member_id = next(m["id"] for m in members if m["display_name"] == "carol")
     ids = {
+        "member_id": member_id,
+        "invite_id": open_invite,
         "connection_id": connection_id,
         "task_id": objects["task"]["id"],
         "area_id": objects["area"]["id"],

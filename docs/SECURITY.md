@@ -95,6 +95,14 @@ Tokens.
 (`Calendars.ReadWrite`), nur Aufrufe an `graph.microsoft.com`; Folgeseiten der Liste werden nur
 geladen, wenn sie ebenfalls dort liegen (kein SSRF über `@odata.nextLink`).
 
+**Geteilte Bereiche (seit v0.2.8)**: Rollen Besitzer, Admin, Mitglied, Nur lesen – geprüft
+ausschließlich über `app/policy.py`; Mitgliedschaften werden je Anfrage frisch geladen, entzogene
+Rechte gelten also sofort. Einladungen sind Links mit 256 Bit Zufall hinter `#` (landet nie in
+Server-Protokollen), gespeichert wird nur der SHA-256; ein Link gilt einmal und 7 Tage und wird
+im Body statt in der Adresse an den Server geschickt. Es gibt keine Suche nach Konten per E-Mail
+(keine Konto-Enumeration). Löschen kann nur der Besitzer; die Autorisierungstests prüfen auch
+Mitglieder- und Einladungs-Routen gegen Fremdzugriff.
+
 **CalDAV (Nextcloud, iCloud & Co., seit v0.2.7)**: Benutzername und App-Passwort werden erst
 nach einem erfolgreichen Abruf gespeichert, das Passwort AES-256-GCM-verschlüsselt und nie
 ausgegeben. Jede Adresse – auch nach Weiterleitungen – wird wie bei Kalender-Abos geprüft

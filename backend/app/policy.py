@@ -7,12 +7,13 @@ sichtbare, aber nicht erlaubte Aktionen ergeben 403.
 
 from __future__ import annotations
 
+import uuid
 from enum import StrEnum
 
 from fastapi import HTTPException, status
-from sqlalchemy import ColumnElement
+from sqlalchemy import ColumnElement, or_, select
 
-from app.models import Area, Event, Task, User
+from app.models import Area, AreaMember, Event, Task, User
 
 
 class Role(StrEnum):
@@ -44,11 +45,18 @@ def _area_of(obj: Protected) -> Area:
     return obj if isinstance(obj, Area) else obj.area
 
 
+def member_roles(user: User) -> dict[uuid.UUID, str]:
+    """Rollen in geteilten Bereichen – je Anfrage beim Anmelden geladen (api/deps.py)."""
+    roles: dict[uuid.UUID, str] = getattr(user, "area_roles", None) or {}
+    return roles
+
+
 def role_for(user: User, obj: Protected) -> Role | None:
     area = _area_of(obj)
     if area.owner_id == user.id:
         return Role.OWNER
-    return None
+    shared = member_roles(user).get(area.id)
+    return Role(shared) if shared else None
 
 
 def can(user: User, action: Action, obj: Protected) -> bool:
@@ -65,5 +73,6 @@ def authorize(user: User, action: Action, obj: Protected | None) -> None:
 
 
 def visible_areas(user: User) -> ColumnElement[bool]:
-    """SQL-Bedingung für alle Bereiche, die ``user`` sehen darf."""
-    return Area.owner_id == user.id
+    """SQL-Bedingung für alle Bereiche, die ``user`` sehen darf: eigene und geteilte."""
+    shared = select(AreaMember.area_id).where(AreaMember.user_id == user.id)
+    return or_(Area.owner_id == user.id, Area.id.in_(shared))

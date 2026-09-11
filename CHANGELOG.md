@@ -4,6 +4,14 @@ Alle Änderungen an Todoch – die neueste Version steht oben.
 Versionsschema: `0.0.1 → 0.0.2 → … → 0.0.9 → 0.1.0 → … → 0.9.9 → 1.0.0`.
 Im Container spielt der Befehl `update` immer die neueste Version ein.
 
+## [0.1.3] – 2026-09-11
+
+Sprachknopf neben der Suche und englische Bilder
+
+- Neuer Knopf DE/EN neben der Suchlupe: schaltet die Sprache sofort um und speichert sie im Profil
+- Englische README mit eigenen englischen Screenshots (docs/images/en)
+- Deutsche Screenshots mit neuem Logo aktualisiert
+
 ## [0.1.2] – 2026-09-11
 
 Englische Version und neues Logo – jetzt ToDoch

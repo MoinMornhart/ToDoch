@@ -24,11 +24,11 @@ Minimalist, fast from the keyboard, secure by default. No cloud, no tracking.
 <br>
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/images/uebersicht-dunkel.png">
-  <img src="docs/images/uebersicht.png" alt="ToDoch – overview with tasks, events and areas" width="860">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/en/uebersicht-dunkel.png">
+  <img src="docs/images/en/uebersicht.png" alt="ToDoch – overview with tasks, events and areas" width="860">
 </picture>
 
-<sub>Screenshots show the German interface – switch to English on the sign-in page or under <i>Settings → Profile → Language</i>.</sub>
+<sub>Switch between English and German on the sign-in page or with the language button next to the search.</sub>
 
 </div>
 
@@ -59,14 +59,14 @@ The quick-add parser currently understands German phrases such as „am 15.10. u
 </td>
 <td width="50%" valign="top">
 
-<img src="docs/images/schnellerfassung.png" alt="Quick add with detected details">
+<img src="docs/images/en/schnellerfassung.png" alt="Quick add with detected details">
 
 </td>
 </tr>
 <tr>
 <td width="50%" valign="top">
 
-<img src="docs/images/ticket.png" alt="Create a task as a ticket">
+<img src="docs/images/en/ticket.png" alt="Create a task as a ticket">
 
 </td>
 <td width="50%" valign="top">
@@ -107,30 +107,30 @@ single day – plus full-text search across titles, notes and tags.
 
 ### 📱 Everywhere
 Installable as an app (PWA) on phone and desktop, **dark mode** with one click or following your
-system, **German and English** (switchable right on the sign-in page, including server error
-messages), accessible.
+system, **German and English** (switchable on the sign-in page and with the button next to the
+search, including server error messages), accessible.
 
 </td>
 </tr>
 </table>
 
 <div align="center">
-<img src="docs/images/mobil.png" alt="ToDoch on a phone" width="260">
+<img src="docs/images/en/mobil.png" alt="ToDoch on a phone" width="260">
 &nbsp;&nbsp;&nbsp;
-<img src="docs/images/mobil-demnaechst.png" alt="Upcoming on a phone" width="260">
+<img src="docs/images/en/mobil-demnaechst.png" alt="Upcoming on a phone" width="260">
 </div>
 
 <details>
 <summary><b>See editing, the Today view and dark mode</b></summary>
 <br>
-<img src="docs/images/bearbeiten.png" alt="Edit a task">
-<img src="docs/images/heute.png" alt="Today view">
-<img src="docs/images/heute-dunkel.png" alt="Today view in dark mode">
+<img src="docs/images/en/bearbeiten.png" alt="Edit a task">
+<img src="docs/images/en/heute.png" alt="Today view">
+<img src="docs/images/en/heute-dunkel.png" alt="Today view in dark mode">
 </details>
 
 ### 🗓️ Calendar
 
-<img src="docs/images/kalender-woche.png" alt="Calendar week view">
+<img src="docs/images/en/kalender-woche.png" alt="Calendar week view">
 
 **Month, week, day and agenda** – move events by drag & drop, tasks with a due date appear right
 next to them. Recurring events (even “every last Friday”) can be edited as **only this / this and
@@ -167,7 +167,7 @@ or by letter – press <kbd>t</kbd> or use **New → Arranged appointment**:
 <details>
 <summary><b>See the month view</b></summary>
 <br>
-<img src="docs/images/kalender-monat.png" alt="Calendar month view">
+<img src="docs/images/en/kalender-monat.png" alt="Calendar month view">
 </details>
 
 ### 🔒 Secure by default

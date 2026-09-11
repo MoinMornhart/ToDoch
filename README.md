@@ -101,7 +101,7 @@ Pro Bereich legst du fest, welche Tage und Stunden der Kalender zeigt – z. B. 
 **Heute** (mit Überfälligem), **Demnächst** für die nächsten 7 Tage, **Alle offen**, **Erledigt** und jeder einzelne Tag – dazu eine Volltextsuche über Titel, Notizen und Tags.
 
 ### 📱 Überall
-Installierbar als App (PWA) auf Smartphone und Desktop, **Dunkelmodus** per Klick oder automatisch nach Systemeinstellung, **Deutsch und Englisch** (schon auf der Anmeldeseite umschaltbar, auch Fehlermeldungen des Servers), barrierearm.
+Installierbar als App (PWA) auf Smartphone und Desktop, **Dunkelmodus** per Klick oder automatisch nach Systemeinstellung, **Deutsch und Englisch** (auf der Anmeldeseite und per Knopf neben der Suche umschaltbar, auch Fehlermeldungen des Servers), barrierearm.
 
 </td>
 </tr>

@@ -413,5 +413,7 @@ export const en: Record<MessageKey, string> = {
 	'error.status': 'Error {status}',
 	'error.offline': 'No connection to the server.',
 
+	'nav.switchLanguage': 'Switch language: Deutsch',
+
 	'error.generic': 'Something went wrong.'
 };

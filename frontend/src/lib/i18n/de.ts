@@ -412,6 +412,8 @@ export const de = {
 	'error.status': 'Fehler {status}',
 	'error.offline': 'Keine Verbindung zum Server.',
 
+	'nav.switchLanguage': 'Sprache wechseln: English',
+
 	'error.generic': 'Etwas ist schiefgelaufen.'
 } as const;
 

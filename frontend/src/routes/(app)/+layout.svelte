@@ -28,7 +28,9 @@
 	import { theme } from '$lib/stores/theme.svelte';
 	import SearchDialog from '$lib/components/SearchDialog.svelte';
 	import TaskEditor from '$lib/components/TaskEditor.svelte';
-	import { t, type MessageKey } from '$lib/i18n/index.svelte';
+	import { api } from '$lib/api';
+	import { i18n, t, type MessageKey } from '$lib/i18n/index.svelte';
+	import type { User } from '$lib/types';
 	import { plainKey } from '$lib/keyboard';
 	import { areas } from '$lib/stores/areas.svelte';
 	import { session } from '$lib/stores/session.svelte';
@@ -76,6 +78,17 @@
 		} else if (key === '?') {
 			event.preventDefault();
 			ui.helpOpen = true;
+		}
+	}
+
+	/** Deutsch ↔ Englisch – sofort sichtbar und im Profil gespeichert (gilt auf allen Geräten). */
+	async function toggleLanguage() {
+		const next = i18n.locale === 'de' ? 'en' : 'de';
+		i18n.locale = next;
+		try {
+			session.setUser(await api<User>('/auth/me', { method: 'PATCH', body: { locale: next } }));
+		} catch {
+			// offline: gilt dann nur auf diesem Gerät
 		}
 	}
 
@@ -145,6 +158,15 @@
 				onclick={() => (ui.searchOpen = true)}
 			>
 				<Search size={18} aria-hidden="true" />
+			</button>
+			<button
+				type="button"
+				class="icon-btn text-xs font-semibold"
+				aria-label={t('nav.switchLanguage')}
+				title={t('nav.switchLanguage')}
+				onclick={toggleLanguage}
+			>
+				{i18n.locale === 'de' ? 'EN' : 'DE'}
 			</button>
 			<button
 				type="button"

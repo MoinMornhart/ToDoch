@@ -30,7 +30,7 @@ test('Englisch: Anmeldeseite, Oberfläche und Fehlermeldungen des Servers', asyn
 
 	// … und lässt sich dort dauerhaft auf Englisch stellen
 	await page.getByRole('link', { name: 'Einstellungen' }).first().click();
-	await page.getByLabel('Sprache').selectOption('en');
+	await page.getByLabel('Sprache', { exact: true }).selectOption('en');
 	await page.getByRole('button', { name: 'Profil speichern' }).click();
 	await expect(page.getByRole('link', { name: 'Today' }).first()).toBeVisible();
 	await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible();
@@ -41,8 +41,26 @@ test('Englisch: Anmeldeseite, Oberfläche und Fehlermeldungen des Servers', asyn
 	await expect(page.getByRole('status')).toContainText('The password is too simple.');
 
 	// Zurück auf Deutsch für die folgenden Tests
-	await page.getByLabel('Language').selectOption('de');
+	await page.getByLabel('Language', { exact: true }).selectOption('de');
 	await page.getByRole('button', { name: 'Save profile' }).click();
+	await expect(page.getByRole('link', { name: 'Heute' }).first()).toBeVisible();
+
+	// Schnellumschalter neben der Suche – gespeichert im Profil, bleibt nach dem Neuladen
+	await Promise.all([
+		page.waitForResponse(
+			(r) => r.url().endsWith('/api/auth/me') && r.request().method() === 'PATCH'
+		),
+		page.getByRole('button', { name: 'Sprache wechseln: English' }).click()
+	]);
+	await expect(page.getByRole('link', { name: 'Today' }).first()).toBeVisible();
+	await page.reload();
+	await expect(page.getByRole('link', { name: 'Today' }).first()).toBeVisible();
+	await Promise.all([
+		page.waitForResponse(
+			(r) => r.url().endsWith('/api/auth/me') && r.request().method() === 'PATCH'
+		),
+		page.getByRole('button', { name: 'Switch language: Deutsch' }).click()
+	]);
 	await expect(page.getByRole('link', { name: 'Heute' }).first()).toBeVisible();
 	await page.getByRole('button', { name: 'Abmelden' }).first().click();
 	await expect(page.getByRole('heading', { level: 1 })).toHaveText('Anmelden');

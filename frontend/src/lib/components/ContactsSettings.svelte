@@ -44,44 +44,44 @@
 	}
 </script>
 
-<section aria-labelledby="contacts-title">
-	<h2 id="contacts-title" class="mb-1 text-base font-semibold">{t('contacts.title')}</h2>
-	<p class="mb-3 text-sm text-muted">{t('contacts.intro')}</p>
-	{#if contacts.length > 5}
-		<input
-			type="search"
-			class="input mb-3"
-			aria-label={t('contacts.search')}
-			placeholder={t('contacts.search')}
-			bind:value={filter}
-		/>
-	{/if}
-	{#if contacts.length === 0}
-		<p class="text-sm text-muted">{t('contacts.none')}</p>
-	{:else}
-		<ul class="flex flex-col divide-y divide-line rounded-xl border border-line bg-raised">
-			{#each shown as contact (contact.id)}
-				<li class="flex flex-wrap items-center justify-between gap-2 px-4 py-3 text-sm">
-					<div class="min-w-0">
-						<p class="font-medium">{contact.name}</p>
-						<p class="truncate text-xs text-muted">
-							{[contact.company, contact.phone, contact.email].filter(Boolean).join(' · ')}
-							{#if contact.use_count}
-								· {t('contacts.used', { n: contact.use_count })}
-							{/if}
-						</p>
-					</div>
-					<button
-						type="button"
-						class="btn btn-ghost btn-danger"
-						aria-label="{t('contacts.delete')}: {contact.name}"
-						onclick={() => remove(contact)}
-					>
-						<Trash size={16} aria-hidden="true" />
-						{confirmId === contact.id ? t('contacts.deleteConfirm') : t('contacts.delete')}
-					</button>
-				</li>
-			{/each}
-		</ul>
-	{/if}
-</section>
+{#if contacts.length}
+	<section aria-labelledby="contacts-title">
+		<h2 id="contacts-title" class="mb-1 text-base font-semibold">{t('contacts.title')}</h2>
+		<p class="mb-3 text-sm text-muted">{t('contacts.intro')}</p>
+		{#if contacts.length > 5}
+			<input
+				type="search"
+				class="input mb-3"
+				aria-label={t('contacts.search')}
+				placeholder={t('contacts.search')}
+				bind:value={filter}
+			/>
+		{/if}
+		{#if contacts.length}
+			<ul class="flex flex-col divide-y divide-line rounded-xl border border-line bg-raised">
+				{#each shown as contact (contact.id)}
+					<li class="flex flex-wrap items-center justify-between gap-2 px-4 py-3 text-sm">
+						<div class="min-w-0">
+							<p class="font-medium">{contact.name}</p>
+							<p class="truncate text-xs text-muted">
+								{[contact.company, contact.phone, contact.email].filter(Boolean).join(' · ')}
+								{#if contact.use_count}
+									· {t('contacts.used', { n: contact.use_count })}
+								{/if}
+							</p>
+						</div>
+						<button
+							type="button"
+							class="btn btn-ghost btn-danger"
+							aria-label="{t('contacts.delete')}: {contact.name}"
+							onclick={() => remove(contact)}
+						>
+							<Trash size={16} aria-hidden="true" />
+							{confirmId === contact.id ? t('contacts.deleteConfirm') : t('contacts.delete')}
+						</button>
+					</li>
+				{/each}
+			</ul>
+		{/if}
+	</section>
+{/if}

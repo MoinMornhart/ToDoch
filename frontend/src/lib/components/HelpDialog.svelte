@@ -14,7 +14,6 @@
 		[['Esc'], 'help.close'],
 		[['Strg', 'Enter'], 'help.save'],
 		[['c'], 'help.newEvent'],
-		[['t'], 'help.phone'],
 		[['←', '→'], 'help.calNav'],
 		[['m', 'w', 'd', 'a'], 'help.calViews']
 	];

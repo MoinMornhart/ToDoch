@@ -91,7 +91,6 @@ Per area you decide which days and hours the calendar shows – e.g. work only M
 | :---: | --- |
 | <kbd>n</kbd> | New task |
 | <kbd>c</kbd> | New event |
-| <kbd>t</kbd> | Add an arranged appointment |
 | <kbd>/</kbd> | Search |
 | <kbd>j</kbd> / <kbd>k</kbd> | Next / previous task |
 | <kbd>x</kbd> | Done |
@@ -148,21 +147,6 @@ Outlook.com fetch the calendar from the internet – ToDoch has to be publicly r
 **Reminders:** Enable *Settings → Reminders as notifications* on each device – ToDoch then notifies
 you before events via push, even when the app is closed (on iPhone after “Add to Home Screen”). The
 server generates the required keys itself.
-
-### 📞 Arranged appointments
-
-Booked a doctor's appointment on the phone? One form for everything arranged by phone, in person
-or by letter – press <kbd>t</kbd> or use **New → Arranged appointment**:
-
-- **Contact** with name, company, phone, email and address – saved contacts are suggested as you
-  type (no CRM, just the essentials; manage them under *Settings → Contacts*)
-- **Appointment** with duration, place (on site, by phone, video with link) and its own time zone
-- **Agreement**: via phone / in person / letter, conversation date, who you spoke with
-- **Notes** in Markdown for what was discussed, reference numbers, what to bring – searchable
-- **Follow-up task** such as “Prepare documents”, automatically due X days before and linked to the event
-- The **draft** is saved continuously on the device – nothing gets lost on reload
-- Afterwards: **download ICS** (without internal notes), **send by email** or
-  **another appointment for the same contact**
 
 ### 🍿 Streamo × ToDoch
 
@@ -356,7 +340,6 @@ todoch logs [app|web|db|worker]  # view logs
 | :---: | --- | --- |
 | ✅ | **1 · Foundation** | Sign-in, sessions, areas, tasks, quick add, search, PWA, Proxmox quickstart |
 | ✅ | **2 · Calendar** | Events, series, month / week / day / agenda, drag & drop, conflicts, ICS subscriptions for Apple, Google & Outlook, push reminders, overview, dark mode |
-| ✅ | **3 · Arranged appointments** | Form for appointments arranged by phone or in person, contact suggestions, follow-up tasks, local draft, ICS to share |
 | ⏳ | **4 · Email** | Own “Email” section in the navigation, mailboxes via IMAP, rules, automatic appointment detection, confirmation inbox |
 | ⏳ | **5 · Sync** | Gmail & Microsoft via OAuth, two-way sync with CalDAV, Google and Microsoft |
 | 🚧 | **6 · Passkeys** | ✅ Sign-in with Face ID / Touch ID / Windows Hello / security keys · ⏳ TOTP, recovery codes |

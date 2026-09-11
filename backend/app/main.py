@@ -13,7 +13,6 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app import __version__
 from app.api import (
-    appointments,
     areas,
     auth,
     calendars,
@@ -98,7 +97,6 @@ def create_app(settings: Settings | None = None, resources: Resources | None = N
         calendars,
         push,
         contacts,
-        appointments,
     )
     for module in modules:
         app.include_router(module.router)

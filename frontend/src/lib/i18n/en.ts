@@ -368,7 +368,7 @@ export const en: Record<MessageKey, string> = {
 	'task.openEvent': 'Go to event',
 	'contacts.title': 'Contacts',
 	'contacts.intro':
-		'Suggested for arranged appointments. Deleting removes only the contact – events stay.',
+		'Contacts from earlier arranged appointments. Deleting removes only the contact – events stay.',
 	'contacts.search': 'Search contacts',
 	'contacts.none': 'No contacts yet – they are created with your first arranged appointment.',
 	'contacts.delete': 'Delete',

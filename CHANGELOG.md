@@ -4,6 +4,15 @@ Alle Änderungen an Todoch – die neueste Version steht oben.
 Versionsschema: `0.0.1 → 0.0.2 → … → 0.0.9 → 0.1.0 → … → 0.9.9 → 1.0.0`.
 Im Container spielt der Befehl `update` immer die neueste Version ein.
 
+## [0.1.6] – 2026-09-11
+
+„Vereinbarter Termin“ entfernt
+
+- Formular „Vereinbarter Termin“ samt Taste t, Menüpunkt, Knopf auf der Übersicht und Endpunkt /api/appointments entfernt (closes #2)
+- Nichts gelöscht: Kontakte und die Angaben „Vereinbart per / am / mit“ bleiben erhalten und erscheinen nur, wo es schon welche gibt
+- Alte Formular-Entwürfe mit Kontaktdaten werden aus dem Browser-Speicher entfernt
+- Screenshots und README angepasst
+
 ## [0.1.5] – 2026-09-11
 
 Stabilere Tests nach Streamo × ToDoch

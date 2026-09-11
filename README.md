@@ -87,7 +87,6 @@ Pro Bereich legst du fest, welche Tage und Stunden der Kalender zeigt – z. B. 
 | :---: | --- |
 | <kbd>n</kbd> | Neue Aufgabe |
 | <kbd>c</kbd> | Neuer Termin |
-| <kbd>t</kbd> | Vereinbarten Termin eintragen |
 | <kbd>/</kbd> | Suchen |
 | <kbd>j</kbd> / <kbd>k</kbd> | Nächste / vorherige Aufgabe |
 | <kbd>x</kbd> | Erledigt |
@@ -141,21 +140,6 @@ sein (z. B. hinter einem Reverse-Proxy).
 **Erinnerungen:** Unter *Einstellungen → Erinnerungen als Benachrichtigung* für jedes Gerät einschalten –
 ToDoch meldet sich dann vor Terminen per Push, auch wenn die App geschlossen ist (auf dem iPhone nach
 „Zum Home-Bildschirm“). Die nötigen Schlüssel erzeugt der Server selbst.
-
-### 📞 Vereinbarte Termine
-
-Termin beim Arzt am Telefon ausgemacht? Ein Formular für alles, was am Telefon, persönlich
-oder per Post vereinbart wurde – mit <kbd>t</kbd> oder über **Neu → Vereinbarter Termin**:
-
-- **Kontakt** mit Name, Firma, Telefon, E-Mail und Adresse – gespeicherte Kontakte werden beim
-  Tippen vorgeschlagen (kein CRM, nur das Nötigste; verwaltbar unter *Einstellungen → Kontakte*)
-- **Termin** mit Dauer, Ort (vor Ort, telefonisch, Video mit Link) und eigener Zeitzone
-- **Vereinbarung**: per Telefon / persönlich / Post, Gesprächsdatum, Gesprächspartner
-- **Notizen** in Markdown für Gesprächsinhalt, Aktenzeichen, was mitzubringen ist – durchsuchbar
-- **Folgeaufgabe** wie „Unterlagen vorbereiten“, automatisch X Tage vorher fällig und mit dem Termin verknüpft
-- Der **Entwurf** wird laufend auf dem Gerät gesichert – nichts geht beim Neuladen verloren
-- Danach: **ICS herunterladen** (ohne interne Notizen), **per E-Mail senden** oder
-  **weiterer Termin für denselben Kontakt**
 
 ### 🍿 Streamo × ToDoch
 
@@ -347,7 +331,6 @@ todoch logs [app|web|db|worker]  # Protokolle ansehen
 | :---: | --- | --- |
 | ✅ | **1 · Grundgerüst** | Anmeldung, Sitzungen, Bereiche, Aufgaben, Schnellerfassung, Suche, PWA, Proxmox-Quickstart |
 | ✅ | **2 · Kalender** | Termine, Serien, Monat / Woche / Tag / Agenda, Drag & Drop, Konflikte, ICS-Abos für Apple, Google & Outlook, Erinnerungen per Push, Übersicht, Dunkelmodus |
-| ✅ | **3 · Vereinbarte Termine** | Formular für am Telefon oder persönlich ausgemachte Termine, Kontaktvorschläge, Folgeaufgaben, lokaler Entwurf, ICS zum Weitergeben |
 | ⏳ | **4 · E-Mail** | Eigener Bereich „E-Mail“ in der Navigation, Postfächer per IMAP, Regeln, automatische Terminerkennung, Bestätigungs-Inbox |
 | ⏳ | **5 · Synchronisation** | Gmail & Microsoft per OAuth, Zwei-Wege-Sync mit CalDAV, Google und Microsoft |
 | 🚧 | **6 · Passkeys** | ✅ Anmeldung mit Face ID / Touch ID / Windows Hello / Sicherheitsschlüssel · ⏳ TOTP, Wiederherstellungscodes |

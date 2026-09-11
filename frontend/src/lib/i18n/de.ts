@@ -367,7 +367,7 @@ export const de = {
 	'task.openEvent': 'Zum Termin',
 	'contacts.title': 'Kontakte',
 	'contacts.intro':
-		'Werden bei vereinbarten Terminen vorgeschlagen. Löschen entfernt nur den Kontakt – Termine bleiben erhalten.',
+		'Kontakte aus früheren vereinbarten Terminen. Löschen entfernt nur den Kontakt – Termine bleiben erhalten.',
 	'contacts.search': 'Kontakte durchsuchen',
 	'contacts.none': 'Noch keine Kontakte – sie entstehen beim ersten vereinbarten Termin.',
 	'contacts.delete': 'Löschen',

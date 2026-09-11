@@ -23,8 +23,6 @@
 	import HelpDialog from '$lib/components/HelpDialog.svelte';
 	import Logo from '$lib/components/Logo.svelte';
 	import NewMenu from '$lib/components/NewMenu.svelte';
-	import PhoneForm from '$lib/components/PhoneForm.svelte';
-	import { clearDraft } from '$lib/phone';
 	import { theme } from '$lib/stores/theme.svelte';
 	import SearchDialog from '$lib/components/SearchDialog.svelte';
 	import TaskEditor from '$lib/components/TaskEditor.svelte';
@@ -57,6 +55,14 @@
 
 	onMount(() => {
 		void areas.refresh().catch(() => undefined);
+		// Entwürfe des entfernten Formulars „Vereinbarter Termin“ enthielten Kontaktdaten
+		try {
+			for (const key of Object.keys(localStorage)) {
+				if (key.startsWith('todoch-phone-draft')) localStorage.removeItem(key);
+			}
+		} catch {
+			// Speicher gesperrt – nichts zu tun
+		}
 	});
 
 	function onKeydown(event: KeyboardEvent) {
@@ -69,9 +75,6 @@
 		} else if (key === 'c') {
 			event.preventDefault();
 			ui.eventEditor = { mode: 'new', date: todayIn(session.user?.timezone ?? 'UTC') };
-		} else if (key === 't') {
-			event.preventDefault();
-			ui.phoneForm = {};
 		} else if (key === '/') {
 			event.preventDefault();
 			ui.searchOpen = true;
@@ -93,8 +96,6 @@
 	}
 
 	async function logout() {
-		// Entwurf eines Telefontermins enthält Kontaktdaten – nicht auf dem Gerät lassen
-		if (session.user) clearDraft(session.user.id);
 		await session.logout();
 		await goto('/login', { replaceState: true });
 	}
@@ -224,5 +225,4 @@
 <HelpDialog />
 <TaskEditor />
 <EventEditor />
-<PhoneForm />
 <ChoiceDialog />

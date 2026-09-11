@@ -10,8 +10,6 @@ class Ui {
 	/** Neue Aufgabe als „Ticket“ mit vollständigem Formular anlegen. */
 	newTask = $state<{ date?: string } | null>(null);
 	eventEditor = $state<EventEditorRequest | null>(null);
-	/** Formular „Telefontermin“ – optional gleich mit einem gespeicherten Kontakt. */
-	phoneForm = $state<{ contactId?: string } | null>(null);
 	/** Die Schnellerfassung soll beim nächsten Anzeigen den Fokus bekommen. */
 	quickAddPending = $state(false);
 	quickAddMounted = $state(false);
@@ -25,7 +23,6 @@ class Ui {
 			this.editTaskId !== null ||
 			this.newTask !== null ||
 			this.eventEditor !== null ||
-			this.phoneForm !== null ||
 			choice.request !== null
 		);
 	}

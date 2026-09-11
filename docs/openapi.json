@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "ToDoch API",
-    "version": "0.1.3"
+    "version": "0.1.5"
   },
   "paths": {
     "/api/health": {
@@ -2400,138 +2400,10 @@
           }
         }
       }
-    },
-    "/api/appointments": {
-      "post": {
-        "tags": [
-          "appointments"
-        ],
-        "summary": "Create Appointment",
-        "operationId": "create_appointment_api_appointments_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AppointmentIn"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "201": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AppointmentOut"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
     }
   },
   "components": {
     "schemas": {
-      "AppointmentIn": {
-        "properties": {
-          "contact_id": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "uuid"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Contact Id"
-          },
-          "contact": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/ContactIn"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "event": {
-            "$ref": "#/components/schemas/EventIn"
-          },
-          "follow_up": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/FollowUpIn"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          }
-        },
-        "type": "object",
-        "required": [
-          "event"
-        ],
-        "title": "AppointmentIn",
-        "description": "Telefontermin: Kontakt (vorhanden oder neu), Termin und optionale Folgeaufgabe."
-      },
-      "AppointmentOut": {
-        "properties": {
-          "event": {
-            "$ref": "#/components/schemas/EventOut"
-          },
-          "task": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/TaskOut"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "contact": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/ContactOut"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "conflicts": {
-            "items": {
-              "$ref": "#/components/schemas/ConflictOut"
-            },
-            "type": "array",
-            "title": "Conflicts"
-          }
-        },
-        "type": "object",
-        "required": [
-          "event",
-          "task",
-          "contact",
-          "conflicts"
-        ],
-        "title": "AppointmentOut"
-      },
       "AreaIn": {
         "properties": {
           "name": {
@@ -4305,36 +4177,6 @@
           "last_used_at"
         ],
         "title": "FeedOut"
-      },
-      "FollowUpIn": {
-        "properties": {
-          "title": {
-            "type": "string",
-            "maxLength": 300,
-            "minLength": 1,
-            "title": "Title"
-          },
-          "days_before": {
-            "type": "integer",
-            "maximum": 365.0,
-            "minimum": 0.0,
-            "title": "Days Before",
-            "default": 1
-          },
-          "priority": {
-            "type": "integer",
-            "maximum": 3.0,
-            "minimum": 0.0,
-            "title": "Priority",
-            "default": 0
-          }
-        },
-        "type": "object",
-        "required": [
-          "title"
-        ],
-        "title": "FollowUpIn",
-        "description": "Folgeaufgabe, z. B. „Unterlagen vorbereiten“ – fällig X Tage vor dem Termin."
       },
       "HTTPValidationError": {
         "properties": {

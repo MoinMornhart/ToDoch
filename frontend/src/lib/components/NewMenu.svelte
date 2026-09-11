@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { CalendarPlus, ListTodo, Phone, Plus } from '@lucide/svelte';
+	import { CalendarPlus, ListTodo, Plus } from '@lucide/svelte';
 	import { todayIn } from '$lib/dates';
 	import { t } from '$lib/i18n/index.svelte';
 	import { session } from '$lib/stores/session.svelte';
@@ -11,10 +11,9 @@
 	let open = $state(false);
 	let root: HTMLDivElement | undefined = $state();
 
-	function choose(kind: 'task' | 'event' | 'phone') {
+	function choose(kind: 'task' | 'event') {
 		open = false;
 		if (kind === 'task') ui.newTask = {};
-		else if (kind === 'phone') ui.phoneForm = {};
 		else ui.eventEditor = { mode: 'new', date: todayIn(session.user?.timezone ?? 'UTC') };
 	}
 
@@ -80,15 +79,6 @@
 			>
 				<CalendarPlus size={16} aria-hidden="true" />{t('new.event')}
 				<span class="ml-auto text-xs text-muted"><kbd>c</kbd></span>
-			</button>
-			<button
-				type="button"
-				role="menuitem"
-				class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm hover:bg-surface-2"
-				onclick={() => choose('phone')}
-			>
-				<Phone size={16} aria-hidden="true" />{t('new.phone')}
-				<span class="ml-auto text-xs text-muted"><kbd>t</kbd></span>
 			</button>
 		</div>
 	{/if}

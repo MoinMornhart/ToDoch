@@ -282,11 +282,6 @@
 		ui.editTaskId = id;
 	}
 
-	function anotherAppointment(contactId: string) {
-		open = false;
-		ui.phoneForm = { contactId };
-	}
-
 	function onClose() {
 		ui.eventEditor = null;
 		request = null;
@@ -348,13 +343,6 @@
 										<p class="mt-1 whitespace-pre-line text-muted">{contact.address}</p>
 									{/if}
 								</div>
-								<button
-									type="button"
-									class="btn px-2.5 py-1 text-xs"
-									onclick={() => anotherAppointment(contact.id)}
-								>
-									{t('event.another')}
-								</button>
 							</div>
 						{/if}
 						{#if agreement}<p class="text-muted">{agreement}</p>{/if}

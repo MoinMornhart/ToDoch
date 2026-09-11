@@ -37,10 +37,8 @@ def _back(**params: str) -> RedirectResponse:
 
 def _back_areas(**params: str) -> RedirectResponse:
     """Kalender-Verbindung: zurück zu „Bereiche“ (?calendar_connected / ?calendar_error)."""
-    renamed = {
-        ("calendar_connected" if key == "connected" else "calendar_error"): value
-        for key, value in params.items()
-    }
+    names = {"connected": "calendar_connected", "oauth_error": "calendar_error"}
+    renamed = {names.get(key, key): value for key, value in params.items()}
     return RedirectResponse(f"/areas?{urlencode(renamed)}", status_code=status.HTTP_303_SEE_OTHER)
 
 
@@ -174,8 +172,8 @@ async def callback(
         tokens = await oauth.exchange_code(
             config, code, record["verifier"], oauth.redirect_uri(res.settings, provider)
         )
-    except oauth.OAuthError:
-        return back(oauth_error="failed")
+    except oauth.OAuthError as exc:
+        return back(oauth_error="failed", reason=exc.reason or "unknown", provider=provider)
     if for_calendar:
         failure = await calendar_api.finish(db, res, user, provider, record, tokens, request)
         return back(oauth_error=failure) if failure else back(connected=provider)

@@ -64,7 +64,11 @@ async def list_connections(request: Request, db: DB, user: CurrentUser) -> list[
 
 @router.post("/{provider}/start", response_model=OAuthStartOut)
 async def start(
-    provider: Literal["google"], body: ConnectStartIn, db: DB, res: Res, user: CurrentUser
+    provider: Literal["google", "microsoft"],
+    body: ConnectStartIn,
+    db: DB,
+    res: Res,
+    user: CurrentUser,
 ) -> OAuthStartOut:
     config = sync.calendar_provider(res.settings, provider)
     if config is None:

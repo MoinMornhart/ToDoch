@@ -14,6 +14,8 @@ from __future__ import annotations
 import base64
 import hashlib
 import json
+import logging
+import re
 import secrets
 from dataclasses import dataclass
 from urllib.parse import urlencode
@@ -21,6 +23,9 @@ from urllib.parse import urlencode
 import httpx
 
 from app.config import Settings
+
+log = logging.getLogger(__name__)
+REASON = re.compile(r"[a-z_]{1,60}")
 
 TIMEOUT = httpx.Timeout(15.0, connect=10.0)
 STATE_TTL = 600
@@ -34,9 +39,11 @@ NOT_CONFIGURED = "Die Anmeldung bei diesem Anbieter ist auf dem Server nicht ein
 class OAuthError(Exception):
     """Verständliche Fehlermeldung (Deutsch; übersetzt in app/i18n.py)."""
 
-    def __init__(self, message: str) -> None:
+    def __init__(self, message: str, reason: str | None = None) -> None:
         super().__init__(message)
         self.message = message
+        # Fehlercode des Anbieters (z. B. „invalid_client“) – für einen genauen Hinweis
+        self.reason = reason
 
 
 @dataclass(frozen=True)
@@ -154,11 +161,22 @@ async def _token_request(
             response = await client.post(
                 p.token_url, data=body, headers={"Accept": "application/json"}
             )
-        payload = response.json() if response.status_code == 200 else None
-    except (httpx.HTTPError, ValueError) as exc:
-        raise OAuthError(failure) from exc
+    except httpx.HTTPError as exc:
+        raise OAuthError(failure, reason="unreachable") from exc
+    try:
+        payload = response.json()
+    except ValueError:
+        payload = None
+    if response.status_code != 200:
+        code = payload.get("error") if isinstance(payload, dict) else None
+        valid = isinstance(code, str) and REASON.fullmatch(code)
+        reason = str(code) if valid else f"http_{response.status_code}"
+        detail = payload.get("error_description") if isinstance(payload, dict) else ""
+        # Ins Protokoll („todoch logs app“) – der Anbieter nennt hier den genauen Grund
+        log.warning("Anmeldung bei %s abgelehnt: %s – %s", p.label, reason, str(detail)[:300])
+        raise OAuthError(failure, reason=reason)
     if not isinstance(payload, dict):
-        raise OAuthError(failure)
+        raise OAuthError(failure, reason="invalid_response")
     access = payload.get("access_token")
     if not isinstance(access, str) or not access:
         raise OAuthError(failure)

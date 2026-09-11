@@ -245,6 +245,7 @@ cmd_oauth() {
     echo -e "${TAB}1. ${BOLD}https://entra.microsoft.com${CL} → App-Registrierungen → Neue Registrierung"
     echo -e "${TAB}2. Kontotypen: „Konten in allen Organisationsverzeichnissen und persönliche Microsoft-Konten“"
     echo -e "${TAB}3. API-Berechtigungen → Microsoft Graph → Delegiert: IMAP.AccessAsUser.All, offline_access, email"
+    echo -e "${TAB}   und Calendars.ReadWrite (nur, wenn du den Outlook-Kalender abgleichen willst)"
     echo -e "${TAB}4. Zertifikate & Geheimnisse → Neuer geheimer Clientschlüssel; Umleitungs-URI (Web):"
   fi
   echo -e "${TAB}   ${BGN}${redirect}${CL}\n"

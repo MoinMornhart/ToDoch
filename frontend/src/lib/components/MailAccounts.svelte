@@ -249,6 +249,14 @@
 		{#if guess?.hint === 'app'}
 			<p class="rounded-lg bg-surface-2 px-3 py-2 text-sm sm:col-span-2">
 				{t('mail.hintAppPassword')}
+				{#if guess.appPasswordUrl}
+					<a
+						class="ml-1 text-accent underline"
+						href={guess.appPasswordUrl}
+						target="_blank"
+						rel="noopener noreferrer">{t('mail.appPasswordLink')}</a
+					>
+				{/if}
 			</p>
 		{:else if guess?.hint === 'oauth'}
 			<p class="rounded-lg bg-surface-2 px-3 py-2 text-sm sm:col-span-2">{t('mail.hintOAuth')}</p>

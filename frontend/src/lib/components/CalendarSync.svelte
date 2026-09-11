@@ -3,7 +3,7 @@
 	import { onMount } from 'svelte';
 	import { api, ApiError } from '$lib/api';
 	import { i18n, t } from '$lib/i18n/index.svelte';
-	import type { OAuthProviders } from '$lib/mail';
+	import type { OAuthProvider, OAuthProviders } from '$lib/mail';
 	import { areas } from '$lib/stores/areas.svelte';
 	import { session } from '$lib/stores/session.svelte';
 	import { toasts } from '$lib/stores/toasts.svelte';
@@ -11,7 +11,7 @@
 
 	interface Connection {
 		id: string;
-		provider: string;
+		provider: OAuthProvider;
 		account_email: string;
 		area_id: string;
 		area_name: string;
@@ -25,11 +25,12 @@
 
 	const uid = $props.id();
 	let connections = $state<Connection[]>([]);
-	let google = $state(false);
+	let providers = $state<OAuthProviders>({ google: false, microsoft: false });
 	let areaId = $state('');
 	let busy = $state(false);
 	let syncing = $state<string | null>(null);
 	let confirmId = $state<string | null>(null);
+	const available = $derived(providers.google || providers.microsoft);
 
 	function report(error: unknown) {
 		toasts.error(error instanceof ApiError ? error.message : t('error.generic'));
@@ -39,6 +40,10 @@
 		return new Intl.DateTimeFormat(i18n.locale, { dateStyle: 'medium', timeStyle: 'short' }).format(
 			new Date(value)
 		);
+	}
+
+	function label(provider: OAuthProvider): string {
+		return provider === 'microsoft' ? t('sync.microsoft') : t('sync.google');
 	}
 
 	async function load() {
@@ -52,18 +57,18 @@
 	onMount(async () => {
 		void load();
 		try {
-			google = (await api<OAuthProviders>('/mail/oauth/providers')).google;
+			providers = await api<OAuthProviders>('/mail/oauth/providers');
 		} catch {
-			// ohne Knopf weiter
+			// ohne Knöpfe weiter
 		}
 	});
 
-	/** Zu Google – der Rücksprung landet wieder hier auf „Bereiche“. */
-	async function connect() {
+	/** Zum Anbieter – der Rücksprung landet wieder hier auf „Bereiche“. */
+	async function connect(provider: OAuthProvider) {
 		if (busy) return;
 		busy = true;
 		try {
-			const { url } = await api<{ url: string }>('/calendar-sync/google/start', {
+			const { url } = await api<{ url: string }>(`/calendar-sync/${provider}/start`, {
 				method: 'POST',
 				body: { area_id: areaId || undefined }
 			});
@@ -119,7 +124,7 @@
 				<li class="flex flex-wrap items-center justify-between gap-2 px-4 py-3 text-sm">
 					<div class="min-w-0">
 						<p class="font-medium">
-							Google Kalender
+							{label(connection.provider)}
 							<span class="font-normal text-muted">
 								· {connection.account_email} ⇄ {connection.area_name}</span
 							>
@@ -148,7 +153,7 @@
 						<button
 							type="button"
 							class="btn btn-ghost btn-danger"
-							aria-label="{t('sync.remove')}: {connection.area_name}"
+							aria-label="{t('sync.remove')}: {label(connection.provider)} {connection.area_name}"
 							onclick={() => remove(connection)}
 						>
 							<Trash size={14} aria-hidden="true" />
@@ -160,7 +165,7 @@
 		</ul>
 	{/if}
 
-	{#if google}
+	{#if available}
 		<div class="flex flex-wrap items-end gap-3">
 			<div>
 				<label class="label" for="{uid}-area">{t('sync.area')}</label>
@@ -171,9 +176,26 @@
 					{/each}
 				</select>
 			</div>
-			<button type="button" class="btn btn-primary" disabled={busy} onclick={connect}>
-				<ArrowLeftRight size={16} aria-hidden="true" />{t('sync.connectGoogle')}
-			</button>
+			{#if providers.google}
+				<button
+					type="button"
+					class="btn btn-primary"
+					disabled={busy}
+					onclick={() => connect('google')}
+				>
+					<ArrowLeftRight size={16} aria-hidden="true" />{t('sync.connectGoogle')}
+				</button>
+			{/if}
+			{#if providers.microsoft}
+				<button
+					type="button"
+					class="btn btn-primary"
+					disabled={busy}
+					onclick={() => connect('microsoft')}
+				>
+					<ArrowLeftRight size={16} aria-hidden="true" />{t('sync.connectMicrosoft')}
+				</button>
+			{/if}
 		</div>
 	{:else if session.user?.is_admin}
 		<p class="rounded-lg bg-surface-2 px-3 py-2 text-xs text-muted">{t('sync.missing')}</p>

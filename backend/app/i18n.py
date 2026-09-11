@@ -125,6 +125,10 @@ EXACT: dict[str, str] = {
     "Das gespeicherte Token lässt sich nicht entschlüsseln.": (
         "The stored token cannot be decrypted."
     ),
+    "Der Outlook-Kalender ist nicht erreichbar.": "The Outlook calendar cannot be reached.",
+    "Der Outlook-Kalender hat die Anmeldung abgelehnt. Bitte neu verbinden.": (
+        "The Outlook calendar rejected the sign-in. Please reconnect."
+    ),
     "Mindestens eine Bedingung angeben.": "Enter at least one condition.",
     "Mindestens eine Aktion wählen.": "Choose at least one action.",
     "Unbekannter Push-Dienst": "Unknown push service",

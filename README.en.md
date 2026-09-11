@@ -172,16 +172,20 @@ container) can only be added by an admin, and the server's internal addresses ar
 <img src="docs/images/en/kalender-monat.png" alt="Calendar month view">
 </details>
 
-### 🔄 Google Calendar – both ways
+### 🔄 Google Calendar & Outlook – both ways
 
-Under **Areas → Sync with Google Calendar**, pick an area and click “Connect Google Calendar”: events
-of that area show up in Google Calendar (and on your phone), and what you add there shows up in
-ToDoch. Changes and deletions go both ways, synced every 5 minutes or at the push of a button. Only
-changed events are transferred.
+**No setup at all (subscription link):** under **Areas**, click “Create subscription link”, then
+“Add to Google Calendar” or “Add to Outlook” – your ToDoch events show up there and on your phone.
+The other way round, copy the private calendar link from Google or Outlook (ToDoch links the right
+settings page) and paste it under “Add calendars”. Requirement: ToDoch is reachable from the
+internet; Google and Outlook refresh subscriptions only every few hours.
 
-Set up like the mailbox via `todoch oauth google` – and also enable the “Google Calendar API” in the
-Google Cloud Console. Single modified occurrences of a series are not synced yet; Microsoft and
-CalDAV (Nextcloud, iCloud) follow.
+**Real two-way sync:** under **Areas → Sync online calendars**, pick an area and click “Connect Google
+Calendar” or “Connect Outlook calendar”: events of that area show up at the provider, and what you
+add there shows up in ToDoch – changes and deletions both ways, every 5 minutes or at the push of a
+button. Requires `todoch oauth google` once (plus enabling the “Google Calendar API”) or
+`todoch oauth microsoft` (plus the `Calendars.ReadWrite` permission). Single modified occurrences of
+a series are not synced yet.
 
 ### 📬 Email
 
@@ -380,7 +384,7 @@ todoch logs [app|web|db|worker]  # view logs
 | ✅ | **1 · Foundation** | Sign-in, sessions, areas, tasks, quick add, search, PWA, Proxmox quickstart |
 | ✅ | **2 · Calendar** | Events, series, month / week / day / agenda, drag & drop, conflicts, ICS subscriptions for Apple, Google & Outlook, push reminders, overview, dark mode |
 | ✅ | **4 · Email** | Own “Email” section, mailboxes via IMAP, task from email, automatic appointment detection with confirmation inbox, rules |
-| 🚧 | **5 · Sync** | ✅ Gmail & Microsoft via OAuth (“Connect with …”), two-way sync with Google Calendar · ⏳ Microsoft, CalDAV |
+| 🚧 | **5 · Sync** | ✅ Gmail & Microsoft via OAuth (“Connect with …”), two-way sync with Google Calendar and Outlook, subscription links without setup · ⏳ CalDAV (Nextcloud, iCloud) |
 | ✅ | **6 · Passkeys & two-factor** | Passkeys (Face ID / Touch ID / Windows Hello / security keys), two-factor with an authenticator app (TOTP), recovery codes |
 | ⏳ | **7 · Groups** | Shared areas, roles, invitations, assignments, comments |
 | ⏳ | **8 · Hardening** | Data export, account deletion, restore tests, security review against OWASP ASVS L2 |

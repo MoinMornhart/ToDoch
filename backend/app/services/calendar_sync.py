@@ -1,19 +1,22 @@
-"""Zwei-Wege-Abgleich mit Google Kalender.
+"""Zwei-Wege-Abgleich mit Online-Kalendern: Google Kalender und Outlook (Microsoft 365, Hotmail).
 
-Verbinden: „Google Kalender verbinden“ im Bereich – OAuth wie beim Postfach (dieselbe
-Rücksprungadresse), aber nur mit dem Recht auf Termine. Jede Verbindung gehört zu einem Bereich:
-Termine dieses Bereichs gehen zu Google, Termine aus Google landen in diesem Bereich.
+Verbinden: „Google Kalender verbinden“ bzw. „Outlook-Kalender verbinden“ im Bereich – OAuth wie
+beim Postfach (dieselbe Rücksprungadresse), aber nur mit dem Recht auf Termine. Jede Verbindung
+gehört zu einem Bereich: Termine dieses Bereichs gehen zum Anbieter, Termine von dort landen in
+diesem Bereich.
 
 Abgleich (Worker alle 5 Minuten oder auf Knopfdruck):
 
-1. Holen – nur Änderungen seit dem letzten Mal (``syncToken``). Beim ersten Mal kommt alles,
-   übernommen werden aber nur Serien und Termine der letzten 90 Tage und der Zukunft. Bei Google
-   gelöschte Termine verschwinden auch hier, abgesagte Vorkommen werden Ausnahmen der Serie.
+1. Holen – Google liefert nur Änderungen seit dem letzten Mal (``syncToken``), Microsoft jedes Mal
+   die vollständige Liste (was darin fehlt, wurde dort gelöscht). Übernommen wird ein Termin nur,
+   wenn er sich beim Anbieter seit dem letzten Abgleich geändert hat – so gehen Änderungen in
+   ToDoch nicht verloren. Beim ersten Mal nur Serien und Termine der letzten 90 Tage und der
+   Zukunft.
 2. Senden – neue und geänderte Termine des Bereichs (erkannt am Fingerabdruck der Inhalte), in
    ToDoch gelöschte Termine (Grabsteine) und Termine, die in einen anderen Bereich wanderten.
 
-Wurde ein Termin auf beiden Seiten geändert, gewinnt Google. Einzelne geänderte Vorkommen einer
-Serie werden noch nicht abgeglichen.
+Wurde ein Termin auf beiden Seiten geändert, gewinnt der Anbieter. Einzelne geänderte Vorkommen
+einer Serie werden nicht abgeglichen, bei Outlook außerdem keine gelöschten Vorkommen.
 """
 
 from __future__ import annotations
@@ -21,9 +24,9 @@ from __future__ import annotations
 import hashlib
 import logging
 import uuid
-from dataclasses import replace
+from dataclasses import dataclass, replace
 from datetime import UTC, date, datetime, timedelta
-from typing import Any
+from typing import Any, Protocol
 from urllib.parse import quote
 from zoneinfo import ZoneInfo
 
@@ -35,22 +38,50 @@ from app.config import Settings
 from app.models import CalendarConnection, CalendarTombstone, Event, User
 from app.security.crypto import Crypto, DecryptionError
 from app.services import mail_oauth as oauth
-from app.services.event_recurrence import RuleError, normalize_event_rule
+from app.services.event_recurrence import WEEKDAYS, RuleError, normalize_event_rule, rule_fields
 from app.services.events import midnight_utc
+from app.services.mail import html_to_text
 
 log = logging.getLogger(__name__)
 
-API = "https://www.googleapis.com/calendar/v3"
-SCOPE = "openid email https://www.googleapis.com/auth/calendar.events"
+GOOGLE_API = "https://www.googleapis.com/calendar/v3"
+GRAPH_ROOT = "https://graph.microsoft.com/"
+GRAPH_EVENTS = "https://graph.microsoft.com/v1.0/me/calendar/events"
+SCOPES = {
+    "google": "openid email https://www.googleapis.com/auth/calendar.events",
+    "microsoft": "openid email offline_access https://graph.microsoft.com/Calendars.ReadWrite",
+}
 TIMEOUT = httpx.Timeout(20.0, connect=10.0)
-# Tests setzen hier einen Nachbau von Google Kalender ein
+# Tests setzen hier einen Nachbau von Google Kalender bzw. Outlook ein
 TRANSPORT: httpx.AsyncBaseTransport | None = None
 MAX_PAGES = 20
+GRAPH_PAGES = 50
 MAX_PUSH = 200
 PAST_DAYS = 90
 
 UNREACHABLE = "Google Kalender ist nicht erreichbar."
 REJECTED = "Google Kalender hat die Anmeldung abgelehnt. Bitte neu verbinden."
+OUTLOOK_UNREACHABLE = "Der Outlook-Kalender ist nicht erreichbar."
+OUTLOOK_REJECTED = "Der Outlook-Kalender hat die Anmeldung abgelehnt. Bitte neu verbinden."
+TOO_MANY = "Der Kalender enthält zu viele Termine (höchstens 5000)."
+
+GRAPH_DAYS = dict(
+    zip(
+        WEEKDAYS,
+        ("monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"),
+        strict=True,
+    )
+)
+DAY_CODES = {name: code for code, name in GRAPH_DAYS.items()}
+GRAPH_INDEX = {
+    "1": "first",
+    "+1": "first",
+    "2": "second",
+    "3": "third",
+    "4": "fourth",
+    "-1": "last",
+}
+INDEX_CODES = {"first": "1", "second": "2", "third": "3", "fourth": "4", "last": "-1"}
 
 
 class SyncError(Exception):
@@ -65,6 +96,35 @@ class _Gone(Exception):
     """Der syncToken ist abgelaufen – alles neu holen."""
 
 
+@dataclass
+class RemoteItem:
+    remote_id: str
+    fields: dict[str, Any] | None = None  # None: unlesbar – überspringen
+    deleted: bool = False
+    instance_of: str | None = None  # abgesagtes Vorkommen dieser Serie
+    original_start: datetime | None = None
+
+
+@dataclass
+class Changes:
+    items: list[RemoteItem]
+    token: str | None
+    complete: bool = False  # vollständige Liste: was fehlt, wurde beim Anbieter gelöscht
+
+
+class CalendarClient(Protocol):
+    unreachable: str
+    exdates: bool  # kann der Anbieter Ausnahmen einer Serie übernehmen?
+
+    async def changes(self, sync_token: str | None) -> Changes: ...
+
+    async def insert(self, event: Event) -> str: ...
+
+    async def update(self, remote_id: str, event: Event) -> bool: ...
+
+    async def delete(self, remote_id: str) -> None: ...
+
+
 def token_context(connection_id: object) -> str:
     return f"calendar_connection:{connection_id}:token"
 
@@ -72,30 +132,55 @@ def token_context(connection_id: object) -> str:
 def calendar_provider(settings: Settings, name: str) -> oauth.Provider | None:
     """Wie der Anbieter fürs Postfach, aber nur mit dem Recht auf Termine."""
     base = oauth.provider(settings, name)
-    if base is None or name != "google":
+    if base is None or name not in SCOPES:
         return None
-    return replace(base, scope=SCOPE)
+    return replace(base, scope=SCOPES[name])
 
 
-# --- Umrechnung ---------------------------------------------------------------------------
+# --- Fingerabdruck ------------------------------------------------------------------------
 
 
-def fingerprint(event: Event) -> str:
-    """Fingerabdruck der abgeglichenen Inhalte – ändert er sich, muss der Termin zu Google."""
+def _digest(values: dict[str, Any], exdates: bool) -> str:
     parts = [
-        event.title,
-        event.description or "",
-        event.location or "",
-        event.start_at.astimezone(UTC).isoformat(),
-        event.end_at.astimezone(UTC).isoformat(),
-        str(event.all_day),
-        event.tzid,
-        event.rrule or "",
-        ",".join(sorted(d.astimezone(UTC).isoformat() for d in event.exdates or [])),
-        event.status,
-        event.transparency,
+        str(values["title"]),
+        str(values.get("description") or ""),
+        str(values.get("location") or ""),
+        values["start_at"].astimezone(UTC).isoformat(),
+        values["end_at"].astimezone(UTC).isoformat(),
+        str(values["all_day"]),
+        str(values["tzid"]),
+        str(values.get("rrule") or ""),
+        ",".join(sorted(d.astimezone(UTC).isoformat() for d in values.get("exdates") or []))
+        if exdates
+        else "",
+        str(values["status"]),
+        str(values["transparency"]),
     ]
     return hashlib.sha256("\x1f".join(parts).encode()).hexdigest()
+
+
+def fingerprint(event: Event, exdates: bool = True) -> str:
+    """Fingerabdruck der abgeglichenen Inhalte – ändert er sich, muss der Termin zum Anbieter."""
+    values = {
+        name: getattr(event, name)
+        for name in (
+            "title",
+            "description",
+            "location",
+            "start_at",
+            "end_at",
+            "all_day",
+            "tzid",
+            "rrule",
+            "exdates",
+            "status",
+            "transparency",
+        )
+    }
+    return _digest(values, exdates)
+
+
+# --- Google: Umrechnung -------------------------------------------------------------------
 
 
 def _zone(name: object, fallback: str) -> str:
@@ -201,13 +286,191 @@ def to_google(event: Event) -> dict[str, Any]:
     }
 
 
-# --- Google Kalender ----------------------------------------------------------------------
+# --- Microsoft: Umrechnung ----------------------------------------------------------------
+
+
+def _graph_moment(value: dict[str, Any]) -> datetime:
+    moment = datetime.fromisoformat(str(value["dateTime"])[:19])
+    zone = str(value.get("timeZone") or "UTC")
+    try:
+        tz = UTC if zone.upper() == "UTC" else ZoneInfo(zone)
+    except (KeyError, ValueError):
+        tz = UTC
+    return moment.replace(tzinfo=tz).astimezone(UTC)
+
+
+def _graph_day(instant: datetime) -> datetime:
+    """Ganztägig: Mitternacht des Tages – egal in welcher Zeitzone Outlook ihn liefert."""
+    return midnight_utc((instant + timedelta(hours=12)).date())
+
+
+def rrule_from_graph(recurrence: object) -> str | None:
+    if not isinstance(recurrence, dict):
+        return None
+    pattern = recurrence.get("pattern") or {}
+    span = recurrence.get("range") or {}
+    kind = pattern.get("type")
+    days = [DAY_CODES[d] for d in pattern.get("daysOfWeek") or [] if d in DAY_CODES]
+    try:
+        if kind == "daily":
+            parts = ["FREQ=DAILY"]
+        elif kind == "weekly":
+            parts = ["FREQ=WEEKLY", *([f"BYDAY={','.join(days)}"] if days else [])]
+        elif kind in ("absoluteMonthly", "relativeMonthly", "absoluteYearly", "relativeYearly"):
+            yearly = kind.endswith("Yearly")
+            parts = [f"FREQ={'YEARLY' if yearly else 'MONTHLY'}"]
+            if yearly:
+                parts.append(f"BYMONTH={int(pattern['month'])}")
+            if kind.startswith("relative"):
+                if not days:
+                    return None
+                index = INDEX_CODES.get(str(pattern.get("index") or "first"), "1")
+                parts.append(f"BYDAY={index}{days[0]}")
+            else:
+                parts.append(f"BYMONTHDAY={int(pattern['dayOfMonth'])}")
+        else:
+            return None
+        interval = int(pattern.get("interval") or 1)
+        if interval > 1:
+            parts.append(f"INTERVAL={interval}")
+        if span.get("type") == "numbered":
+            parts.append(f"COUNT={int(span['numberOfOccurrences'])}")
+        elif span.get("type") == "endDate" and span.get("endDate"):
+            parts.append(f"UNTIL={date.fromisoformat(str(span['endDate'])):%Y%m%d}")
+        return normalize_event_rule(";".join(parts))
+    except (KeyError, ValueError, TypeError, RuleError):
+        return None
+
+
+def graph_recurrence(event: Event) -> dict[str, Any] | None:
+    """RRULE → Muster von Outlook; None, wenn Outlook die Regel nicht abbilden kann."""
+    if not event.rrule:
+        return None
+    try:
+        fields = rule_fields(event.rrule)
+        zone = UTC if event.all_day else ZoneInfo(event.tzid)
+        first = event.start_at.astimezone(zone).date()
+        freq = fields.get("FREQ")
+        byday = [d for d in fields.get("BYDAY", "").split(",") if d]
+        pattern: dict[str, Any] = {
+            "interval": int(fields.get("INTERVAL", "1")),
+            "firstDayOfWeek": "monday",
+        }
+        if freq == "DAILY":
+            pattern["type"] = "daily"
+        elif freq == "WEEKLY":
+            pattern["type"] = "weekly"
+            codes = [d[-2:] for d in byday] or [WEEKDAYS[first.weekday()]]
+            pattern["daysOfWeek"] = [GRAPH_DAYS[c] for c in codes]
+        elif freq in ("MONTHLY", "YEARLY"):
+            yearly = freq == "YEARLY"
+            if yearly:
+                pattern["month"] = int(fields.get("BYMONTH", str(first.month)))
+            ordinal = next((d for d in byday if len(d) > 2), None)
+            if ordinal:
+                index = GRAPH_INDEX.get(ordinal[:-2])
+                if index is None:
+                    return None
+                pattern |= {
+                    "type": "relativeYearly" if yearly else "relativeMonthly",
+                    "index": index,
+                    "daysOfWeek": [GRAPH_DAYS[ordinal[-2:]]],
+                }
+            elif byday:
+                return None
+            else:
+                pattern |= {
+                    "type": "absoluteYearly" if yearly else "absoluteMonthly",
+                    "dayOfMonth": int(fields.get("BYMONTHDAY", str(first.day))),
+                }
+        else:
+            return None
+        span: dict[str, Any] = {"startDate": first.isoformat(), "recurrenceTimeZone": event.tzid}
+        if "COUNT" in fields:
+            span |= {"type": "numbered", "numberOfOccurrences": int(fields["COUNT"])}
+        elif "UNTIL" in fields:
+            until = fields["UNTIL"]
+            end = date(int(until[:4]), int(until[4:6]), int(until[6:8]))
+            span |= {"type": "endDate", "endDate": end.isoformat()}
+        else:
+            span["type"] = "noEnd"
+        return {"pattern": pattern, "range": span}
+    except (KeyError, ValueError, TypeError, RuleError):
+        return None
+
+
+def fields_from_graph(item: dict[str, Any], fallback_tz: str) -> dict[str, Any]:
+    all_day = bool(item.get("isAllDay"))
+    start = _graph_moment(item["start"])
+    end = _graph_moment(item.get("end") or item["start"])
+    if all_day:
+        start, end = _graph_day(start), _graph_day(end)
+    raw_body = item.get("body")
+    body: dict[str, Any] = raw_body if isinstance(raw_body, dict) else {}
+    content = str(body.get("content") or "")
+    if str(body.get("contentType") or "text").lower() == "html":
+        content = html_to_text(content)
+    raw_location = item.get("location")
+    location: dict[str, Any] = raw_location if isinstance(raw_location, dict) else {}
+    show = item.get("showAs")
+    return {
+        "title": str(item.get("subject") or "–")[:300],
+        "description": content.strip()[:50_000],
+        "location": str(location.get("displayName") or "")[:500],
+        "start_at": start,
+        "end_at": max(end, start),
+        "all_day": all_day,
+        "tzid": _zone(item.get("originalStartTimeZone"), fallback_tz),
+        "rrule": rrule_from_graph(item.get("recurrence")),
+        "status": "tentative" if show == "tentative" else "confirmed",
+        "transparency": "transparent" if show == "free" else "opaque",
+    }
+
+
+def _graph_time(event: Event, instant: datetime) -> dict[str, str]:
+    if event.all_day:
+        day = instant.astimezone(UTC).date().isoformat()
+        return {"dateTime": f"{day}T00:00:00", "timeZone": "UTC"}
+    local = instant.astimezone(ZoneInfo(event.tzid)).replace(tzinfo=None)
+    return {"dateTime": local.isoformat(timespec="seconds"), "timeZone": event.tzid}
+
+
+def to_graph(event: Event) -> dict[str, Any]:
+    if event.transparency == "transparent":
+        show = "free"
+    else:
+        show = "tentative" if event.status == "tentative" else "busy"
+    return {
+        "subject": event.title,
+        "body": {"contentType": "text", "content": event.description or ""},
+        "location": {"displayName": event.location or ""},
+        "start": _graph_time(event, event.start_at),
+        "end": _graph_time(event, event.end_at),
+        "isAllDay": event.all_day,
+        "showAs": show,
+        "recurrence": graph_recurrence(event),
+    }
+
+
+# --- Anbieter -----------------------------------------------------------------------------
+
+
+def _fail(response: httpx.Response) -> SyncError:
+    return SyncError(f"Der Server antwortet mit Status {response.status_code}.")
+
+
+def _valid_id(value: object) -> str | None:
+    return value if isinstance(value, str) and 0 < len(value) <= 1024 else None
 
 
 class GoogleCalendar:
-    def __init__(self, client: httpx.AsyncClient, calendar_id: str) -> None:
+    unreachable = UNREACHABLE
+    exdates = True
+
+    def __init__(self, client: httpx.AsyncClient, calendar_id: str, tzid: str) -> None:
         self.client = client
-        self.base = f"{API}/calendars/{quote(calendar_id, safe='')}/events"
+        self.tzid = tzid
+        self.base = f"{GOOGLE_API}/calendars/{quote(calendar_id, safe='')}/events"
 
     async def _send(self, method: str, url: str, **kwargs: Any) -> httpx.Response:
         response = await self.client.request(method, url, **kwargs)
@@ -215,62 +478,171 @@ class GoogleCalendar:
             raise SyncError(REJECTED)
         return response
 
-    @staticmethod
-    def _fail(response: httpx.Response) -> SyncError:
-        return SyncError(f"Der Server antwortet mit Status {response.status_code}.")
+    def _item(self, item: dict[str, Any]) -> RemoteItem | None:
+        remote_id = _valid_id(item.get("id"))
+        if remote_id is None:
+            return None
+        if item.get("recurringEventId"):
+            original = item.get("originalStartTime")
+            if item.get("status") != "cancelled" or not isinstance(original, dict):
+                return None
+            try:
+                moment, _ = _moment(original, self.tzid)
+            except (KeyError, ValueError, TypeError):
+                return None
+            return RemoteItem(
+                remote_id, instance_of=str(item["recurringEventId"]), original_start=moment
+            )
+        if item.get("status") == "cancelled":
+            return RemoteItem(remote_id, deleted=True)
+        try:
+            return RemoteItem(remote_id, fields=fields_from_google(item, self.tzid))
+        except (KeyError, ValueError, TypeError):
+            return RemoteItem(remote_id)
 
-    async def changes(self, sync_token: str | None) -> tuple[list[dict[str, Any]], str | None]:
+    async def changes(self, sync_token: str | None) -> Changes:
         params: dict[str, str] = {"maxResults": "250", "singleEvents": "false"}
         if sync_token:
             params |= {"syncToken": sync_token, "showDeleted": "true"}
-        items: list[dict[str, Any]] = []
+        items: list[RemoteItem] = []
         for _ in range(MAX_PAGES):
             response = await self._send("GET", self.base, params=params)
             if response.status_code == 410:
                 raise _Gone
             if response.status_code != 200:
-                raise self._fail(response)
+                raise _fail(response)
             data = response.json()
-            items.extend(i for i in data.get("items", []) if isinstance(i, dict))
+            for raw in data.get("items", []):
+                if isinstance(raw, dict) and (item := self._item(raw)) is not None:
+                    items.append(item)
             page = data.get("nextPageToken")
             if not page:
                 token = data.get("nextSyncToken")
-                return items, str(token) if token else None
+                return Changes(items, str(token) if token else None)
             params["pageToken"] = str(page)
-        raise SyncError("Der Kalender enthält zu viele Termine (höchstens 5000).")
+        raise SyncError(TOO_MANY)
 
-    async def insert(self, body: dict[str, Any]) -> str:
-        response = await self._send("POST", self.base, json=body)
+    async def insert(self, event: Event) -> str:
+        response = await self._send("POST", self.base, json=to_google(event))
         if response.status_code not in (200, 201):
-            raise self._fail(response)
+            raise _fail(response)
         return str(response.json()["id"])
 
-    async def update(self, remote_id: str, body: dict[str, Any]) -> bool:
-        """False: gibt es bei Google nicht mehr."""
-        response = await self._send("PATCH", f"{self.base}/{quote(remote_id, safe='')}", json=body)
+    async def update(self, remote_id: str, event: Event) -> bool:
+        """False: gibt es beim Anbieter nicht mehr."""
+        url = f"{self.base}/{quote(remote_id, safe='')}"
+        response = await self._send("PATCH", url, json=to_google(event))
         if response.status_code in (404, 410):
             return False
         if response.status_code != 200:
-            raise self._fail(response)
+            raise _fail(response)
         return True
 
     async def delete(self, remote_id: str) -> None:
         response = await self._send("DELETE", f"{self.base}/{quote(remote_id, safe='')}")
         if response.status_code not in (200, 204, 404, 410):
-            raise self._fail(response)
+            raise _fail(response)
+
+
+class OutlookCalendar:
+    """Microsoft Graph – Zeiten kommen dank ``Prefer`` in UTC, Beschreibungen als Text."""
+
+    unreachable = OUTLOOK_UNREACHABLE
+    exdates = False
+    PREFER = 'outlook.timezone="UTC", outlook.body-content-type="text"'
+    SELECT = (
+        "id,subject,body,location,start,end,isAllDay,recurrence,showAs,type,isCancelled,"
+        "originalStartTimeZone"
+    )
+
+    def __init__(self, client: httpx.AsyncClient, tzid: str) -> None:
+        self.client = client
+        self.tzid = tzid
+
+    async def _send(self, method: str, url: str, **kwargs: Any) -> httpx.Response:
+        headers = {"Prefer": self.PREFER}
+        response = await self.client.request(method, url, headers=headers, **kwargs)
+        if response.status_code in (401, 403):
+            raise SyncError(OUTLOOK_REJECTED)
+        return response
+
+    def _item(self, item: dict[str, Any]) -> RemoteItem | None:
+        remote_id = _valid_id(item.get("id"))
+        if remote_id is None:
+            return None
+        if item.get("isCancelled"):
+            return RemoteItem(remote_id, deleted=True)
+        if item.get("type") not in (None, "singleInstance", "seriesMaster"):
+            return None  # einzelne Vorkommen und Ausnahmen einer Serie
+        try:
+            return RemoteItem(remote_id, fields=fields_from_graph(item, self.tzid))
+        except (KeyError, ValueError, TypeError):
+            return RemoteItem(remote_id)
+
+    async def changes(self, sync_token: str | None) -> Changes:
+        url = GRAPH_EVENTS
+        params: dict[str, str] | None = {"$top": "100", "$select": self.SELECT}
+        items: list[RemoteItem] = []
+        for _ in range(GRAPH_PAGES):
+            response = await self._send("GET", url, params=params)
+            if response.status_code != 200:
+                raise _fail(response)
+            data = response.json()
+            for raw in data.get("value", []):
+                if isinstance(raw, dict) and (item := self._item(raw)) is not None:
+                    items.append(item)
+            next_link = data.get("@odata.nextLink")
+            if not next_link:
+                return Changes(items, None, complete=True)
+            if not str(next_link).startswith(GRAPH_ROOT):  # nur Microsoft folgen (kein SSRF)
+                raise SyncError(OUTLOOK_UNREACHABLE)
+            url, params = str(next_link), None
+        raise SyncError(TOO_MANY)
+
+    async def insert(self, event: Event) -> str:
+        response = await self._send("POST", GRAPH_EVENTS, json=to_graph(event))
+        if response.status_code not in (200, 201):
+            raise _fail(response)
+        return str(response.json()["id"])
+
+    async def update(self, remote_id: str, event: Event) -> bool:
+        url = f"{GRAPH_EVENTS}/{quote(remote_id, safe='')}"
+        response = await self._send("PATCH", url, json=to_graph(event))
+        if response.status_code in (404, 410):
+            return False
+        if response.status_code != 200:
+            raise _fail(response)
+        return True
+
+    async def delete(self, remote_id: str) -> None:
+        response = await self._send("DELETE", f"{GRAPH_EVENTS}/{quote(remote_id, safe='')}")
+        if response.status_code not in (200, 204, 404, 410):
+            raise _fail(response)
+
+
+def _client(conn: CalendarConnection, http: httpx.AsyncClient, owner: User) -> CalendarClient:
+    if conn.provider == "microsoft":
+        return OutlookCalendar(http, owner.timezone)
+    return GoogleCalendar(http, conn.remote_calendar_id, owner.timezone)
 
 
 # --- Abgleich -----------------------------------------------------------------------------
 
 
+async def _forget(db: AsyncSession, event: Event) -> None:
+    """Beim Anbieter schon gelöscht – hier löschen, ohne Grabstein."""
+    event.connection_id = None
+    await db.delete(event)
+
+
 async def _pull(
-    db: AsyncSession, conn: CalendarConnection, owner: User, api: GoogleCalendar, now: datetime
+    db: AsyncSession, conn: CalendarConnection, owner: User, api: CalendarClient, now: datetime
 ) -> None:
     try:
-        items, token = await api.changes(conn.sync_token)
+        changes = await api.changes(conn.sync_token)
     except _Gone:
         conn.sync_token = None
-        items, token = await api.changes(None)
+        changes = await api.changes(None)
     linked = {
         e.remote_id: e
         for e in (
@@ -280,30 +652,26 @@ async def _pull(
         ).unique()
     }
     cutoff = now - timedelta(days=PAST_DAYS)
-    cancelled_instances: list[tuple[str, dict[str, Any]]] = []
-    for item in items:
-        remote_id = item.get("id")
-        if not isinstance(remote_id, str) or not remote_id or len(remote_id) > 1024:
+    seen: set[str] = set()
+    cancelled: list[RemoteItem] = []
+    for item in changes.items:
+        if item.instance_of is not None:
+            cancelled.append(item)
             continue
-        if item.get("recurringEventId"):
-            if item.get("status") == "cancelled" and isinstance(
-                item.get("originalStartTime"), dict
-            ):
-                cancelled_instances.append(
-                    (str(item["recurringEventId"]), item["originalStartTime"])
-                )
-            continue
-        event = linked.get(remote_id)
-        if item.get("status") == "cancelled":
+        seen.add(item.remote_id)
+        event = linked.get(item.remote_id)
+        if item.deleted:
             if event is not None:
-                event.connection_id = None  # bei Google schon weg – kein Grabstein nötig
-                await db.delete(event)
-                linked.pop(remote_id)
+                await _forget(db, event)
+                linked.pop(item.remote_id)
             continue
-        try:
-            fields = fields_from_google(item, owner.timezone)
-        except (KeyError, ValueError, TypeError):
+        fields = item.fields
+        if fields is None:
             continue
+        if not api.exdates:
+            fields.pop("exdates", None)  # Ausnahmen bleiben, wie sie in ToDoch sind
+        if event is not None and event.remote_hash == _digest(fields, api.exdates):
+            continue  # beim Anbieter unverändert – Änderungen in ToDoch nicht überschreiben
         if event is None:
             if fields["rrule"] is None and fields["end_at"] < cutoff:
                 continue
@@ -311,35 +679,37 @@ async def _pull(
                 area_id=conn.area_id,
                 created_by=owner.id,
                 uid=f"{uuid.uuid4()}@todoch",
-                source="google",
+                source=conn.provider,
                 connection_id=conn.id,
-                remote_id=remote_id,
+                remote_id=item.remote_id,
+                exdates=[],
                 tags=[],
                 attendees=[],
                 reminders=[],
                 sequence=0,
             )
             db.add(event)
-            linked[remote_id] = event
+            linked[item.remote_id] = event
         for name, value in fields.items():
             setattr(event, name, value)
-        event.remote_hash = fingerprint(event)
-    for master_id, original in cancelled_instances:
-        master = linked.get(master_id)
-        if master is None or not master.rrule:
+        event.remote_hash = fingerprint(event, api.exdates)
+    if changes.complete:
+        for remote_id, event in list(linked.items()):
+            if remote_id not in seen:
+                await _forget(db, event)
+                linked.pop(remote_id)
+    for item in cancelled:
+        master = linked.get(item.instance_of or "")
+        if master is None or not master.rrule or item.original_start is None:
             continue
-        try:
-            moment, _ = _moment(original, master.tzid)
-        except (KeyError, ValueError, TypeError):
-            continue
-        if moment not in (master.exdates or []):
-            master.exdates = [*(master.exdates or []), moment]
-            master.remote_hash = fingerprint(master)
-    conn.sync_token = token
+        if item.original_start not in (master.exdates or []):
+            master.exdates = [*(master.exdates or []), item.original_start]
+            master.remote_hash = fingerprint(master, api.exdates)
+    conn.sync_token = changes.token
 
 
 async def _push(
-    db: AsyncSession, conn: CalendarConnection, api: GoogleCalendar, now: datetime
+    db: AsyncSession, conn: CalendarConnection, api: CalendarClient, now: datetime
 ) -> None:
     stones = list(
         await db.scalars(
@@ -375,7 +745,7 @@ async def _push(
     cutoff = now - timedelta(days=PAST_DAYS)
     pushed = 0
     for event in candidates:
-        digest = fingerprint(event)
+        digest = fingerprint(event, api.exdates)
         linked = event.connection_id == conn.id and bool(event.remote_id)
         if linked and event.remote_hash == digest:
             continue
@@ -383,9 +753,8 @@ async def _push(
             continue  # Altes bleibt beim ersten Verbinden in ToDoch
         if pushed >= MAX_PUSH:
             break
-        body = to_google(event)
-        if not (linked and event.remote_id and await api.update(event.remote_id, body)):
-            event.remote_id = await api.insert(body)
+        if not (linked and event.remote_id and await api.update(event.remote_id, event)):
+            event.remote_id = await api.insert(event)
         event.connection_id = conn.id
         event.remote_hash = digest
         pushed += 1
@@ -416,13 +785,14 @@ async def sync_connection(
                 tokens.refresh_token, context=token_context(conn.id)
             )
         headers = {"Authorization": f"Bearer {tokens.access_token}"}
-        async with httpx.AsyncClient(
-            timeout=TIMEOUT, transport=TRANSPORT, headers=headers
-        ) as client:
-            api = GoogleCalendar(client, conn.remote_calendar_id)
-            await _pull(db, conn, owner, api, now)
-            await db.flush()
-            await _push(db, conn, api, now)
+        async with httpx.AsyncClient(timeout=TIMEOUT, transport=TRANSPORT, headers=headers) as http:
+            api = _client(conn, http, owner)
+            try:
+                await _pull(db, conn, owner, api, now)
+                await db.flush()
+                await _push(db, conn, api, now)
+            except httpx.HTTPError as exc:
+                raise SyncError(api.unreachable) from exc
         await db.flush()
         conn.event_count = (
             await db.scalar(

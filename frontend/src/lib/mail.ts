@@ -99,7 +99,16 @@ export interface ImapGuess {
 	hint: 'app' | 'oauth' | null;
 	/** Aus der Liste bekannter Anbieter – sonst nur geraten (imap.<domain>). */
 	known: boolean;
+	/** Direktlink zum Erstellen eines App-Passworts. */
+	appPasswordUrl?: string;
 }
+
+const APP_PASSWORD_URLS: Record<string, string> = {
+	'imap.gmail.com': 'https://myaccount.google.com/apppasswords',
+	'imap.mail.me.com': 'https://account.apple.com/account/manage',
+	'imap.mail.yahoo.com': 'https://login.yahoo.com/account/security/app-passwords',
+	'imap.aol.com': 'https://login.aol.com/account/security/app-passwords'
+};
 
 const PROVIDERS: [string[], string, ImapGuess['hint']][] = [
 	[['gmail.com', 'googlemail.com'], 'imap.gmail.com', 'app'],
@@ -124,7 +133,17 @@ export function guessImap(address: string): ImapGuess | null {
 	const [local, domain] = address.trim().toLowerCase().split('@');
 	if (!local || !domain || !domain.includes('.')) return null;
 	for (const [domains, host, hint] of PROVIDERS) {
-		if (domains.includes(domain)) return { host, port: 993, security: 'ssl', hint, known: true };
+		if (domains.includes(domain)) {
+			const appPasswordUrl = APP_PASSWORD_URLS[host];
+			return {
+				host,
+				port: 993,
+				security: 'ssl',
+				hint,
+				known: true,
+				...(appPasswordUrl ? { appPasswordUrl } : {})
+			};
+		}
 	}
 	return { host: `imap.${domain}`, port: 993, security: 'ssl', hint: null, known: false };
 }

@@ -509,11 +509,39 @@ export const de = {
 	'mail.remove': 'Entfernen',
 	'mail.removeConfirm': 'Aus ToDoch entfernen?',
 	'mail.removed': 'Postfach entfernt',
-	'sync.title': 'Mit Google Kalender abgleichen',
+	'sync.title': 'Online-Kalender abgleichen (Google, Outlook)',
 	'sync.intro':
-		'Termine eines Bereichs erscheinen in Google Kalender – und was du dort einträgst, erscheint hier. Änderungen und Löschungen auf beiden Seiten werden übernommen.',
+		'Termine eines Bereichs erscheinen in Google Kalender oder Outlook – und was du dort einträgst, erscheint hier. Änderungen und Löschungen auf beiden Seiten werden übernommen.',
 	'sync.area': 'Bereich',
 	'sync.connectGoogle': 'Google Kalender verbinden',
+	'sync.connectMicrosoft': 'Outlook-Kalender verbinden',
+	'sync.google': 'Google Kalender',
+	'sync.microsoft': 'Outlook-Kalender',
+	'subscribe.title': 'Ohne Einrichtung: Google Kalender & Outlook per Abo-Link',
+	'subscribe.intro':
+		'Klappt ohne App-Registrierung und Admin. Voraussetzung: ToDoch ist aus dem Internet erreichbar. Google und Outlook holen Abos selbst ab – Änderungen erscheinen dort nach einigen Stunden.',
+	'subscribe.step1': '1. ToDoch-Termine in Google, Outlook oder auf dem iPhone anzeigen',
+	'subscribe.area': 'Bereich',
+	'subscribe.create': 'Abo-Link erzeugen',
+	'subscribe.created': 'Abo-Link erzeugt – jetzt beim Anbieter hinzufügen',
+	'subscribe.google': 'In Google Kalender hinzufügen',
+	'subscribe.outlook': 'In Outlook hinzufügen',
+	'subscribe.apple': 'iPhone / Apple Kalender',
+	'subscribe.step2': '2. Google- oder Outlook-Termine in ToDoch anzeigen',
+	'subscribe.googleHow':
+		'Google: Einstellungen → dein Kalender → „Privatadresse im iCal-Format“ kopieren',
+	'subscribe.outlookHow':
+		'Outlook: Einstellungen → Kalender → Freigegebene Kalender → „Kalender veröffentlichen“ → ICS-Link kopieren',
+	'subscribe.open': 'Öffnen',
+	'subscribe.paste': '… und unten bei „Kalender einbinden“ einfügen – fertig.',
+	'mail.appPasswordLink': 'App-Passwort erstellen',
+	'oauth.reasonClient':
+		'Grund: Client-ID oder Secret stimmen nicht. Bei Microsoft den „Wert“ des geheimen Clientschlüssels eintragen, nicht die „Geheimnis-ID“ – dann „todoch oauth microsoft“ bzw. „todoch oauth google“ erneut ausführen.',
+	'oauth.reasonRedirect':
+		'Grund: Der Anmeldecode wurde nicht angenommen – meist stimmt die Rücksprungadresse nicht. Beim Anbieter muss genau {uri} eingetragen sein, und ToDoch muss unter dieser Adresse aufgerufen werden.',
+	'oauth.reasonPermission':
+		'Grund: Beim Anbieter fehlt eine Berechtigung (Gmail- bzw. Kalender-API, IMAP.AccessAsUser.All, Calendars.ReadWrite).',
+	'oauth.reasonOther': 'Grund laut Anbieter: {code}. Details: „todoch logs app“ im Container.',
 	'sync.count': '{count} abgeglichene Termine',
 	'sync.lastSync': 'zuletzt {date}',
 	'sync.syncNow': 'Jetzt abgleichen',
@@ -521,10 +549,10 @@ export const de = {
 	'sync.remove': 'Trennen',
 	'sync.removeConfirm': 'Wirklich trennen? Die Termine bleiben erhalten.',
 	'sync.removed': 'Verbindung getrennt',
-	'sync.connected': 'Google Kalender verbunden – die Termine werden abgeglichen',
-	'sync.failed': 'Die Verbindung mit Google Kalender ist fehlgeschlagen.',
+	'sync.connected': 'Kalender verbunden – die Termine werden abgeglichen',
+	'sync.failed': 'Die Verbindung mit dem Kalender ist fehlgeschlagen.',
 	'sync.missing':
-		'Admin-Hinweis: Einmal im Container „todoch oauth google“ ausführen und in der Google Cloud Console zusätzlich die „Google Calendar API“ aktivieren.',
+		'Admin-Hinweis: Einmal im Container „todoch oauth google“ ausführen und in der Google Cloud Console zusätzlich die „Google Calendar API“ aktivieren; für Outlook „todoch oauth microsoft“ mit der Berechtigung Calendars.ReadWrite.',
 	'sync.unavailable':
 		'Der Abgleich mit Google Kalender ist auf diesem Server noch nicht eingerichtet.',
 	'mail.settings': 'Postfächer & Regeln',
@@ -570,7 +598,7 @@ export const de = {
 	'mail.hintAppPassword':
 		'Hier von Hand brauchst du bei diesem Anbieter ein App-Passwort (in den Kontoeinstellungen erzeugen). Einfacher: oben „Mit Google verbinden“, falls vorhanden.',
 	'mail.hintOAuth':
-		'Microsoft erlaubt IMAP nur mit Anmeldung über Microsoft – bitte oben „Mit Microsoft verbinden“ nutzen. Fehlt der Knopf, muss der Admin ihn einmal einrichten.',
+		'Outlook- und Hotmail-Mails lassen sich seit 2024 nur noch über „Mit Microsoft verbinden“ abholen – Microsoft hat Passwörter für IMAP abgeschaltet. Fehlt der Knopf, muss der Admin ihn einrichten (Microsoft verlangt dafür ein Firmen- bzw. Azure-Konto). Den Outlook-Kalender verbindest du ohne Einrichtung per Abo-Link unter „Bereiche“.',
 	'mail.quickConnect': 'Am einfachsten – ohne App-Passwort und Servereinstellungen:',
 	'mail.connectGoogle': 'Mit Google verbinden',
 	'mail.connectMicrosoft': 'Mit Microsoft verbinden',

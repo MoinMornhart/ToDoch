@@ -440,11 +440,39 @@ export const en: Record<MessageKey, string> = {
 	'event.subscribed': 'From a subscribed calendar',
 	'event.readOnly': 'From the subscribed calendar “{name}” – change it there.',
 
-	'sync.title': 'Sync with Google Calendar',
+	'sync.title': 'Sync online calendars (Google, Outlook)',
 	'sync.intro':
-		'Events of an area show up in Google Calendar – and what you add there shows up here. Changes and deletions on both sides are applied.',
+		'Events of an area show up in Google Calendar or Outlook – and what you add there shows up here. Changes and deletions on both sides are applied.',
 	'sync.area': 'Area',
 	'sync.connectGoogle': 'Connect Google Calendar',
+	'sync.connectMicrosoft': 'Connect Outlook calendar',
+	'sync.google': 'Google Calendar',
+	'sync.microsoft': 'Outlook calendar',
+	'subscribe.title': 'No setup: Google Calendar & Outlook via subscription link',
+	'subscribe.intro':
+		'Works without any app registration or admin. Requirement: ToDoch is reachable from the internet. Google and Outlook fetch subscriptions themselves – changes show up there after a few hours.',
+	'subscribe.step1': '1. Show ToDoch events in Google, Outlook or on your iPhone',
+	'subscribe.area': 'Area',
+	'subscribe.create': 'Create subscription link',
+	'subscribe.created': 'Subscription link created – now add it at the provider',
+	'subscribe.google': 'Add to Google Calendar',
+	'subscribe.outlook': 'Add to Outlook',
+	'subscribe.apple': 'iPhone / Apple Calendar',
+	'subscribe.step2': '2. Show Google or Outlook events in ToDoch',
+	'subscribe.googleHow': 'Google: Settings → your calendar → “Secret address in iCal format”',
+	'subscribe.outlookHow':
+		'Outlook: Settings → Calendar → Shared calendars → “Publish a calendar” → copy the ICS link',
+	'subscribe.open': 'Open',
+	'subscribe.paste': '… and paste it below under “Add calendars” – done.',
+	'mail.appPasswordLink': 'Create app password',
+	'oauth.reasonClient':
+		'Reason: the client ID or secret is wrong. For Microsoft, enter the “Value” of the client secret, not the “Secret ID” – then run “todoch oauth microsoft” or “todoch oauth google” again.',
+	'oauth.reasonRedirect':
+		'Reason: the sign-in code was not accepted – usually the redirect address does not match. The provider must have exactly {uri}, and ToDoch must be opened at this address.',
+	'oauth.reasonPermission':
+		'Reason: a permission is missing at the provider (Gmail or Calendar API, IMAP.AccessAsUser.All, Calendars.ReadWrite).',
+	'oauth.reasonOther':
+		'Reason given by the provider: {code}. Details: “todoch logs app” in the container.',
 	'sync.count': '{count} synced events',
 	'sync.lastSync': 'last {date}',
 	'sync.syncNow': 'Sync now',
@@ -452,11 +480,11 @@ export const en: Record<MessageKey, string> = {
 	'sync.remove': 'Disconnect',
 	'sync.removeConfirm': 'Really disconnect? The events are kept.',
 	'sync.removed': 'Disconnected',
-	'sync.connected': 'Google Calendar connected – syncing your events',
-	'sync.failed': 'Connecting Google Calendar failed.',
+	'sync.connected': 'Calendar connected – syncing your events',
+	'sync.failed': 'Connecting the calendar failed.',
 	'sync.missing':
-		'Admin note: run “todoch oauth google” once in the container and also enable the “Google Calendar API” in the Google Cloud Console.',
-	'sync.unavailable': 'Syncing with Google Calendar is not set up on this server yet.',
+		'Admin note: run “todoch oauth google” once in the container and also enable the “Google Calendar API” in the Google Cloud Console; for Outlook run “todoch oauth microsoft” with the Calendars.ReadWrite permission.',
+	'sync.unavailable': 'Syncing with online calendars is not set up on this server yet.',
 
 	'totp.title': 'Two-factor (authenticator app)',
 	'totp.intro':
@@ -571,7 +599,7 @@ export const en: Record<MessageKey, string> = {
 	'mail.hintAppPassword':
 		'When adding it by hand, this provider needs an app password (create it in your account settings). Easier: “Connect with Google” above, if available.',
 	'mail.hintOAuth':
-		'Microsoft only allows IMAP with a Microsoft sign-in – please use “Connect with Microsoft” above. If the button is missing, an admin has to set it up once.',
+		'Since 2024, Outlook and Hotmail mail can only be fetched via “Connect with Microsoft” – Microsoft turned off passwords for IMAP. If the button is missing, an admin has to set it up (Microsoft requires a work or Azure account for that). You can connect the Outlook calendar without any setup via a subscription link under “Areas”.',
 	'mail.quickConnect': 'The easiest way – no app password, no server settings:',
 	'mail.connectGoogle': 'Connect with Google',
 	'mail.connectMicrosoft': 'Connect with Microsoft',

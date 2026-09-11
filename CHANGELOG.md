@@ -4,6 +4,16 @@ Alle Änderungen an Todoch – die neueste Version steht oben.
 Versionsschema: `0.0.1 → 0.0.2 → … → 0.0.9 → 0.1.0 → … → 0.9.9 → 1.0.0`.
 Im Container spielt der Befehl `update` immer die neueste Version ein.
 
+## [0.2.6] – 2026-09-11
+
+Outlook-Kalender, Abo-Links ohne Einrichtung und genaue Anmeldefehler
+
+- Ohne jede Einrichtung: unter Bereiche „Abo-Link erzeugen“ → „In Google Kalender hinzufügen“ / „In Outlook hinzufügen“ / iPhone; andersherum Direktlinks zur Stelle, an der Google bzw. Outlook den privaten Kalender-Link zeigen
+- Zwei-Wege-Abgleich jetzt auch mit dem Outlook-Kalender (Microsoft Graph): Serienmuster werden übersetzt, ganztägige Termine landen am richtigen Tag, Änderungen in ToDoch werden nicht von der vollständigen Liste überschrieben
+- Scheitert die Anmeldung bei Google oder Microsoft, zeigt ToDoch den genauen Grund (z. B. Secret falsch, Rücksprungadresse stimmt nicht – mit der richtigen Adresse) und schreibt ihn ins Protokoll (todoch logs app)
+- Postfach: Direktlink „App-Passwort erstellen“ für Gmail, iCloud, Yahoo und AOL; ehrlicher Hinweis, dass Outlook/Hotmail-Mail seit 2024 nur mit „Mit Microsoft verbinden“ geht
+- README, SECURITY.md und Webseite ergänzt
+
 ## [0.2.5] – 2026-09-11
 
 Google Kalender in beide Richtungen abgleichen (Meilenstein 5, Teil 2)

@@ -87,6 +87,14 @@ melden, nicht als öffentliches Issue.
 - Die E-Mail-Adresse kommt aus dem ID-Token, das ToDoch direkt per TLS vom Token-Endpunkt erhält
   (OpenID Connect Core 3.1.3.7).
 
+**Scheitert die Anmeldung beim Anbieter (seit v0.2.6)**, zeigt ToDoch den Fehlercode des Anbieters
+(z. B. `invalid_client`) und schreibt die Beschreibung ins Protokoll – nie Client-Secret, Code oder
+Tokens.
+
+**Outlook-Kalender (Microsoft Graph, seit v0.2.6)**: nur Recht auf Termine
+(`Calendars.ReadWrite`), nur Aufrufe an `graph.microsoft.com`; Folgeseiten der Liste werden nur
+geladen, wenn sie ebenfalls dort liegen (kein SSRF über `@odata.nextLink`).
+
 **Google Kalender abgleichen (seit v0.2.5)**
 - Eigene Zustimmung nur für Termine (`calendar.events`), getrennt vom Postfach; dasselbe
   State-/PKCE-Verfahren und derselbe Rücksprung. Der Bereich steht im State und wird beim

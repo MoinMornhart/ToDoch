@@ -18,6 +18,7 @@
 	import { api, ApiError } from '$lib/api';
 	import MailAccounts from '$lib/components/MailAccounts.svelte';
 	import MailRules from '$lib/components/MailRules.svelte';
+	import { oauthReason } from '$lib/oauth';
 	import PageHeader from '$lib/components/PageHeader.svelte';
 	import { i18n, t } from '$lib/i18n/index.svelte';
 	import type { MailAccountInfo, MailMessage, MailMessageDetail, MailSuggestion } from '$lib/mail';
@@ -151,7 +152,10 @@
 		const connected = params.get('connected');
 		const failure = params.get('oauth_error');
 		if (connected) toasts.show(t('mail.connected'));
-		if (failure) toasts.error(oauthMessage(failure));
+		if (failure) {
+			const reason = oauthReason(params.get('reason'), params.get('provider'));
+			toasts.error([oauthMessage(failure), reason].filter(Boolean).join(' '));
+		}
 		if (connected || failure) void goto('/mail', { replaceState: true });
 		void refresh();
 		return () => clearTimeout(timer);

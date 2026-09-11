@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime
+from datetime import date, datetime, time
 from typing import Annotated, Literal
 
 from pydantic import BaseModel, Field, StringConstraints
@@ -68,6 +68,20 @@ class MailAccountOut(BaseModel):
     created_at: datetime
 
 
+class SuggestionOut(BaseModel):
+    """Erkannter Termin in der Zeitzone des Nutzers; ``end_date`` ist bei ganztägigen inklusiv."""
+
+    source: str
+    title: str
+    location: str
+    all_day: bool
+    start_date: date
+    start_time: time | None
+    end_date: date
+    end_time: time | None
+    status: str
+
+
 class MailMessageOut(BaseModel):
     id: uuid.UUID
     account_id: uuid.UUID
@@ -81,6 +95,8 @@ class MailMessageOut(BaseModel):
     is_read: bool
     attachment_count: int
     task_id: uuid.UUID | None
+    suggestion: SuggestionOut | None = None
+    event_id: uuid.UUID | None = None
 
 
 class MailMessageDetail(MailMessageOut):

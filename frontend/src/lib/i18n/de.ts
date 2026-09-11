@@ -509,6 +509,16 @@ export const de = {
 	'mail.remove': 'Entfernen',
 	'mail.removeConfirm': 'Aus ToDoch entfernen?',
 	'mail.removed': 'Postfach entfernt',
+	'mail.suggestions': 'Terminvorschläge aus Mails',
+	'mail.suggestion': 'Terminvorschlag',
+	'mail.accept': 'In Kalender übernehmen',
+	'mail.dismiss': 'Verwerfen',
+	'mail.accepted': 'Termin im Kalender eingetragen',
+	'mail.dismissed': 'Vorschlag verworfen',
+	'mail.openEvent': 'Im Kalender öffnen',
+	'mail.fromInvite': 'aus Kalendereinladung',
+	'mail.fromText': 'im Text erkannt',
+	'mail.allDay': 'ganztägig',
 	'mail.hintAppPassword':
 		'Bei diesem Anbieter brauchst du ein App-Passwort (in den Kontoeinstellungen erzeugen), nicht dein normales Passwort.',
 	'mail.hintOAuth':

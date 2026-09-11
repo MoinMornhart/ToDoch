@@ -3,17 +3,20 @@
 from __future__ import annotations
 
 import uuid
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from typing import Annotated
+from zoneinfo import ZoneInfo
 
 from fastapi import APIRouter, HTTPException, Query, Request, status
 from sqlalchemy import func, or_, select
 
 from app.api.deps import DB, CurrentUser, Res, client_ip
+from app.api.events import conflicts_out, create_event_row, event_out
 from app.api.tasks import area_for_new_item, task_out
 from app.i18n import language_from, translate
 from app.models import MailAccount, MailMessage, Task, User
 from app.policy import Action, authorize
+from app.schemas.events import EventIn, EventWriteOut
 from app.schemas.mail import (
     MailAccountIn,
     MailAccountOut,
@@ -22,6 +25,7 @@ from app.schemas.mail import (
     MailMessageOut,
     MailMessagePatch,
     MailTaskIn,
+    SuggestionOut,
 )
 from app.schemas.tasks import TaskOut
 from app.services import audit, mail
@@ -57,8 +61,38 @@ def account_out(account: MailAccount, unread: int, language: str = "de") -> Mail
     )
 
 
-def _message_fields(message: MailMessage) -> dict[str, object]:
+def suggestion_out(message: MailMessage, tzid: str) -> SuggestionOut | None:
+    data = message.suggestion
+    if not data or message.suggestion_status is None:
+        return None
+    start = datetime.fromisoformat(str(data["start"]))
+    end = datetime.fromisoformat(str(data["end"]))
+    all_day = bool(data.get("all_day"))
+    if all_day:
+        start_date, start_time = start.date(), None
+        end_date, end_time = max(start.date(), (end - timedelta(days=1)).date()), None
+    else:
+        zone = ZoneInfo(tzid)
+        local_start, local_end = start.astimezone(zone), end.astimezone(zone)
+        start_date, start_time = local_start.date(), local_start.time()
+        end_date, end_time = local_end.date(), local_end.time()
+    return SuggestionOut(
+        source=str(data.get("source", "text")),
+        title=str(data.get("title", "")),
+        location=str(data.get("location", "")),
+        all_day=all_day,
+        start_date=start_date,
+        start_time=start_time,
+        end_date=end_date,
+        end_time=end_time,
+        status=message.suggestion_status,
+    )
+
+
+def _message_fields(message: MailMessage, tzid: str) -> dict[str, object]:
     return {
+        "suggestion": suggestion_out(message, tzid),
+        "event_id": message.event_id,
         "id": message.id,
         "account_id": message.account_id,
         "account_name": message.account.name,
@@ -74,9 +108,9 @@ def _message_fields(message: MailMessage) -> dict[str, object]:
     }
 
 
-def message_detail(message: MailMessage) -> MailMessageDetail:
+def message_detail(message: MailMessage, tzid: str) -> MailMessageDetail:
     return MailMessageDetail(
-        **_message_fields(message),
+        **_message_fields(message, tzid),
         message_id=message.message_id,
         recipients=message.recipients,
         body_text=message.body_text,
@@ -188,7 +222,7 @@ async def add_account(
     )
     db.add(account)
     await db.flush()
-    await mail.apply_result(db, account, result)
+    await mail.apply_result(db, account, result, tzid=user.timezone)
     audit.record(
         db,
         "mail.account_added",
@@ -303,7 +337,20 @@ async def list_messages(
         .limit(limit)
     )
     messages = (await db.scalars(query)).unique()
-    return [MailMessageOut(**_message_fields(m)) for m in messages]
+    return [MailMessageOut(**_message_fields(m, user.timezone)) for m in messages]
+
+
+@router.get("/suggestions", response_model=list[MailMessageOut])
+async def list_suggestions(db: DB, user: CurrentUser) -> list[MailMessageOut]:
+    """Bestätigungs-Inbox: Mails mit erkanntem, noch offenem Terminvorschlag."""
+    rows = await db.scalars(
+        select(MailMessage)
+        .join(MailAccount, MailMessage.account_id == MailAccount.id)
+        .where(MailAccount.owner_id == user.id, MailMessage.suggestion_status == "pending")
+        .order_by(MailMessage.received_at.desc(), MailMessage.uid.desc())
+        .limit(50)
+    )
+    return [MailMessageOut(**_message_fields(m, user.timezone)) for m in rows.unique()]
 
 
 @router.get("/messages/{mail_id}", response_model=MailMessageDetail)
@@ -314,7 +361,7 @@ async def get_message(mail_id: uuid.UUID, db: DB, user: CurrentUser) -> MailMess
         message.is_read = True
         await db.commit()
         await db.refresh(message)
-    return message_detail(message)
+    return message_detail(message, user.timezone)
 
 
 @router.patch("/messages/{mail_id}", response_model=MailMessageDetail)
@@ -326,7 +373,55 @@ async def update_message(
         message.is_read = body.is_read
     await db.commit()
     await db.refresh(message)
-    return message_detail(message)
+    return message_detail(message, user.timezone)
+
+
+@router.post(
+    "/messages/{mail_id}/suggestion/accept",
+    response_model=EventWriteOut,
+    status_code=status.HTTP_201_CREATED,
+)
+async def accept_suggestion(
+    mail_id: uuid.UUID,
+    request: Request,
+    db: DB,
+    user: CurrentUser,
+    body: MailTaskIn | None = None,
+) -> EventWriteOut:
+    """Übernimmt den erkannten Termin in den Kalender – mit der Mail als Beschreibung."""
+    message = await _own_message(db, user, mail_id)
+    suggestion = suggestion_out(message, user.timezone)
+    if suggestion is None or message.suggestion_status != "pending":
+        raise HTTPException(status.HTTP_409_CONFLICT, "Kein offener Terminvorschlag.")
+    event_in = EventIn(
+        title=(suggestion.title or message.subject or "–")[:300],
+        description=_task_notes(message, _language(request)),
+        location=suggestion.location[:500],
+        area_id=body.area_id if body else None,
+        all_day=suggestion.all_day,
+        start_date=suggestion.start_date,
+        start_time=suggestion.start_time,
+        end_date=suggestion.end_date,
+        end_time=suggestion.end_time,
+        tzid=user.timezone,
+    )
+    event, conflicts = await create_event_row(db, user, event_in, source="mail")
+    message.suggestion_status = "accepted"
+    message.event_id = event.id
+    await db.commit()
+    return EventWriteOut(
+        event=event_out(event, user.timezone),
+        conflicts=conflicts_out(conflicts, user.timezone),
+    )
+
+
+@router.post("/messages/{mail_id}/suggestion/dismiss", status_code=status.HTTP_204_NO_CONTENT)
+async def dismiss_suggestion(mail_id: uuid.UUID, db: DB, user: CurrentUser) -> None:
+    message = await _own_message(db, user, mail_id)
+    if message.suggestion_status != "pending":
+        raise HTTPException(status.HTTP_409_CONFLICT, "Kein offener Terminvorschlag.")
+    message.suggestion_status = "dismissed"
+    await db.commit()
 
 
 def _task_notes(message: MailMessage, language: str) -> str:

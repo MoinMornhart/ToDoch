@@ -510,6 +510,16 @@ export const en: Record<MessageKey, string> = {
 	'mail.remove': 'Remove',
 	'mail.removeConfirm': 'Remove from ToDoch?',
 	'mail.removed': 'Mailbox removed',
+	'mail.suggestions': 'Appointment suggestions from emails',
+	'mail.suggestion': 'Suggested appointment',
+	'mail.accept': 'Add to calendar',
+	'mail.dismiss': 'Dismiss',
+	'mail.accepted': 'Event added to the calendar',
+	'mail.dismissed': 'Suggestion dismissed',
+	'mail.openEvent': 'Open in calendar',
+	'mail.fromInvite': 'from a calendar invitation',
+	'mail.fromText': 'detected in the text',
+	'mail.allDay': 'all day',
 	'mail.hintAppPassword':
 		'With this provider you need an app password (create it in your account settings), not your normal password.',
 	'mail.hintOAuth':

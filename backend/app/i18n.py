@@ -110,6 +110,7 @@ EXACT: dict[str, str] = {
     "Das gespeicherte Passwort lässt sich nicht entschlüsseln.": (
         "The stored password cannot be decrypted."
     ),
+    "Kein offener Terminvorschlag.": "No open appointment suggestion.",
     "Unbekannter Push-Dienst": "Unknown push service",
     "Zu viele Geräte registriert.": "Too many devices registered.",
     "Auf keinem Gerät aktiviert.": "Not enabled on any device.",

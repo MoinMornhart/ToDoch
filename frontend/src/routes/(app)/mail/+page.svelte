@@ -1,26 +1,31 @@
 <script lang="ts">
 	import {
 		ArrowLeft,
+		CalendarCheck,
+		CalendarPlus,
 		ListPlus,
 		ListTodo,
 		MailOpen,
 		Paperclip,
 		RefreshCw,
 		Search,
-		Settings2
+		Settings2,
+		X
 	} from '@lucide/svelte';
 	import { onMount } from 'svelte';
 	import { api, ApiError } from '$lib/api';
 	import MailAccounts from '$lib/components/MailAccounts.svelte';
 	import PageHeader from '$lib/components/PageHeader.svelte';
 	import { i18n, t } from '$lib/i18n/index.svelte';
-	import type { MailAccountInfo, MailMessage, MailMessageDetail } from '$lib/mail';
+	import type { MailAccountInfo, MailMessage, MailMessageDetail, MailSuggestion } from '$lib/mail';
 	import { toasts } from '$lib/stores/toasts.svelte';
 	import { ui } from '$lib/stores/ui.svelte';
-	import type { Task } from '$lib/types';
+	import type { EventWriteResult, Task } from '$lib/types';
 
 	let accounts = $state<MailAccountInfo[]>([]);
 	let messages = $state<MailMessage[]>([]);
+	let suggestions = $state<MailMessage[]>([]);
+	let deciding = $state<string | null>(null);
 	let loaded = $state(false);
 	let accountId = $state('');
 	let query = $state('');
@@ -49,9 +54,70 @@
 		messages = await api<MailMessage[]>(`/mail/messages?${params}`);
 	}
 
+	async function loadSuggestions() {
+		suggestions = await api<MailMessage[]>('/mail/suggestions');
+	}
+
+	/** Status eines Vorschlags überall nachziehen (Liste, geöffnete Mail). */
+	function markSuggestion(id: string, status: MailSuggestion['status'], eventId?: string) {
+		for (const entry of [...messages, ...(selected ? [selected] : [])]) {
+			if (entry.id !== id || !entry.suggestion) continue;
+			entry.suggestion.status = status;
+			if (eventId) entry.event_id = eventId;
+		}
+	}
+
+	async function accept(message: MailMessage) {
+		deciding = message.id;
+		try {
+			const result = await api<EventWriteResult>(`/mail/messages/${message.id}/suggestion/accept`, {
+				method: 'POST',
+				body: {}
+			});
+			markSuggestion(message.id, 'accepted', result.event.id);
+			toasts.show(t('mail.accepted'));
+			ui.changed();
+			await loadSuggestions();
+		} catch (error) {
+			report(error);
+		} finally {
+			deciding = null;
+		}
+	}
+
+	async function dismiss(message: MailMessage) {
+		deciding = message.id;
+		try {
+			await api(`/mail/messages/${message.id}/suggestion/dismiss`, { method: 'POST' });
+			markSuggestion(message.id, 'dismissed');
+			toasts.show(t('mail.dismissed'));
+			await loadSuggestions();
+		} catch (error) {
+			report(error);
+		} finally {
+			deciding = null;
+		}
+	}
+
+	function openEvent(eventId: string | null) {
+		if (eventId) ui.eventEditor = { mode: 'edit', eventId, occurrence: null };
+	}
+
+	function describe(suggestion: MailSuggestion): string {
+		const day = new Intl.DateTimeFormat(i18n.locale, {
+			weekday: 'short',
+			day: 'numeric',
+			month: 'short',
+			year: 'numeric'
+		}).format(new Date(`${suggestion.start_date}T12:00:00`));
+		if (suggestion.all_day || !suggestion.start_time) return `${day} · ${t('mail.allDay')}`;
+		const end = suggestion.end_time ? `–${suggestion.end_time.slice(0, 5)}` : '';
+		return `${day} · ${suggestion.start_time.slice(0, 5)}${end}`;
+	}
+
 	async function refresh() {
 		try {
-			await Promise.all([loadAccounts(), loadMessages()]);
+			await Promise.all([loadAccounts(), loadMessages(), loadSuggestions()]);
 		} catch (error) {
 			report(error);
 		} finally {
@@ -217,6 +283,47 @@
 		</div>
 	{/if}
 
+	{#if suggestions.length}
+		<section class="mb-6" aria-labelledby="mail-suggestions">
+			<h2 id="mail-suggestions" class="mb-2 flex items-center gap-2 text-base font-semibold">
+				<CalendarPlus size={16} aria-hidden="true" />{t('mail.suggestions')}
+			</h2>
+			<ul class="flex flex-col divide-y divide-line rounded-xl border border-line bg-raised">
+				{#each suggestions as message (message.id)}
+					{#if message.suggestion}
+						<li class="flex flex-wrap items-center justify-between gap-2 px-4 py-3 text-sm">
+							<button type="button" class="min-w-0 text-left" onclick={() => open(message)}>
+								<span class="block font-medium">{message.suggestion.title}</span>
+								<span class="block text-xs text-muted">
+									{describe(message.suggestion)} · {sender(message)}
+								</span>
+							</button>
+							<div class="flex gap-1">
+								<button
+									type="button"
+									class="btn btn-primary"
+									disabled={deciding === message.id}
+									onclick={() => accept(message)}
+								>
+									<CalendarCheck size={14} aria-hidden="true" />{t('mail.accept')}
+								</button>
+								<button
+									type="button"
+									class="btn btn-ghost"
+									aria-label="{t('mail.dismiss')}: {message.suggestion.title}"
+									disabled={deciding === message.id}
+									onclick={() => dismiss(message)}
+								>
+									<X size={14} aria-hidden="true" />{t('mail.dismiss')}
+								</button>
+							</div>
+						</li>
+					{/if}
+				{/each}
+			</ul>
+		</section>
+	{/if}
+
 	<div class="grid gap-4 md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
 		<ul
 			class="flex-col divide-y divide-line self-start overflow-hidden rounded-xl border border-line bg-raised {selected
@@ -306,6 +413,49 @@
 						<MailOpen size={14} aria-hidden="true" />{t('mail.markUnread')}
 					</button>
 				</div>
+				{#if selected.suggestion && selected.suggestion.status !== 'dismissed'}
+					<div class="mt-4 rounded-lg bg-surface-2 px-4 py-3 text-sm">
+						<p class="flex items-center gap-2 font-medium">
+							<CalendarPlus size={14} aria-hidden="true" />
+							{t('mail.suggestion')}: {selected.suggestion.title}
+						</p>
+						<p class="mt-0.5 text-xs text-muted">
+							{describe(selected.suggestion)}
+							{#if selected.suggestion.location}· {selected.suggestion.location}{/if}
+							· {selected.suggestion.source === 'invite'
+								? t('mail.fromInvite')
+								: t('mail.fromText')}
+						</p>
+						<div class="mt-2 flex flex-wrap gap-2">
+							{#if selected.suggestion.status === 'accepted'}
+								<button
+									type="button"
+									class="btn btn-ghost"
+									onclick={() => openEvent(selected?.event_id ?? null)}
+								>
+									<CalendarCheck size={14} aria-hidden="true" />{t('mail.openEvent')}
+								</button>
+							{:else}
+								<button
+									type="button"
+									class="btn btn-primary"
+									disabled={deciding === selected.id}
+									onclick={() => selected && accept(selected)}
+								>
+									<CalendarCheck size={14} aria-hidden="true" />{t('mail.accept')}
+								</button>
+								<button
+									type="button"
+									class="btn btn-ghost"
+									disabled={deciding === selected.id}
+									onclick={() => selected && dismiss(selected)}
+								>
+									<X size={14} aria-hidden="true" />{t('mail.dismiss')}
+								</button>
+							{/if}
+						</div>
+					</div>
+				{/if}
 				{#if selected.has_html}
 					<p class="mt-4 text-xs text-muted">{t('mail.htmlNote')}</p>
 				{/if}

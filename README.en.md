@@ -184,9 +184,12 @@ the notes.
 - Encrypted connections only (SSL/TLS or STARTTLS with certificate checks); the password is stored
   encrypted and never shown again
 - The background worker fetches new mail regularly (every 15 minutes by default)
+- **Appointment suggestions:** calendar invitations (.ics) and phrases like “Meeting tomorrow 3pm” or
+  „Termin am 15.10. um 14:30“ are detected and wait under *Appointment suggestions* – one click on
+  “Add to calendar” adds them; nothing lands in your calendar unasked
 
 Gmail, iCloud and Yahoo need an app password; Microsoft accounts (Outlook, Hotmail) follow with OAuth
-in milestone 5. Rules and automatic appointment detection come next.
+in milestone 5. Mail rules come next.
 
 ### 🔒 Secure by default
 
@@ -357,7 +360,7 @@ todoch logs [app|web|db|worker]  # view logs
 | :---: | --- | --- |
 | ✅ | **1 · Foundation** | Sign-in, sessions, areas, tasks, quick add, search, PWA, Proxmox quickstart |
 | ✅ | **2 · Calendar** | Events, series, month / week / day / agenda, drag & drop, conflicts, ICS subscriptions for Apple, Google & Outlook, push reminders, overview, dark mode |
-| 🚧 | **4 · Email** | ✅ Own “Email” section, mailboxes via IMAP, task from email · ⏳ rules, automatic appointment detection, confirmation inbox |
+| 🚧 | **4 · Email** | ✅ Own “Email” section, mailboxes via IMAP, task from email, automatic appointment detection with confirmation inbox · ⏳ rules |
 | ⏳ | **5 · Sync** | Gmail & Microsoft via OAuth, two-way sync with CalDAV, Google and Microsoft |
 | ✅ | **6 · Passkeys & two-factor** | Passkeys (Face ID / Touch ID / Windows Hello / security keys), two-factor with an authenticator app (TOTP), recovery codes |
 | ⏳ | **7 · Groups** | Shared areas, roles, invitations, assignments, comments |

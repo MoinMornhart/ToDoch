@@ -4,6 +4,15 @@ Alle Änderungen an Todoch – die neueste Version steht oben.
 Versionsschema: `0.0.1 → 0.0.2 → … → 0.0.9 → 0.1.0 → … → 0.9.9 → 1.0.0`.
 Im Container spielt der Befehl `update` immer die neueste Version ein.
 
+## [0.2.2] – 2026-09-11
+
+Terminvorschläge aus E-Mails mit Bestätigungs-Inbox (Meilenstein 4, Teil 2)
+
+- Kalendereinladungen (.ics) in Mails werden erkannt – mit Titel, Zeit und Ort
+- Termine im Text werden erkannt, auf Deutsch und Englisch (z. B. „Termin am 15.10. um 14:30“, „Meeting tomorrow 3pm“) – nur bei Mails, die nach einem Termin klingen; Zitate, Absagen und Vergangenes werden ignoriert
+- Neue Liste „Terminvorschläge aus Mails“ und Vorschlagskarte in der Mail: „In Kalender übernehmen“ legt den Termin mit der Mail als Beschreibung an, „Verwerfen“ blendet ihn aus – nichts landet ungefragt im Kalender
+- README und Webseite ergänzt
+
 ## [0.2.1] – 2026-09-11
 
 E-Mail: Postfächer per IMAP, Mails lesen, Aufgabe aus Mail (Meilenstein 4, Teil 1)

@@ -176,9 +176,12 @@ einem Klick **eine Aufgabe daraus machen** – mit Betreff als Titel und der Mai
 - Nur verschlüsselte Verbindungen (SSL/TLS oder STARTTLS, Zertifikat wird geprüft), das Passwort liegt
   verschlüsselt in der Datenbank und wird nie wieder angezeigt
 - Neue Mails holt der Hintergrunddienst regelmäßig ab (Standard alle 15 Minuten)
+- **Terminvorschläge:** Kalendereinladungen (.ics) und Angaben wie „Termin am 15.10. um 14:30“ oder
+  „Meeting tomorrow 3pm“ werden erkannt und warten oben unter *Terminvorschläge* – ein Klick auf
+  „In Kalender übernehmen“ trägt sie ein, nichts landet ungefragt im Kalender
 
 Gmail, iCloud und Yahoo brauchen ein App-Passwort; Microsoft-Konten (Outlook, Hotmail) folgen mit
-OAuth in Meilenstein 5. Regeln und automatische Terminerkennung kommen als Nächstes.
+OAuth in Meilenstein 5. Regeln für Mails kommen als Nächstes.
 
 ### 🔒 Sicher ab Werk
 
@@ -348,7 +351,7 @@ todoch logs [app|web|db|worker]  # Protokolle ansehen
 | :---: | --- | --- |
 | ✅ | **1 · Grundgerüst** | Anmeldung, Sitzungen, Bereiche, Aufgaben, Schnellerfassung, Suche, PWA, Proxmox-Quickstart |
 | ✅ | **2 · Kalender** | Termine, Serien, Monat / Woche / Tag / Agenda, Drag & Drop, Konflikte, ICS-Abos für Apple, Google & Outlook, Erinnerungen per Push, Übersicht, Dunkelmodus |
-| 🚧 | **4 · E-Mail** | ✅ Eigener Bereich „E-Mail“, Postfächer per IMAP, Aufgabe aus Mail · ⏳ Regeln, automatische Terminerkennung, Bestätigungs-Inbox |
+| 🚧 | **4 · E-Mail** | ✅ Eigener Bereich „E-Mail“, Postfächer per IMAP, Aufgabe aus Mail, automatische Terminerkennung mit Bestätigungs-Inbox · ⏳ Regeln |
 | ⏳ | **5 · Synchronisation** | Gmail & Microsoft per OAuth, Zwei-Wege-Sync mit CalDAV, Google und Microsoft |
 | ✅ | **6 · Passkeys & Zwei-Faktor** | Passkeys (Face ID / Touch ID / Windows Hello / Sicherheitsschlüssel), Zwei-Faktor per Authenticator-App (TOTP), Wiederherstellungscodes |
 | ⏳ | **7 · Gruppen** | Gemeinsame Bereiche, Rollen, Einladungen, Zuweisungen, Kommentare |

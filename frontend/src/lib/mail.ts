@@ -35,6 +35,23 @@ export interface MailMessage {
 	attachment_count: number;
 	/** Aufgabe, die aus dieser Mail entstanden ist. */
 	task_id: string | null;
+	/** Erkannter Termin (Einladung oder Datum im Text), wartet auf Bestätigung. */
+	suggestion: MailSuggestion | null;
+	/** Termin, der aus dem Vorschlag entstanden ist. */
+	event_id: string | null;
+}
+
+export interface MailSuggestion {
+	source: 'invite' | 'text';
+	title: string;
+	location: string;
+	all_day: boolean;
+	start_date: string;
+	start_time: string | null;
+	/** Bei ganztägigen Terminen inklusiv. */
+	end_date: string;
+	end_time: string | null;
+	status: 'pending' | 'accepted' | 'dismissed';
 }
 
 export interface MailMessageDetail extends MailMessage {

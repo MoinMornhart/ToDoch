@@ -35,6 +35,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models import MailAccount, MailMessage, User
 from app.security.crypto import Crypto, DecryptionError
 from app.services import external_calendars as feeds
+from app.services.mail_suggestions import detect
 
 log = logging.getLogger(__name__)
 
@@ -46,6 +47,9 @@ FETCH_CHUNK = 25
 MAX_STORED = 2000
 MAX_BODY_CHARS = 100_000
 TIMEOUT = 20
+CALENDAR_TYPES = ("text/calendar", "application/ics")
+MAX_INVITES = 3
+MAX_INVITE_BYTES = 256 * 1024
 IMAP_MONTHS = ("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
 
 
@@ -86,6 +90,8 @@ class ParsedMail:
     attachment_count: int = 0
     seen: bool = False
     truncated: bool = False
+    # Kalendereinladungen (text/calendar, .ics) für die Terminerkennung
+    invites: list[bytes] = field(default_factory=list)
 
 
 @dataclass
@@ -154,11 +160,22 @@ def parse_mail(uid: int, raw: bytes, *, seen: bool = False, size: int | None = N
     if body is not None:
         content = _content(body)
         text = html_to_text(content) if body.get_content_type() == "text/html" else _tidy(content)
+    has_html, attachments = False, 0
+    invites: list[bytes] = []
     try:
-        has_html = any(part.get_content_type() == "text/html" for part in message.walk())
+        for part in message.walk():
+            kind = part.get_content_type()
+            has_html = has_html or kind == "text/html"
+            is_calendar = kind in CALENDAR_TYPES or (part.get_filename() or "").lower().endswith(
+                ".ics"
+            )
+            if is_calendar and len(invites) < MAX_INVITES:
+                payload = part.get_payload(decode=True)
+                if isinstance(payload, bytes) and payload:
+                    invites.append(payload[:MAX_INVITE_BYTES])
         attachments = sum(1 for _ in message.iter_attachments())
     except Exception:  # abgeschnittene oder kaputte Struktur
-        has_html, attachments = False, 0
+        log.debug("Aufbau der Mail %s nicht lesbar", uid, exc_info=True)
     from_name, from_address = parseaddr(_header(message, "from"))
     recipients = [
         address or name
@@ -179,6 +196,7 @@ def parse_mail(uid: int, raw: bytes, *, seen: bool = False, size: int | None = N
         attachment_count=attachments,
         seen=seen,
         truncated=size is not None and size > len(raw),
+        invites=invites,
     )
 
 
@@ -356,8 +374,16 @@ def target_for(account: MailAccount, password: str) -> ImapTarget:
     )
 
 
-async def apply_result(db: AsyncSession, account: MailAccount, result: FetchResult) -> int:
-    """Neue Mails speichern; liefert, wie viele dazugekommen sind."""
+async def apply_result(
+    db: AsyncSession,
+    account: MailAccount,
+    result: FetchResult,
+    *,
+    tzid: str,
+    now: datetime | None = None,
+) -> int:
+    """Neue Mails speichern (samt Terminvorschlag); liefert, wie viele dazugekommen sind."""
+    now = now or datetime.now(UTC)
     if account.uidvalidity is not None and result.uidvalidity != account.uidvalidity:
         await db.execute(delete(MailMessage).where(MailMessage.account_id == account.id))
     account.uidvalidity = result.uidvalidity
@@ -375,6 +401,7 @@ async def apply_result(db: AsyncSession, account: MailAccount, result: FetchResu
         if item.uid in existing:
             continue
         existing.add(item.uid)
+        suggestion = detect(item.invites, item.subject, item.body_text, item.sent_at, tzid, now)
         db.add(
             MailMessage(
                 account_id=account.id,
@@ -391,6 +418,8 @@ async def apply_result(db: AsyncSession, account: MailAccount, result: FetchResu
                 attachment_count=item.attachment_count,
                 truncated=item.truncated,
                 is_read=item.seen,
+                suggestion=suggestion.to_json() if suggestion else None,
+                suggestion_status="pending" if suggestion else None,
             )
         )
         added += 1
@@ -434,7 +463,7 @@ async def sync_account(
             last_uid=account.last_uid,
             limit=limit,
         )
-        added = await apply_result(db, account, result)
+        added = await apply_result(db, account, result, tzid=owner.timezone)
         account.last_success_at = now
         account.last_error = None
     except MailError as exc:

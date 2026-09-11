@@ -1,0 +1,170 @@
+# Todoch – Docker Compose
+#
+#   cp .env.example deploy/.env   # Werte eintragen (siehe Kommentare dort)
+#   docker compose -f deploy/docker-compose.yml up -d --build
+#
+# Im Proxmox-LXC übernimmt das der Befehl „todoch“ (Umgebung: /etc/todoch/todoch.env).
+name: todoch
+
+x-hardening: &hardening
+  read_only: true
+  tmpfs:
+    - /tmp
+  security_opt:
+    - no-new-privileges:true
+  restart: unless-stopped
+  logging:
+    driver: json-file
+    options:
+      max-size: 10m
+      max-file: "5"
+
+x-app: &app
+  <<: *hardening
+  image: todoch-app:${TODOCH_VERSION:-latest}
+  build:
+    context: ..
+    dockerfile: backend/Dockerfile
+  env_file:
+    - ${TODOCH_ENV_FILE:-.env}
+  environment:
+    TODOCH_DATABASE_URL: postgresql+asyncpg://todoch:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD fehlt}@db:5432/todoch
+    TODOCH_REDIS_URL: redis://:${REDIS_PASSWORD:?REDIS_PASSWORD fehlt}@redis:6379/0
+  cap_drop:
+    - ALL
+  depends_on:
+    db:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+  networks:
+    - backend
+    - egress
+
+services:
+  app:
+    <<: *app
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=3)
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: "1.5"
+          memory: 512M
+
+  worker:
+    <<: *app
+    command: ["arq", "app.worker.WorkerSettings"]
+    healthcheck:
+      test: ["CMD", "arq", "--check", "app.worker.WorkerSettings"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 384M
+
+  db:
+    <<: *hardening
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: todoch
+      POSTGRES_DB: todoch
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD fehlt}
+    tmpfs:
+      - /tmp
+      - /var/run/postgresql
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    shm_size: 128m
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U todoch -d todoch"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    networks:
+      - backend
+
+  redis:
+    <<: *hardening
+    image: valkey/valkey:8-alpine
+    user: valkey
+    # Passwort über stdin statt als Argument – taucht so nicht in der Prozessliste auf.
+    command:
+      - sh
+      - -c
+      - printf 'requirepass %s\nappendonly yes\ndir /data\n' "$$REDIS_PASSWORD" | exec valkey-server -
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?REDIS_PASSWORD fehlt}
+    cap_drop:
+      - ALL
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD-SHELL", "REDISCLI_AUTH=\"$$REDIS_PASSWORD\" valkey-cli ping | grep -q PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+    networks:
+      - backend
+
+  web:
+    <<: *hardening
+    image: todoch-web:${TODOCH_VERSION:-latest}
+    build:
+      context: ..
+      dockerfile: deploy/caddy/Dockerfile
+    environment:
+      TODOCH_TLS_MODE: ${TODOCH_TLS_MODE:-internal}
+      TODOCH_DOMAIN: ${TODOCH_DOMAIN:-}
+      TODOCH_ORIGIN: ${TODOCH_ORIGIN:?TODOCH_ORIGIN fehlt}
+    ports:
+      - "${TODOCH_HTTP_PORT:-80}:80"
+      - "${TODOCH_HTTPS_PORT:-443}:443"
+    volumes:
+      - caddydata:/data
+      - caddyconfig:/config
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
+    depends_on:
+      app:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+    networks:
+      - egress
+
+networks:
+  # Datenbank und Redis hängen nur hier – ohne Internet, nicht von außen erreichbar.
+  backend:
+    internal: true
+  egress: {}
+
+volumes:
+  pgdata:
+  redisdata:
+  caddydata:
+  caddyconfig:

@@ -1,0 +1,30 @@
+# Heimnetz ohne öffentliche Domain: HTTPS mit eigener Todoch-CA.
+# Das Stammzertifikat gibt es unter http://<IP>/ca.crt – einmal auf jedem Gerät installieren.
+{
+	admin off
+	# Die Weiterleitung auf HTTPS übernimmt der http://-Block unten (damit /ca.crt erreichbar bleibt).
+	auto_https disable_redirects
+	servers {
+		trusted_proxies static private_ranges
+	}
+}
+
+import /etc/caddy/todoch.caddy
+
+http:// {
+	handle /ca.crt {
+		root * /data/caddy/pki/authorities/local
+		rewrite * /root.crt
+		header Content-Type "application/x-x509-ca-cert"
+		header Content-Disposition "attachment; filename=todoch-ca.crt"
+		file_server
+	}
+	handle {
+		redir {$TODOCH_ORIGIN}{uri} permanent
+	}
+}
+
+{$TODOCH_DOMAIN} {
+	tls internal
+	import todoch
+}

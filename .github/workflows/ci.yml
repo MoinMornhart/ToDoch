@@ -1,0 +1,116 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    name: Backend (Lint, Typen, Tests, Audit)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: todoch
+          POSTGRES_PASSWORD: todoch
+          POSTGRES_DB: todoch_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U todoch"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      TODOCH_TEST_DATABASE_URL: postgresql+asyncpg://todoch:todoch@localhost:5432/todoch_test
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+      - run: uv sync --frozen
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run mypy app
+      - run: uv run pytest --cov=app --cov-report=term-missing:skip-covered --cov-fail-under=85
+      - name: pip-audit
+        run: |
+          uv export --frozen --no-dev --no-emit-project --format requirements-txt -o /tmp/requirements.txt
+          uv run pip-audit --disable-pip --require-hashes -r /tmp/requirements.txt
+
+  frontend:
+    name: Frontend (Lint, Typen, Tests, Build, Audit)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run check
+      - run: npm test
+      - run: npm run build
+      - run: npm audit --audit-level=high
+
+  e2e:
+    name: End-to-End (Playwright)
+    runs-on: ubuntu-latest
+    needs: [backend, frontend]
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: todoch
+          POSTGRES_PASSWORD: todoch
+          POSTGRES_DB: todoch_e2e
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U todoch"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      TODOCH_E2E_DATABASE_URL: postgresql+asyncpg://todoch:todoch@localhost:5432/todoch_e2e
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: uv sync --frozen
+        working-directory: backend
+      - run: npm ci && npx playwright install --with-deps chromium
+        working-directory: frontend
+      - run: npx playwright test
+        working-directory: frontend
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: frontend/test-results
+          retention-days: 7
+
+  deploy:
+    name: Docker-Images und Skripte
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - run: shellcheck -S warning ct/todoch.sh deploy/lxc/*.sh deploy/lxc/build.func scripts/*.sh
+      - run: docker build -f backend/Dockerfile -t todoch-app:ci .
+      - run: docker build -f deploy/caddy/Dockerfile -t todoch-web:ci .
+      - name: Compose-Datei prüfen
+        run: cp .env.example deploy/.env && docker compose -f deploy/docker-compose.yml config -q

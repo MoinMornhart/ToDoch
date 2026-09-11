@@ -1,0 +1,603 @@
+#!/usr/bin/env bash
+# Todoch – Helfer für den Proxmox-Host (Container anlegen) und den Container (Update, Verwaltung).
+# Aufbau angelehnt an community-scripts/ProxmoxVE (build.func), aber eigenständig.
+# Copyright (c) 2026 MoinMornhart | Lizenz: MIT | https://github.com/MoinMornhart/Todoch
+# shellcheck disable=SC2034
+
+REPO="${REPO:-MoinMornhart/Todoch}"
+TODOCH_BRANCH="${TODOCH_BRANCH:-$(cat /etc/todoch/branch 2>/dev/null || echo main)}"
+REPO_RAW="${REPO_RAW:-https://raw.githubusercontent.com/${REPO}/${TODOCH_BRANCH}}"
+TODOCH_ENV="${TODOCH_ENV:-/etc/todoch/todoch.env}"
+TODOCH_HOME="${TODOCH_HOME:-/opt/todoch}"
+TODOCH_RELEASES="${TODOCH_RELEASES:-/opt/todoch-releases}"
+TODOCH_BACKUPS="${TODOCH_BACKUPS:-/var/backups/todoch}"
+
+# ------------------------------------------------------------------ Darstellung
+color() {
+  YW=$'\033[33m'
+  BL=$'\033[36m'
+  RD=$'\033[01;31m'
+  BGN=$'\033[4;92m'
+  GN=$'\033[1;92m'
+  DGN=$'\033[32m'
+  BOLD=$'\033[1m'
+  CL=$'\033[m'
+  TAB="  "
+  CM="${TAB}✔️${TAB}"
+  CROSS="${TAB}✖️${TAB}"
+  INFO="${TAB}💡${TAB}"
+  GATEWAY="${TAB}🌐${TAB}"
+  CREATING="${TAB}🚀${TAB}"
+}
+
+header_info() {
+  clear 2>/dev/null || true
+  cat <<'EOF'
+  ______          __           __
+ /_  __/___  ____/ /___  _____/ /_
+  / / / __ \/ __  / __ \/ ___/ __ \
+ / / / /_/ / /_/ / /_/ / /__/ / / /
+/_/  \____/\__,_/\____/\___/_/ /_/
+
+EOF
+  echo -e "  ${DGN:-}To-dos & Termine – selbst gehostet${CL:-}\n"
+}
+
+SPINNER_PID=""
+SPINNER_MSG=""
+spinner() {
+  local frames='⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏' i
+  while :; do
+    for ((i = 0; i < ${#frames}; i++)); do
+      printf "\r\033[2K%s%s %s%s%s" "$TAB" "${frames:i:1}" "$YW" "$SPINNER_MSG" "$CL" >&2
+      sleep 0.1
+    done
+  done
+}
+stop_spinner() {
+  if [[ -n "$SPINNER_PID" ]] && kill -0 "$SPINNER_PID" 2>/dev/null; then
+    kill "$SPINNER_PID" 2>/dev/null || true
+    wait "$SPINNER_PID" 2>/dev/null || true
+    printf "\r\033[2K" >&2
+  fi
+  SPINNER_PID=""
+}
+msg_info() {
+  stop_spinner
+  SPINNER_MSG="$1"
+  if [[ -t 2 && "${VERBOSE:-no}" != "yes" ]]; then
+    spinner &
+    SPINNER_PID=$!
+  else
+    echo -e "${TAB}⏳ ${YW}$1${CL}"
+  fi
+}
+msg_ok() {
+  stop_spinner
+  echo -e "${CM}${GN}$1${CL}"
+}
+msg_warn() {
+  stop_spinner
+  echo -e "${INFO}${YW}$1${CL}"
+}
+msg_error() {
+  stop_spinner
+  echo -e "${CROSS}${RD}$1${CL}" >&2
+}
+
+# Befehle leise ausführen (VERBOSE=yes zeigt alles), bei Fehlern die letzten Zeilen zeigen.
+silent() {
+  if [[ "${VERBOSE:-no}" == "yes" ]]; then
+    "$@"
+    return
+  fi
+  local log
+  log=$(mktemp)
+  if ! "$@" >"$log" 2>&1; then
+    stop_spinner
+    echo -e "\n${RD}Befehl fehlgeschlagen:${CL} $*" >&2
+    tail -n 30 "$log" >&2
+    rm -f "$log"
+    return 1
+  fi
+  rm -f "$log"
+}
+
+error_handler() {
+  local code=$? line=$1 cmd=$2
+  stop_spinner
+  echo -e "\n${RD}[FEHLER]${CL} Zeile ${line}: ${YW}${cmd}${CL} (Exit-Code ${code})\n" >&2
+  exit "$code"
+}
+catch_errors() {
+  set -Eeuo pipefail
+  trap 'error_handler $LINENO "$BASH_COMMAND"' ERR
+  trap 'stop_spinner' EXIT
+}
+
+variables() {
+  NSAPP=$(echo "${APP,,}" | tr -d ' ')
+}
+
+# ------------------------------------------------------------------ Gemeinsam (Host & Container)
+version_gt() { [[ "$1" != "$2" && "$(printf '%s\n%s\n' "$1" "$2" | sort -V | tail -n1)" == "$1" ]]; }
+
+# Datei aus dem Repo lesen – über die GitHub-API (ohne CDN-Verzögerung), sonst raw.
+repo_file() {
+  curl -fsSL -H "Accept: application/vnd.github.raw" \
+    "https://api.github.com/repos/${REPO}/contents/$1?ref=${TODOCH_BRANCH}" 2>/dev/null ||
+    curl -fsSL "${REPO_RAW}/$1?t=$(date +%s)"
+}
+
+latest_version() {
+  local v
+  v=$(repo_file VERSION | tr -d '[:space:]') || true
+  [[ "$v" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] && echo "$v"
+}
+
+# Quellcode einer Version (Tag vX.Y.Z) nach $2 entpacken.
+download_release() {
+  local version=$1 target=$2 tmp
+  tmp=$(mktemp -d)
+  if [[ "$TODOCH_BRANCH" == "main" ]] &&
+    curl -fsSL "https://github.com/${REPO}/archive/refs/tags/v${version}.tar.gz" -o "$tmp/src.tar.gz"; then
+    :
+  else
+    curl -fsSL "https://github.com/${REPO}/archive/refs/heads/${TODOCH_BRANCH}.tar.gz" -o "$tmp/src.tar.gz"
+  fi
+  rm -rf "$target"
+  mkdir -p "$target"
+  tar -xzf "$tmp/src.tar.gz" -C "$target" --strip-components=1
+  rm -rf "$tmp"
+  if [[ ! -f "$target/deploy/docker-compose.yml" ]]; then
+    msg_error "Download von v${version} ist unvollständig."
+    return 1
+  fi
+}
+
+get_env() { sed -n "s/^$1=//p" "$TODOCH_ENV" 2>/dev/null | tail -n1; }
+
+set_env() {
+  local key=$1 value=${2-}
+  if grep -qE "^#? ?${key}=" "$TODOCH_ENV"; then
+    sed -i -E "s|^#? ?${key}=.*|${key}=${value}|" "$TODOCH_ENV"
+  else
+    echo "${key}=${value}" >>"$TODOCH_ENV"
+  fi
+}
+
+compose_at() {
+  local dir=$1
+  shift
+  docker compose --project-name todoch --env-file "$TODOCH_ENV" -f "$dir/deploy/docker-compose.yml" "$@"
+}
+todoch_compose() { compose_at "$TODOCH_HOME" "$@"; }
+
+wait_healthy() {
+  local i
+  for i in $(seq 1 90); do
+    if todoch_compose exec -T app python -c \
+      "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=3)" \
+      >/dev/null 2>&1 && todoch_compose ps --status running --services 2>/dev/null | grep -qx web; then
+      return 0
+    fi
+    sleep 2
+  done
+  return 1
+}
+
+# Datenbank sichern. Die Schlüssel (Umgebungsdatei) liegen getrennt unter keys/.
+todoch_backup() {
+  local label=${1:-manuell} file tmp
+  install -d -m 700 "$TODOCH_BACKUPS" "$TODOCH_BACKUPS/keys"
+  file="$TODOCH_BACKUPS/todoch-$(date +%Y%m%d-%H%M%S)-${label}.tar.gz"
+  tmp=$(mktemp -d)
+  todoch_compose exec -T db pg_dump -U todoch -d todoch --format=custom >"$tmp/db.dump"
+  cp "$TODOCH_HOME/VERSION" "$tmp/VERSION"
+  (umask 077 && tar -czf "$file" -C "$tmp" .)
+  rm -rf "$tmp"
+  install -m 600 "$TODOCH_ENV" "$TODOCH_BACKUPS/keys/todoch.env"
+  # Die 10 neuesten Sicherungen behalten
+  find "$TODOCH_BACKUPS" -maxdepth 1 -name 'todoch-*.tar.gz' -printf '%T@ %p\n' | sort -rn |
+    tail -n +11 | cut -d' ' -f2- | xargs -r rm -f
+  echo "$file"
+}
+
+todoch_restore_db() {
+  local file=$1 tmp
+  tmp=$(mktemp -d)
+  tar -xzf "$file" -C "$tmp"
+  if [[ ! -s "$tmp/db.dump" ]]; then
+    rm -rf "$tmp"
+    msg_error "Die Sicherung enthält keine Datenbank."
+    return 1
+  fi
+  todoch_compose stop app worker >/dev/null 2>&1 || true
+  todoch_compose exec -T db psql -U todoch -d todoch -v ON_ERROR_STOP=1 -q \
+    -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
+  todoch_compose exec -T db pg_restore -U todoch -d todoch --no-owner --exit-on-error <"$tmp/db.dump"
+  rm -rf "$tmp"
+}
+
+prune_releases() {
+  local keep dir version
+  keep=$(readlink -f "$TODOCH_HOME")
+  while read -r dir; do
+    [[ -z "$dir" || "$dir" == "$keep" ]] && continue
+    version=$(basename "$dir")
+    docker image rm -f "todoch-app:${version}" "todoch-web:${version}" >/dev/null 2>&1 || true
+    rm -rf "$dir"
+  done < <(find "$TODOCH_RELEASES" -mindepth 1 -maxdepth 1 -type d -printf '%T@ %p\n' | sort -rn | tail -n +3 | cut -d' ' -f2-)
+  docker image prune -f >/dev/null 2>&1 || true
+}
+
+print_changelog() {
+  local version=$1 file="$TODOCH_HOME/CHANGELOG.md"
+  [[ -f "$file" ]] || return 0
+  echo -e "\n${BOLD}Neu in v${version}:${CL}"
+  awk -v v="$version" '$0 ~ "^## \\[?v?"v"\\]?" {f=1; next} /^## / {if (f) exit} f' "$file" | sed 's/^/  /'
+  echo ""
+}
+
+# Befehle „update“, „todoch-update“ und „todoch“, Autologin auf der Konsole, Begrüßung.
+write_helpers() {
+  # Über eine temporäre Datei ersetzen: „update“ läuft oft gerade selbst, und Bash liest
+  # Skripte stückweise – ein Überschreiben an Ort und Stelle würde es mitten im Lauf ändern.
+  cat >/usr/local/bin/update.new <<EOF
+#!/usr/bin/env bash
+# Todoch aktualisieren: lädt immer die neueste Version von GitHub.
+branch=\$(cat /etc/todoch/branch 2>/dev/null || echo main)
+export TODOCH_BRANCH="\${branch}"
+bash -c "\$(curl -fsSL -H 'Accept: application/vnd.github.raw' "https://api.github.com/repos/${REPO}/contents/ct/todoch.sh?ref=\${branch}" || curl -fsSL "https://raw.githubusercontent.com/${REPO}/\${branch}/ct/todoch.sh?t=\$(date +%s)")"
+EOF
+  chmod 755 /usr/local/bin/update.new
+  mv -f /usr/local/bin/update.new /usr/local/bin/update
+  ln -sf /usr/local/bin/update /usr/local/bin/todoch-update
+
+  cat >/usr/local/bin/todoch.new <<'EOF'
+#!/usr/bin/env bash
+# Todoch-Verwaltung (Domain, Ports, Benutzer, Sicherung …). „todoch help“ zeigt alle Befehle.
+exec bash /opt/todoch/deploy/lxc/todoch-cli.sh "$@"
+EOF
+  chmod 755 /usr/local/bin/todoch.new
+  mv -f /usr/local/bin/todoch.new /usr/local/bin/todoch
+
+  # Konsole ohne Passwort (wie bei den community-scripts)
+  local unit tty
+  for unit in "container-getty@1.service" "console-getty.service"; do
+    mkdir -p "/etc/systemd/system/${unit}.d"
+    tty='tty%I'
+    [[ "$unit" == "console-getty.service" ]] && tty='console'
+    cat >"/etc/systemd/system/${unit}.d/override.conf" <<EOF
+[Service]
+ExecStart=
+ExecStart=-/sbin/agetty --autologin root --noclear --keep-baud ${tty} 115200,38400,9600 \$TERM
+EOF
+  done
+  systemctl daemon-reload
+
+  cat >/etc/profile.d/00_todoch.sh <<'EOF'
+_t_get() { sed -n "s/^$1=//p" /etc/todoch/todoch.env 2>/dev/null | tail -n1; }
+_t_ip=$(hostname -I 2>/dev/null | awk '{print $1}')
+_t_mode=$(_t_get TODOCH_TLS_MODE)
+_t_http=$(_t_get TODOCH_HTTP_PORT)
+_t_http_suffix=$([ "${_t_http:-80}" = 80 ] || echo ":${_t_http}")
+echo ""
+echo -e "  \033[1;92mTodoch\033[0m v$(cat /opt/todoch/VERSION 2>/dev/null) · LXC \033[1m$(hostname)\033[0m · IP ${_t_ip}"
+echo -e "  🌐 $(_t_get TODOCH_ORIGIN)"
+[ "$_t_mode" = proxy ] && echo -e "  ↪  Ziel im Reverse-Proxy: http://${_t_ip}${_t_http_suffix}"
+[ "$_t_mode" = internal ] && echo -e "  🔐 Zertifikat für deine Geräte: http://${_t_ip}${_t_http_suffix}/ca.crt"
+echo -e "  ⬆️  \033[1mupdate\033[0m – neueste Version   🛠  \033[1mtodoch help\033[0m – Verwaltung"
+echo ""
+unset -f _t_get
+unset _t_ip _t_mode _t_http _t_http_suffix
+EOF
+  chmod 644 /etc/profile.d/00_todoch.sh
+  : >/etc/motd
+}
+
+# Update im Container: neue Version bauen, Daten sichern, umschalten, bei Fehlern zurück.
+todoch_update() {
+  if [[ ! -f "$TODOCH_ENV" || ! -f "$TODOCH_HOME/deploy/docker-compose.yml" ]]; then
+    msg_error "Keine Todoch-Installation gefunden!"
+    exit 1
+  fi
+  export DEBIAN_FRONTEND=noninteractive
+  local current latest release backup previous
+  current=$(cat "$TODOCH_HOME/VERSION" 2>/dev/null || echo "0.0.0")
+
+  msg_info "Suche nach Updates"
+  latest=$(latest_version || true)
+  if [[ -z "$latest" ]]; then
+    msg_error "Die neueste Version konnte nicht ermittelt werden (Internet?)."
+    exit 1
+  fi
+  msg_ok "Installiert: v${current} · Neueste: v${latest}"
+
+  msg_info "Aktualisiere System-Pakete (inkl. Docker)"
+  silent apt-get update
+  silent apt-get -y -o Dpkg::Options::=--force-confold upgrade
+  silent apt-get -y autoremove
+  msg_ok "System-Pakete aktuell"
+
+  if ! version_gt "$latest" "$current" && [[ "${FORCE:-no}" != "yes" ]]; then
+    write_helpers
+    msg_ok "Todoch ist aktuell (v${current})"
+    return 0
+  fi
+
+  release="${TODOCH_RELEASES}/${latest}"
+  msg_info "Lade Todoch v${latest}"
+  download_release "$latest" "$release"
+  msg_ok "Todoch v${latest} geladen"
+
+  msg_info "Baue v${latest} – das dauert ein paar Minuten"
+  (
+    export TODOCH_VERSION="$latest"
+    silent compose_at "$release" build --pull
+  )
+  msg_ok "v${latest} gebaut"
+
+  msg_info "Sichere Daten"
+  backup=$(todoch_backup "vor-v${latest}")
+  msg_ok "Sicherung: ${backup}"
+
+  msg_info "Starte v${latest}"
+  previous=$(readlink -f "$TODOCH_HOME")
+  ln -sfn "$release" "$TODOCH_HOME"
+  set_env TODOCH_VERSION "$latest"
+  silent todoch_compose up -d --remove-orphans
+  if ! wait_healthy; then
+    msg_error "v${latest} startet nicht – stelle v${current} wieder her."
+    todoch_compose logs --tail 40 app worker || true
+    ln -sfn "$previous" "$TODOCH_HOME"
+    set_env TODOCH_VERSION "$current"
+    todoch_restore_db "$backup" || true
+    todoch_compose up -d --remove-orphans || true
+    if wait_healthy; then msg_ok "v${current} läuft wieder."; else msg_error "Bitte „todoch logs“ prüfen."; fi
+    exit 1
+  fi
+  msg_ok "Todoch auf v${latest} aktualisiert"
+  write_helpers
+  prune_releases
+  print_changelog "$latest"
+}
+
+# ------------------------------------------------------------------ Host (Proxmox)
+root_check() {
+  if [[ "$(id -u)" -ne 0 ]]; then
+    msg_error "Bitte als root auf dem Proxmox-Host ausführen."
+    exit 1
+  fi
+}
+pve_check() {
+  if ! pveversion | grep -Eq "pve-manager/(8|9)\.[0-9]+"; then
+    msg_error "Proxmox VE 8.x oder 9.x wird benötigt (gefunden: $(pveversion | head -n1))."
+    exit 1
+  fi
+}
+arch_check() {
+  if [[ "$(dpkg --print-architecture)" != "amd64" ]]; then
+    msg_error "Nur amd64 wird unterstützt."
+    exit 1
+  fi
+}
+
+select_storage() {
+  local content=$1 label=$2 menu=() name type avail
+  while read -r name type _ _ _ avail _; do
+    [[ -z "$name" ]] && continue
+    menu+=("$name" "$(printf '%-10s frei: %s' "$type" "$(numfmt --to=iec --from-unit=K "$avail" 2>/dev/null || echo "$avail")")")
+  done < <(pvesm status -content "$content" 2>/dev/null | awk 'NR>1')
+  if [[ ${#menu[@]} -eq 0 ]]; then
+    msg_error "Kein Speicher für ${label} gefunden (Inhaltstyp '${content}')."
+    exit 1
+  fi
+  if [[ ${#menu[@]} -eq 2 || ! -t 0 ]]; then
+    echo "${menu[0]}"
+    return
+  fi
+  whiptail --backtitle "Todoch" --title "SPEICHER" --menu "Speicher für ${label} wählen:" 16 64 6 "${menu[@]}" 3>&1 1>&2 2>&3
+}
+
+# Alle Werte lassen sich per Umgebungsvariable vorgeben (auch ohne Rückfragen, z. B. per SSH):
+#   var_ctid, var_hostname, var_disk, var_cpu, var_ram, var_bridge, var_net (dhcp|IP/CIDR),
+#   var_gateway, var_vlan, var_mac, var_storage, var_template_storage,
+#   var_domain, var_tls (proxy|internal|acme), var_proxy (yes = var_tls=proxy)
+default_settings() {
+  CT_ID="${var_ctid:-$(pvesh get /cluster/nextid)}"
+  HN="${var_hostname:-${NSAPP}}"
+  DISK_SIZE="${var_disk}"
+  CORE_COUNT="${var_cpu}"
+  RAM_SIZE="${var_ram}"
+  BRG="${var_bridge:-vmbr0}"
+  NET="${var_net:-dhcp}"
+  GATE="${var_gateway:-}"
+  VLAN="${var_vlan:-}"
+  MAC="${var_mac:-}"
+  DOMAIN="${var_domain:-}"
+  TLS_MODE="${var_tls:-}"
+  [[ "${var_proxy:-no}" == "yes" ]] && TLS_MODE=proxy
+  UNPRIV="${var_unprivileged}"
+  if pct status "$CT_ID" &>/dev/null || qm status "$CT_ID" &>/dev/null; then
+    msg_error "ID ${CT_ID} ist bereits vergeben."
+    exit 1
+  fi
+}
+
+advanced_settings() {
+  local v
+  v=$(whiptail --backtitle "Todoch" --title "CONTAINER-ID" --inputbox "Container-ID" 8 58 "$CT_ID" 3>&1 1>&2 2>&3) || exit 1
+  CT_ID=$v
+  if pct status "$CT_ID" &>/dev/null || qm status "$CT_ID" &>/dev/null; then
+    msg_error "ID ${CT_ID} ist bereits vergeben."
+    exit 1
+  fi
+  v=$(whiptail --backtitle "Todoch" --title "HOSTNAME" --inputbox "Hostname (ergibt https://<name>.local)" 8 58 "$HN" 3>&1 1>&2 2>&3) || exit 1
+  HN=$(echo "${v,,}" | tr -cd 'a-z0-9-')
+  v=$(whiptail --backtitle "Todoch" --title "SPEICHERPLATZ" --inputbox "Festplatte in GB" 8 58 "$DISK_SIZE" 3>&1 1>&2 2>&3) || exit 1
+  DISK_SIZE=$v
+  v=$(whiptail --backtitle "Todoch" --title "CPU" --inputbox "Anzahl CPU-Kerne" 8 58 "$CORE_COUNT" 3>&1 1>&2 2>&3) || exit 1
+  CORE_COUNT=$v
+  v=$(whiptail --backtitle "Todoch" --title "RAM" --inputbox "Arbeitsspeicher in MiB" 8 58 "$RAM_SIZE" 3>&1 1>&2 2>&3) || exit 1
+  RAM_SIZE=$v
+  v=$(whiptail --backtitle "Todoch" --title "BRIDGE" --inputbox "Netzwerk-Bridge" 8 58 "$BRG" 3>&1 1>&2 2>&3) || exit 1
+  BRG=$v
+  v=$(whiptail --backtitle "Todoch" --title "IP-ADRESSE" --inputbox "IPv4 mit CIDR (z. B. 192.168.1.50/24) oder 'dhcp'" 8 58 "$NET" 3>&1 1>&2 2>&3) || exit 1
+  NET=$v
+  if [[ "$NET" != "dhcp" ]]; then
+    v=$(whiptail --backtitle "Todoch" --title "GATEWAY" --inputbox "Gateway-IP" 8 58 "" 3>&1 1>&2 2>&3) || exit 1
+    GATE=$v
+  fi
+  v=$(whiptail --backtitle "Todoch" --title "VLAN" --inputbox "VLAN-Tag (leer = keiner)" 8 58 "$VLAN" 3>&1 1>&2 2>&3) || exit 1
+  VLAN=$v
+  v=$(whiptail --backtitle "Todoch" --title "DOMAIN" --inputbox "Eigene Domain, z. B. todoch.example.de (leer = https://${HN}.local)" 8 70 "$DOMAIN" 3>&1 1>&2 2>&3) || exit 1
+  DOMAIN=$(echo "${v,,}" | tr -d ' ')
+  if [[ -n "$DOMAIN" ]]; then
+    TLS_MODE=$(whiptail --backtitle "Todoch" --title "HTTPS" --menu "Wer kümmert sich um HTTPS für ${DOMAIN}?" 14 76 3 \
+      "proxy" "Mein Reverse-Proxy (NetBird, NPM, Traefik …) – Todoch nur HTTP :80" \
+      "internal" "Todoch mit eigener CA (Heimnetz, Zertifikat auf Geräten installieren)" \
+      "acme" "Todoch mit Let's Encrypt (Ports 80/443 aus dem Internet erreichbar)" \
+      3>&1 1>&2 2>&3) || exit 1
+  fi
+}
+
+echo_settings() {
+  echo -e "${TAB}🆔 Container-ID: ${BGN}${CT_ID}${CL}"
+  echo -e "${TAB}🏠 Hostname:     ${BGN}${HN}${CL}"
+  echo -e "${TAB}🖥️  System:       ${BGN}${var_os} ${var_version} (unprivilegiert, Docker)${CL}"
+  echo -e "${TAB}💾 Festplatte:   ${BGN}${DISK_SIZE} GB${CL}"
+  echo -e "${TAB}🧠 CPU / RAM:    ${BGN}${CORE_COUNT} Kerne / ${RAM_SIZE} MiB${CL}"
+  echo -e "${TAB}🌉 Netzwerk:     ${BGN}${BRG} · ${NET}${GATE:+ · GW ${GATE}}${VLAN:+ · VLAN ${VLAN}}${MAC:+ · MAC ${MAC}}${CL}"
+  if [[ -n "$DOMAIN" ]]; then
+    echo -e "${TAB}🔗 Adresse:      ${BGN}https://${DOMAIN}${CL} (HTTPS: ${TLS_MODE:-internal})\n"
+  else
+    echo -e "${TAB}🔗 Adresse:      ${BGN}https://${HN}.local${CL}\n"
+  fi
+}
+
+install_script() {
+  root_check
+  pve_check
+  arch_check
+  default_settings
+  if command -v whiptail >/dev/null && [[ -t 0 ]]; then
+    local choice
+    choice=$(whiptail --backtitle "Todoch" --title "EINSTELLUNGEN" --menu "Wie soll der Container erstellt werden?" 12 62 2 \
+      "1" "Standard-Einstellungen (empfohlen)" \
+      "2" "Erweiterte Einstellungen" 3>&1 1>&2 2>&3) || exit 1
+    [[ "$choice" == "2" ]] && advanced_settings
+  fi
+  header_info
+  echo -e "${BOLD}Erstelle ${APP}-LXC mit diesen Einstellungen:${CL}\n"
+  echo_settings
+}
+
+build_container() {
+  local tstore cstore template net tz i
+  tz=$(timedatectl show -p Timezone --value 2>/dev/null || cat /etc/timezone 2>/dev/null || echo "Europe/Berlin")
+
+  tstore="${var_template_storage:-$(select_storage vztmpl "Container-Vorlagen")}"
+  cstore="${var_storage:-$(select_storage rootdir "Container-Festplatten")}"
+  msg_ok "Speicher: Vorlagen auf ${BL}${tstore}${CL}${GN}, Container auf ${BL}${cstore}"
+
+  msg_info "Suche aktuelle ${var_os}-${var_version}-Vorlage"
+  silent pveam update || true
+  template=$(pveam available -section system | awk '{print $2}' |
+    grep -E "^${var_os}-${var_version}-standard_.*_amd64\.tar\.(zst|xz|gz)$" | sort -V | tail -n1 || true)
+  if [[ -z "$template" ]]; then
+    msg_error "Keine Vorlage ${var_os}-${var_version} gefunden."
+    exit 1
+  fi
+  if ! pveam list "$tstore" | grep -q "$template"; then
+    msg_info "Lade Vorlage ${template}"
+    silent pveam download "$tstore" "$template"
+  fi
+  msg_ok "Vorlage ${BL}${template}${CL}${GN} bereit"
+
+  net="name=eth0,bridge=${BRG},ip=${NET}"
+  [[ -n "$GATE" ]] && net+=",gw=${GATE}"
+  [[ -n "$VLAN" ]] && net+=",tag=${VLAN}"
+  [[ -n "$MAC" ]] && net+=",hwaddr=${MAC}"
+
+  msg_info "Erstelle LXC ${CT_ID}"
+  silent pct create "$CT_ID" "${tstore}:vztmpl/${template}" \
+    --hostname "$HN" --cores "$CORE_COUNT" --memory "$RAM_SIZE" --swap 1024 \
+    --rootfs "${cstore}:${DISK_SIZE}" --net0 "$net" --unprivileged "$UNPRIV" \
+    --features nesting=1,keyctl=1 --onboot 1 --ostype "${var_os}" --tags "${var_tags}" \
+    --timezone host --cmode tty
+  msg_ok "LXC ${BL}${CT_ID}${CL}${GN} erstellt"
+
+  msg_info "Starte LXC"
+  silent pct start "$CT_ID"
+  IP=""
+  for i in $(seq 1 45); do
+    IP=$(pct exec "$CT_ID" -- ip -4 -o addr show dev eth0 2>/dev/null | awk '{print $4}' | cut -d/ -f1 | head -n1 || true)
+    [[ -n "$IP" ]] && break
+    sleep 1
+  done
+  if [[ -z "$IP" ]]; then
+    msg_error "Der Container hat keine IP-Adresse bekommen."
+    exit 1
+  fi
+  for i in $(seq 1 30); do
+    pct exec "$CT_ID" -- getent hosts github.com >/dev/null 2>&1 && break
+    sleep 1
+  done
+  msg_ok "LXC läuft (IP ${BL}${IP}${CL}${GN})"
+
+  msg_info "Installiere ${APP} im Container – das dauert beim ersten Mal 5–10 Minuten"
+  stop_spinner
+  echo ""
+  pct exec "$CT_ID" -- env LANG=C.UTF-8 LC_ALL=C.UTF-8 REPO="$REPO" TODOCH_BRANCH="$TODOCH_BRANCH" \
+    APP_TZ="$tz" VERBOSE="${VERBOSE:-no}" DOMAIN="$DOMAIN" TLS_MODE="$TLS_MODE" \
+    bash -c "$(repo_file deploy/lxc/install.sh)"
+}
+
+description() {
+  pct set "$CT_ID" -description "<div align='center'>
+<img src='https://raw.githubusercontent.com/${REPO}/main/frontend/static/favicon.svg' width='72'/>
+<h2>Todoch</h2>
+<p>To-dos &amp; Termine – selbst gehostet</p>
+<p><a href='https://github.com/${REPO}'>GitHub</a> · Update: in der Konsole <code>update</code></p>
+</div>" >/dev/null
+}
+
+show_summary() {
+  local get origin code mode port domain
+  get() { pct exec "$CT_ID" -- sed -n "s/^$1=//p" /etc/todoch/todoch.env | tail -n1; }
+  origin=$(get TODOCH_ORIGIN)
+  code=$(get TODOCH_SETUP_TOKEN)
+  mode=$(get TODOCH_TLS_MODE)
+  port=$(get TODOCH_HTTP_PORT)
+  domain=$(get TODOCH_DOMAIN)
+  msg_ok "Fertig!\n"
+  echo -e "${CREATING}${GN}${APP} wurde erfolgreich installiert!${CL}"
+  echo -e "${GATEWAY}${YW}Adresse:${CL} ${BGN}${origin}${CL}"
+  echo -e "${INFO}${YW}Erster Aufruf (legt das Admin-Konto an):${CL}"
+  echo -e "${TAB}${TAB}${BGN}${origin}/setup#code=${code}${CL}"
+  case "$mode" in
+  proxy)
+    echo -e "${INFO}${YW}Im Reverse-Proxy als Ziel eintragen:${CL} ${BOLD}http://${IP}:${port:-80}${CL} (HTTP)"
+    ;;
+  internal)
+    echo -e "${INFO}${YW}Einmalig das Zertifikat auf deinen Geräten installieren:${CL} ${BOLD}http://${IP}/ca.crt${CL}"
+    [[ "$domain" == *.local ]] || echo -e "${INFO}${YW}DNS:${CL} ${BOLD}${domain}${CL} muss auf ${BOLD}${IP}${CL} zeigen."
+    ;;
+  acme)
+    echo -e "${INFO}${YW}DNS:${CL} ${BOLD}${domain}${CL} → öffentliche IP, Ports 80/443 → ${BOLD}${IP}${CL}"
+    ;;
+  esac
+  echo -e "${INFO}${YW}Updates:${CL} in der Konsole des Containers ${BOLD}update${CL} eingeben (Konsole ohne Passwort)."
+  echo -e "${INFO}${YW}Verwaltung:${CL} ${BOLD}todoch help${CL}\n"
+}
+
+# Einstieg: auf dem Proxmox-Host installieren, im Container aktualisieren.
+start() {
+  if command -v pveversion >/dev/null 2>&1; then
+    install_script
+  else
+    update_script
+    exit 0
+  fi
+}

@@ -1,0 +1,78 @@
+[project]
+name = "todoch"
+version = "0.0.1"
+description = "Todoch – selbst gehostete, minimalistische To-do- und Termin-App"
+license = "MIT"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "fastapi>=0.115",
+  "uvicorn[standard]>=0.30",
+  "sqlalchemy[asyncio]>=2.0.36",
+  "asyncpg>=0.30",
+  "alembic>=1.14",
+  "pydantic>=2.9",
+  "pydantic-settings>=2.6",
+  "email-validator>=2.2",
+  "argon2-cffi>=23.1",
+  "cryptography>=43",
+  "redis>=5.2",
+  "arq>=0.26",
+  "python-dateutil>=2.9",
+  "tzdata>=2024.2",
+  "markdown-it-py>=3.0",
+  "nh3>=0.2.18",
+]
+
+[dependency-groups]
+dev = [
+  "pytest>=8.3",
+  "pytest-asyncio>=0.24",
+  "pytest-cov>=6.0",
+  "httpx>=0.28",
+  "fakeredis>=2.26",
+  "ruff>=0.8",
+  "mypy>=1.13",
+  "types-python-dateutil",
+  "pip-audit>=2.7",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "S", "ASYNC", "SIM", "RUF"]
+ignore = ["S101", "RUF001", "RUF002", "RUF003"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S105", "S106", "S603", "E501"]
+"alembic/**" = ["E501"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+plugins = ["pydantic.mypy"]
+exclude = ["alembic/", "tests/"]
+
+[[tool.mypy.overrides]]
+module = ["arq.*", "nh3.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "session"
+asyncio_default_test_loop_scope = "session"
+testpaths = ["tests"]
+filterwarnings = ["error::DeprecationWarning:app.*"]
+
+[tool.coverage.run]
+source = ["app"]
+branch = true
+concurrency = ["greenlet", "thread"]

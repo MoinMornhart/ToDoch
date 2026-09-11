@@ -1,0 +1,16 @@
+# Öffentliche Domain direkt am Container: Let's-Encrypt-Zertifikat automatisch.
+# Voraussetzung: DNS zeigt auf diesen Server und die Ports 80/443 sind aus dem Internet erreichbar.
+# Ohne offene Ports (DNS-01) braucht Caddy ein DNS-Plugin – dann besser Betriebsart „proxy“
+# hinter einem Proxy verwenden, der das Zertifikat per DNS-01 holt.
+{
+	admin off
+	servers {
+		trusted_proxies static private_ranges
+	}
+}
+
+import /etc/caddy/todoch.caddy
+
+{$TODOCH_DOMAIN} {
+	import todoch
+}

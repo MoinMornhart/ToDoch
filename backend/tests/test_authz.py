@@ -1,0 +1,118 @@
+"""Autorisierung: Fremde Objekte sind nie sichtbar oder änderbar (IDOR-Tests)."""
+
+import re
+from typing import Any
+
+import pytest
+from httpx import AsyncClient
+
+from app.main import create_app
+from tests.conftest import make_settings
+
+
+async def _alice_objects(alice: AsyncClient) -> dict[str, Any]:
+    areas = (await alice.get("/api/areas")).json()
+    task = (
+        await alice.post(
+            "/api/tasks",
+            json={"title": "Geheimprojekt", "notes": "vertraulich", "area_id": areas[0]["id"]},
+        )
+    ).json()
+    session = (await alice.get("/api/auth/sessions")).json()[0]
+    return {"area": areas[0], "task": task, "session": session}
+
+
+async def test_foreign_task_is_invisible(alice: AsyncClient, bob: AsyncClient) -> None:
+    objects = await _alice_objects(alice)
+    task_id = objects["task"]["id"]
+
+    assert (await bob.get(f"/api/tasks/{task_id}")).status_code == 404
+    assert (await bob.patch(f"/api/tasks/{task_id}", json={"title": "x"})).status_code == 404
+    assert (await bob.delete(f"/api/tasks/{task_id}")).status_code == 404
+    assert (await bob.post(f"/api/tasks/{task_id}/complete")).status_code == 404
+    assert (await bob.post(f"/api/tasks/{task_id}/reopen")).status_code == 404
+
+    task = (await alice.get(f"/api/tasks/{task_id}")).json()
+    assert task["title"] == "Geheimprojekt"
+    assert task["status"] == "open"
+
+
+async def test_foreign_area_is_invisible(alice: AsyncClient, bob: AsyncClient) -> None:
+    objects = await _alice_objects(alice)
+    area_id = objects["area"]["id"]
+
+    assert (await bob.patch(f"/api/areas/{area_id}", json={"name": "x"})).status_code == 404
+    assert (await bob.delete(f"/api/areas/{area_id}")).status_code == 404
+    assert (
+        await bob.post("/api/tasks", json={"title": "Einschleusen", "area_id": area_id})
+    ).status_code == 404
+    assert (
+        await bob.post("/api/tasks/quick", json={"text": "Einschleusen", "area_id": area_id})
+    ).status_code == 404
+
+    own = (await bob.post("/api/tasks", json={"title": "Meins"})).json()
+    moved = await bob.patch(f"/api/tasks/{own['id']}", json={"area_id": area_id})
+    assert moved.status_code == 404
+
+    bob_areas = (await bob.get("/api/areas")).json()
+    r = await bob.delete(f"/api/areas/{bob_areas[0]['id']}", params={"move_to": area_id})
+    assert r.status_code == 404
+
+
+async def test_lists_and_search_do_not_leak(alice: AsyncClient, bob: AsyncClient) -> None:
+    objects = await _alice_objects(alice)
+    area_id = objects["area"]["id"]
+
+    for view in ("today", "upcoming", "open", "done", "archived", "all"):
+        assert (await bob.get("/api/tasks", params={"view": view})).json() == []
+    assert (await bob.get("/api/tasks", params={"area_id": area_id})).json() == []
+    assert (await bob.get("/api/search", params={"q": "geheim"})).json() == []
+    assert (await bob.get("/api/search", params={"q": "vertraulich"})).json() == []
+    assert all(a["id"] != area_id for a in (await bob.get("/api/areas")).json())
+    quick = await bob.post("/api/tasks/quick/preview", json={"text": "x @Arbeit"})
+    assert quick.json()["area_id"] != area_id
+
+
+async def test_foreign_session_cannot_be_revoked(alice: AsyncClient, bob: AsyncClient) -> None:
+    objects = await _alice_objects(alice)
+    r = await bob.delete(f"/api/auth/sessions/{objects['session']['id']}")
+    assert r.status_code == 404
+    assert (await alice.get("/api/auth/me")).status_code == 200
+
+
+def _object_routes() -> list[tuple[str, str]]:
+    """Alle Routen mit Objekt-ID im Pfad – aus dem OpenAPI-Schema, damit neue Routen
+    automatisch mitgetestet werden."""
+    schema = create_app(make_settings()).openapi()
+    routes: list[tuple[str, str]] = []
+    for path, operations in schema["paths"].items():
+        if re.search(r"\{\w+_id\}", path):
+            routes.extend((method.upper(), path) for method in sorted(operations))
+    return routes
+
+
+OBJECT_ROUTES = _object_routes()
+
+
+def test_every_object_route_is_covered() -> None:
+    assert len(OBJECT_ROUTES) >= 8
+    params = {p for _, path in OBJECT_ROUTES for p in re.findall(r"\{(\w+_id)\}", path)}
+    assert params <= {"task_id", "area_id", "session_id"}, params
+
+
+@pytest.mark.parametrize(("method", "path"), OBJECT_ROUTES)
+async def test_every_object_route_rejects_foreign_ids(
+    alice: AsyncClient, bob: AsyncClient, method: str, path: str
+) -> None:
+    objects = await _alice_objects(alice)
+    ids = {
+        "task_id": objects["task"]["id"],
+        "area_id": objects["area"]["id"],
+        "session_id": objects["session"]["id"],
+    }
+    url = re.sub(r"\{(\w+_id)\}", lambda m: ids[m.group(1)], path)
+    body = {} if method in ("PATCH", "PUT") else None
+    response = await bob.request(method, url, json=body)
+    assert response.status_code in (403, 404), (method, url, response.status_code)
+    # Alice' Daten sind unverändert vorhanden
+    assert (await alice.get(f"/api/tasks/{ids['task_id']}")).status_code == 200

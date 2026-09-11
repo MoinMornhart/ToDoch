@@ -1,0 +1,27 @@
+# Secrets
+.env
+*.env
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Node / Frontend
+node_modules/
+frontend/build/
+frontend/.svelte-kit/
+frontend/test-results/
+frontend/playwright-report/
+
+# Laufzeitdaten (nur im Hauptverzeichnis – backend/app/data gehört ins Repo)
+/data/
+/backups/
+*.log

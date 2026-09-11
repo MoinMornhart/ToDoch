@@ -340,6 +340,8 @@ ToDoch knows three modes, switchable with one command:
 | `todoch domain --reset` | you want to go back to the default | ToDoch at `https://<hostname>.local` |
 
 > **Reverse proxy:** Use `http://<container-IP>:80` as the target – HTTP, not HTTPS. `todoch info` shows it at any time.
+> Optional but safer: `todoch proxy-ip <proxy-IP>` – then only the proxy may pass on the visitor's
+> address (this matters for the lockout after failed logins).
 
 <details>
 <summary><b>Install the ToDoch CA certificate on devices</b> (“internal” mode only)</summary>

@@ -332,6 +332,8 @@ ToDoch kennt drei Betriebsarten, umschaltbar mit einem Befehl:
 | `todoch domain --reset` | du zurück zum Standard willst | ToDoch unter `https://<hostname>.local` |
 
 > **Reverse-Proxy:** Als Ziel `http://<IP-des-Containers>:80` eintragen – HTTP, nicht HTTPS. `todoch info` zeigt es jederzeit an.
+> Optional, aber sicherer: `todoch proxy-ip <IP-des-Proxys>` – dann darf nur der Proxy die Adresse
+> der Besucher mitteilen (wichtig für die Sperre nach Fehlversuchen).
 
 <details>
 <summary><b>Zertifikat der ToDoch-CA auf Geräten installieren</b> (nur Betriebsart „internal“)</summary>

@@ -4,6 +4,16 @@ Alle Änderungen an Todoch – die neueste Version steht oben.
 Versionsschema: `0.0.1 → 0.0.2 → … → 0.0.9 → 0.1.0 → … → 0.9.9 → 1.0.0`.
 Im Container spielt der Befehl `update` immer die neueste Version ein.
 
+## [0.3.3] – 2026-09-11
+
+Echte Client-IP statt gefälschtem X-Forwarded-For (Sicherheitsprüfung, Teil 2)
+
+- Caddy gibt der App genau eine IP weiter – die, die Caddy selbst für den Besucher hält; selbst geschriebene X-Forwarded-For-Header von Clients kommen nicht mehr durch
+- Damit greifen die Sperren nach Fehlversuchen je IP (Anmeldung, Zwei-Faktor, Passkeys, Einrichtung) wieder zuverlässig, und Audit-Log sowie Sitzungsliste zeigen die echte Adresse
+- Betriebsarten internal und acme: Caddy vertraut keinem vorgeschalteten Proxy mehr
+- Betriebsart proxy: Client-IP wird von rechts gelesen; neuer Befehl todoch proxy-ip <IP>, damit nur der eigene Reverse-Proxy die Besucher-IP mitteilen darf (ohne Einrichtung funktioniert es wie bisher)
+- Doku: Sicherheitskonzept, README und .env.example ergänzt
+
 ## [0.3.2] – 2026-09-11
 
 Schutz vor DNS-Rebinding für Kalender-Abos und CalDAV (Sicherheitsprüfung, Teil 1)

@@ -137,6 +137,8 @@ services:
       TODOCH_TLS_MODE: ${TODOCH_TLS_MODE:-internal}
       TODOCH_DOMAIN: ${TODOCH_DOMAIN:-}
       TODOCH_ORIGIN: ${TODOCH_ORIGIN:?TODOCH_ORIGIN fehlt}
+      # Nur Betriebsart „proxy“: Adresse(n) des Reverse-Proxys, der die Client-IP mitteilt
+      TODOCH_TRUSTED_PROXIES: ${TODOCH_TRUSTED_PROXIES:-private_ranges}
     ports:
       - "${TODOCH_HTTP_PORT:-80}:80"
       - "${TODOCH_HTTPS_PORT:-443}:443"

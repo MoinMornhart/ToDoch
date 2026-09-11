@@ -4,9 +4,7 @@
 	admin off
 	# Die Weiterleitung auf HTTPS übernimmt der http://-Block unten (damit /ca.crt erreichbar bleibt).
 	auto_https disable_redirects
-	servers {
-		trusted_proxies static private_ranges
-	}
+	# Kein Proxy davor: X-Forwarded-For von Clients wird ignoriert, zählt nur die echte Adresse.
 }
 
 import /etc/caddy/todoch.caddy

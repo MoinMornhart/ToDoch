@@ -16,6 +16,7 @@ HELP="ToDoch – Verwaltung
   todoch domain <domain> --acme        Eigene Domain mit Let's Encrypt (Ports 80/443 öffentlich)
   todoch domain --reset                Zurück zu https://$(hostname 2>/dev/null || echo '<hostname>').local
   todoch port <https> [http]           Ports ändern (Standard 443 / 80); hinter Proxy: todoch port <http>
+  todoch proxy-ip <ip> [--reset]       Nur dieser Reverse-Proxy darf die Besucher-IP mitteilen (sicherer)
 
   todoch setup-code                    Link für die Ersteinrichtung anzeigen
   todoch users                         Benutzer auflisten
@@ -179,6 +180,32 @@ cmd_port() {
   msg_ok "Ports: HTTP $(get_env TODOCH_HTTP_PORT) · HTTPS $(get_env TODOCH_HTTPS_PORT) · Adresse $(get_env TODOCH_ORIGIN)"
 }
 
+cmd_proxy_ip() {
+  need_root
+  local value ip
+  if [[ $# -eq 0 ]]; then
+    echo -e "Client-IP mitteilen darf: ${BOLD}$(get_env TODOCH_TRUSTED_PROXIES || true)${CL} (leer = privates Netz; nur Betriebsart „proxy“)"
+    echo "Festlegen: todoch proxy-ip <IP des Reverse-Proxys> [weitere …] · zurück: todoch proxy-ip --reset"
+    return
+  fi
+  if [[ "$1" == "--reset" ]]; then
+    value=private_ranges
+  else
+    for ip in "$@"; do
+      if ! [[ "$ip" =~ ^[0-9a-fA-F:.]+(/[0-9]{1,3})?$ ]]; then
+        msg_error "Keine IP-Adresse: $ip"
+        exit 1
+      fi
+    done
+    value="$*"
+  fi
+  set_env TODOCH_TRUSTED_PROXIES "$value"
+  [[ "$(get_env TODOCH_TLS_MODE)" == "proxy" ]] ||
+    msg_warn "Wirkt erst in der Betriebsart „proxy“ (todoch domain <domain> --proxy)."
+  apply_config
+  msg_ok "Client-IP mitteilen darf: $value"
+}
+
 cmd_setup_code() {
   need_root
   echo -e "Einmaliger Link zum Anlegen des Admin-Kontos:\n"
@@ -277,6 +304,10 @@ main() {
   port | ports)
     shift
     cmd_port "$@"
+    ;;
+  proxy-ip)
+    shift
+    cmd_proxy_ip "$@"
     ;;
   setup-code) cmd_setup_code ;;
   users) run_admin users ;;

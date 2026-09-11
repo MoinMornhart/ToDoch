@@ -4,7 +4,10 @@
 	admin off
 	auto_https off
 	servers {
-		trusted_proxies static private_ranges
+		# Nur diese Absender dürfen die Client-IP mitteilen (TODOCH_TRUSTED_PROXIES, z. B. die IP des
+		# Proxys). Gelesen wird von rechts: vorangestellte, gefälschte Einträge zählen nicht.
+		trusted_proxies static {$TODOCH_TRUSTED_PROXIES:private_ranges}
+		trusted_proxies_strict
 	}
 }
 

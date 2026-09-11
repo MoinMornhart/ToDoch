@@ -4,9 +4,7 @@
 # hinter einem Proxy verwenden, der das Zertifikat per DNS-01 holt.
 {
 	admin off
-	servers {
-		trusted_proxies static private_ranges
-	}
+	# Kein Proxy davor: X-Forwarded-For von Clients wird ignoriert, zählt nur die echte Adresse.
 }
 
 import /etc/caddy/todoch.caddy

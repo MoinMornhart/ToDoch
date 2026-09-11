@@ -157,6 +157,19 @@ Meilenstein 4, sobald verschlüsselte Zugangsdaten gespeichert werden). Danach k
 Schlüssel entfernt werden. Jedes Chiffrat enthält die Schlüssel-ID und ist per AAD an sein Feld
 gebunden (kein Umkopieren zwischen Datensätzen möglich).
 
+## Echte Client-IP (seit v0.3.3)
+
+Rate-Limits je IP (Anmeldung, Zwei-Faktor, Passkeys, Einrichtung, Feeds), Audit-Log und
+Sitzungsliste hängen an der Client-IP. Caddy gibt der App genau eine IP weiter – die, die Caddy
+selbst für den Client hält (`header_up X-Forwarded-For {client_ip}`); was ein Client selbst in
+`X-Forwarded-For` schreibt, kommt nie durch.
+
+- **internal / acme:** Kein Proxy davor, Caddy vertraut niemandem – zählt nur die echte Adresse.
+- **proxy:** Nur Absender aus `TODOCH_TRUSTED_PROXIES` dürfen die Client-IP mitteilen, gelesen wird
+  von rechts (`trusted_proxies_strict`) – vorangestellte, gefälschte Einträge zählen nicht.
+  Standard ist „privates Netz“, damit NetBird, NPM & Co. ohne Einrichtung funktionieren. Wer im
+  Heimnetz auch Geräten misstraut, legt die Adresse des Proxys fest: `todoch proxy-ip <IP>`.
+
 ## Adressen von Nutzern: geprüft und festgenagelt (seit v0.3.2)
 
 Kalender-Abos, CalDAV und Online-Kalender verbinden sich über ein eigenes Netzwerk-Backend

@@ -17,7 +17,11 @@
 	}
 
 	handle /api/* {
-		reverse_proxy app:8000
+		reverse_proxy app:8000 {
+			# Genau eine IP an die App: die, die Caddy selbst für den Client hält. Was ein Client
+			# selbst in X-Forwarded-For schreibt, kommt nie durch (Rate-Limits, Audit-Log).
+			header_up X-Forwarded-For {client_ip}
+		}
 	}
 
 	handle {

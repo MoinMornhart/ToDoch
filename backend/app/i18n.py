@@ -111,6 +111,8 @@ EXACT: dict[str, str] = {
         "The stored password cannot be decrypted."
     ),
     "Kein offener Terminvorschlag.": "No open appointment suggestion.",
+    "Mindestens eine Bedingung angeben.": "Enter at least one condition.",
+    "Mindestens eine Aktion wählen.": "Choose at least one action.",
     "Unbekannter Push-Dienst": "Unknown push service",
     "Zu viele Geräte registriert.": "Too many devices registered.",
     "Auf keinem Gerät aktiviert.": "Not enabled on any device.",
@@ -142,6 +144,7 @@ NOUNS = {
     "Abo-Links": "subscription links",
     "Passkeys": "passkeys",
     "Postfächer": "mailboxes",
+    "Regeln": "rules",
 }
 
 Render = Callable[[re.Match[str]], str]

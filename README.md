@@ -180,8 +180,12 @@ einem Klick **eine Aufgabe daraus machen** – mit Betreff als Titel und der Mai
   „Meeting tomorrow 3pm“ werden erkannt und warten oben unter *Terminvorschläge* – ein Klick auf
   „In Kalender übernehmen“ trägt sie ein, nichts landet ungefragt im Kalender
 
+- **Regeln:** „Absender enthält *stadtwerke* und Betreff enthält *Rechnung*“ → automatisch Aufgabe im
+  Bereich *Privat* mit Priorität und Tags, oder Newsletter gleich als gelesen markieren. Einfacher
+  Textvergleich (keine regulären Ausdrücke), auch nachträglich auf vorhandene Mails anwendbar
+
 Gmail, iCloud und Yahoo brauchen ein App-Passwort; Microsoft-Konten (Outlook, Hotmail) folgen mit
-OAuth in Meilenstein 5. Regeln für Mails kommen als Nächstes.
+OAuth in Meilenstein 5.
 
 ### 🔒 Sicher ab Werk
 
@@ -351,7 +355,7 @@ todoch logs [app|web|db|worker]  # Protokolle ansehen
 | :---: | --- | --- |
 | ✅ | **1 · Grundgerüst** | Anmeldung, Sitzungen, Bereiche, Aufgaben, Schnellerfassung, Suche, PWA, Proxmox-Quickstart |
 | ✅ | **2 · Kalender** | Termine, Serien, Monat / Woche / Tag / Agenda, Drag & Drop, Konflikte, ICS-Abos für Apple, Google & Outlook, Erinnerungen per Push, Übersicht, Dunkelmodus |
-| 🚧 | **4 · E-Mail** | ✅ Eigener Bereich „E-Mail“, Postfächer per IMAP, Aufgabe aus Mail, automatische Terminerkennung mit Bestätigungs-Inbox · ⏳ Regeln |
+| ✅ | **4 · E-Mail** | Eigener Bereich „E-Mail“, Postfächer per IMAP, Aufgabe aus Mail, automatische Terminerkennung mit Bestätigungs-Inbox, Regeln |
 | ⏳ | **5 · Synchronisation** | Gmail & Microsoft per OAuth, Zwei-Wege-Sync mit CalDAV, Google und Microsoft |
 | ✅ | **6 · Passkeys & Zwei-Faktor** | Passkeys (Face ID / Touch ID / Windows Hello / Sicherheitsschlüssel), Zwei-Faktor per Authenticator-App (TOTP), Wiederherstellungscodes |
 | ⏳ | **7 · Gruppen** | Gemeinsame Bereiche, Rollen, Einladungen, Zuweisungen, Kommentare |

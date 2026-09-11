@@ -4,6 +4,16 @@ Alle Änderungen an Todoch – die neueste Version steht oben.
 Versionsschema: `0.0.1 → 0.0.2 → … → 0.0.9 → 0.1.0 → … → 0.9.9 → 1.0.0`.
 Im Container spielt der Befehl `update` immer die neueste Version ein.
 
+## [0.2.3] – 2026-09-11
+
+Regeln für E-Mails – Meilenstein 4 abgeschlossen
+
+- Regeln unter E-Mail → Postfächer & Regeln: Absender, Betreff oder Text enthält … (alle Bedingungen müssen passen)
+- Aktionen: automatisch Aufgabe anlegen (Bereich, Priorität, Tags) und/oder als gelesen markieren
+- Regeln auch nachträglich auf vorhandene Mails anwendbar, ohne doppelte Aufgaben; Zähler zeigt, wie oft eine Regel gegriffen hat
+- Sicherheit: reiner Textvergleich ohne reguläre Ausdrücke (kein ReDoS), fremde Postfächer und Bereiche sind tabu
+- README und Roadmap: Meilenstein 4 ✅
+
 ## [0.2.2] – 2026-09-11
 
 Terminvorschläge aus E-Mails mit Bestätigungs-Inbox (Meilenstein 4, Teil 2)

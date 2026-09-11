@@ -35,6 +35,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models import MailAccount, MailMessage, User
 from app.security.crypto import Crypto, DecryptionError
 from app.services import external_calendars as feeds
+from app.services.mail_rules import enabled_rules, run_rules
 from app.services.mail_suggestions import detect
 
 log = logging.getLogger(__name__)
@@ -396,13 +397,13 @@ async def apply_result(
             )
         )
     )
-    added = 0
+    fresh: list[MailMessage] = []
     for item in result.messages:
         if item.uid in existing:
             continue
         existing.add(item.uid)
         suggestion = detect(item.invites, item.subject, item.body_text, item.sent_at, tzid, now)
-        db.add(
+        fresh.append(
             MailMessage(
                 account_id=account.id,
                 uid=item.uid,
@@ -422,8 +423,14 @@ async def apply_result(
                 suggestion_status="pending" if suggestion else None,
             )
         )
-        added += 1
+    db.add_all(fresh)
     await db.flush()
+    if fresh:  # Regeln des Nutzers auf die neuen Mails anwenden
+        rules = await enabled_rules(db, account.owner_id)
+        owner = await db.get(User, account.owner_id) if rules else None
+        if owner is not None:
+            await run_rules(db, owner, rules, fresh, now)
+            await db.flush()
     count = (
         await db.scalar(
             select(func.count())
@@ -442,7 +449,7 @@ async def apply_result(
         await db.execute(delete(MailMessage).where(MailMessage.id.in_(oldest)))
         count = MAX_STORED
     account.message_count = count
-    return added
+    return len(fresh)
 
 
 async def sync_account(

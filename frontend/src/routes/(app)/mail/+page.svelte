@@ -15,6 +15,7 @@
 	import { onMount } from 'svelte';
 	import { api, ApiError } from '$lib/api';
 	import MailAccounts from '$lib/components/MailAccounts.svelte';
+	import MailRules from '$lib/components/MailRules.svelte';
 	import PageHeader from '$lib/components/PageHeader.svelte';
 	import { i18n, t } from '$lib/i18n/index.svelte';
 	import type { MailAccountInfo, MailMessage, MailMessageDetail, MailSuggestion } from '$lib/mail';
@@ -273,13 +274,14 @@
 			aria-expanded={showAccounts}
 			onclick={() => (showAccounts = !showAccounts)}
 		>
-			<Settings2 size={14} aria-hidden="true" />{t('mail.accounts')}
+			<Settings2 size={14} aria-hidden="true" />{t('mail.settings')}
 		</button>
 	</div>
 
 	{#if showAccounts}
-		<div class="mb-6 rounded-xl border border-line p-4">
+		<div class="mb-6 flex flex-col gap-8 rounded-xl border border-line p-4">
 			<MailAccounts {accounts} onchange={refresh} />
+			<MailRules {accounts} onchange={refresh} />
 		</div>
 	{/if}
 

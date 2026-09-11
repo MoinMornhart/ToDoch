@@ -61,7 +61,11 @@ async def _alice_objects(alice: AsyncClient) -> dict[str, Any]:
         )
     ).json()
     message = (await alice.get("/api/mail/messages")).json()[0]
+    rule = (
+        await alice.post("/api/mail/rules", json={"name": "Geheim", "subject_contains": "Geheim"})
+    ).json()
     return {
+        "rule": rule,
         "area": areas[0],
         "account": account,
         "mail": message,
@@ -170,6 +174,7 @@ def test_every_object_route_is_covered() -> None:
         "calendar_id",
         "account_id",
         "mail_id",
+        "rule_id",
     }
     assert params <= known, params
 
@@ -191,6 +196,7 @@ async def test_every_object_route_rejects_foreign_ids(
         "calendar_id": objects["calendar"]["id"],
         "account_id": objects["account"]["id"],
         "mail_id": objects["mail"]["id"],
+        "rule_id": objects["rule"]["id"],
     }
     url = re.sub(r"\{(\w+_id)\}", lambda m: ids[m.group(1)], path)
     body = {} if method in ("PATCH", "PUT") else None
@@ -202,3 +208,5 @@ async def test_every_object_route_rejects_foreign_ids(
     assert contact.json()["name"] == "Vertraulich"
     assert len((await alice.get("/api/mail/accounts")).json()) == 1
     assert (await bob.get("/api/mail/messages")).json() == []
+    assert (await bob.get("/api/mail/rules")).json() == []
+    assert len((await alice.get("/api/mail/rules")).json()) == 1

@@ -8,6 +8,7 @@ from app.models.contact import Contact
 from app.models.event import Event
 from app.models.feed import FeedToken
 from app.models.mail import MailAccount, MailMessage
+from app.models.mail_rule import MailRule
 from app.models.passkey import Passkey
 from app.models.push import PushSubscription, ReminderLog, ServerKey
 from app.models.task import ChecklistItem, Task
@@ -24,6 +25,7 @@ __all__ = [
     "FeedToken",
     "MailAccount",
     "MailMessage",
+    "MailRule",
     "Passkey",
     "PushSubscription",
     "RecoveryCode",

@@ -63,6 +63,28 @@ export interface MailMessageDetail extends MailMessage {
 	truncated: boolean;
 }
 
+export interface MailRuleInfo {
+	id: string;
+	name: string;
+	/** Leer = alle Postfächer. */
+	account_id: string | null;
+	account_name: string | null;
+	from_contains: string;
+	subject_contains: string;
+	body_contains: string;
+	create_task: boolean;
+	mark_read: boolean;
+	/** Leer = erster Bereich. */
+	area_id: string | null;
+	area_name: string | null;
+	priority: number;
+	tags: string[];
+	enabled: boolean;
+	match_count: number;
+	last_matched_at: string | null;
+	created_at: string;
+}
+
 export interface ImapGuess {
 	host: string;
 	port: number;

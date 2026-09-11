@@ -118,7 +118,7 @@ const QUICK_TASKS = [
 	'Präsentation Q4 fertigstellen nächsten Freitag !mittel #projekt @arbeit'
 ];
 
-// … Englisch direkt über die API (die Schnellerfassung versteht Datumswörter nur auf Deutsch)
+// … Englisch direkt über die API (feste Zeiten, damit die Bilder beider Sprachen gleich aussehen)
 function englishTasks(day: (offset: number) => string, nextFriday: string) {
 	return [
 		{

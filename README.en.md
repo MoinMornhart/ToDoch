@@ -49,12 +49,12 @@ task or an event from anywhere.
 Type one line – ToDoch detects date, time, priority, tags, area and recurrence:
 
 ```text
-Reifenwechsel buchen nächste Woche 8:30 !mittel #auto @privat
+Book tyre change next week 8:30am !medium #car @private
 ```
 
-The quick-add parser currently understands German phrases such as „am 15.10. um 9 Uhr“,
-„übermorgen“, „in 2 Wochen“, „jeden Dienstag“, „werktags“. Tags (`#`), areas (`@`) and ISO dates
-(`2026-10-15`) work in any language.
+Understands English and German, e.g. “on October 3rd at 9”, “the day after tomorrow”,
+“in 2 weeks”, “every Tuesday and Friday”, “weekdays”, “tomorrow evening”, “end of the month” –
+or „am 15.10. um 9 Uhr“, „übermorgen“, „jeden Dienstag“.
 
 </td>
 <td width="50%" valign="top">

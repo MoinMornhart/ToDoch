@@ -51,6 +51,7 @@ Reifenwechsel buchen nächste Woche 8:30 !mittel #auto @privat
 ```
 
 Versteht auch „am 15.10. um 9 Uhr“, „übermorgen“, „in 2 Wochen“, „jeden Dienstag“, „werktags“, „Monatsende“ …
+– und Englisch: „Pay bill tomorrow 2pm !high #finance @work“, „every Monday and Friday“, „in 3 days“.
 
 </td>
 <td width="50%" valign="top">

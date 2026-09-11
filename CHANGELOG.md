@@ -4,6 +4,15 @@ Alle Änderungen an Todoch – die neueste Version steht oben.
 Versionsschema: `0.0.1 → 0.0.2 → … → 0.0.9 → 0.1.0 → … → 0.9.9 → 1.0.0`.
 Im Container spielt der Befehl `update` immer die neueste Version ein.
 
+## [0.2.0] – 2026-09-11
+
+Schnellerfassung versteht Englisch
+
+- Schnellerfassung auf Englisch: z. B. „Pay bill tomorrow 2pm !high #finance @work“ – today/tomorrow, Wochentage, next week, in 3 days, October 3rd, 2pm, at 9, noon, tonight, tomorrow evening, end of the month
+- Englische Wiederholungen: daily, weekdays, weekly, every other week, monthly, yearly, every 3 days, every Monday and Friday, Mondays
+- Deutsch und Englisch lassen sich mischen; das deutsche Verhalten bleibt unverändert
+- Englische Beispiele im Eingabefeld, README und auf der Webseite
+
 ## [0.1.9] – 2026-09-11
 
 Zwei-Faktor mit Authenticator-App – Meilenstein 6 abgeschlossen

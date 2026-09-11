@@ -4,6 +4,16 @@ Alle Änderungen an Todoch – die neueste Version steht oben.
 Versionsschema: `0.0.1 → 0.0.2 → … → 0.0.9 → 0.1.0 → … → 0.9.9 → 1.0.0`.
 Im Container spielt der Befehl `update` immer die neueste Version ein.
 
+## [0.2.7] – 2026-09-11
+
+CalDAV-Abgleich ohne Einrichtung – Meilenstein 5 abgeschlossen
+
+- Neu unter Bereiche: Nextcloud, iCloud, mailbox.org, Posteo, GMX, WEB.DE oder eigener CalDAV-Server – nur Adresse, Benutzername und App-Passwort, keine App-Registrierung
+- Kalender werden automatisch gefunden (auch nur mit der Server-Adresse über .well-known), reine Aufgabenlisten ausgeblendet
+- Echter Zwei-Wege-Abgleich: Anlegen, Ändern und Löschen in beide Richtungen; beim Ändern bleibt die UID des Termins beim Anbieter erhalten
+- Sicherheit: Passwort erst nach erfolgreichem Abruf verschlüsselt gespeichert, jede Adresse und Weiterleitung geprüft, http:// nur im eigenen Netz, XML-Antworten mit defusedxml (keine Entity-Bomben)
+- README, SECURITY.md und Webseite ergänzt
+
 ## [0.2.6] – 2026-09-11
 
 Outlook-Kalender, Abo-Links ohne Einrichtung und genaue Anmeldefehler

@@ -29,7 +29,9 @@ class CalendarConnection(UUIDPk, Timestamps, Base):
     """
 
     __tablename__ = "calendar_connections"
-    __table_args__ = (CheckConstraint("provider in ('google', 'microsoft')", name="provider"),)
+    __table_args__ = (
+        CheckConstraint("provider in ('google', 'microsoft', 'caldav')", name="provider"),
+    )
 
     owner_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE"), index=True

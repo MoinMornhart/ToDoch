@@ -1,6 +1,6 @@
 [project]
 name = "todoch"
-version = "0.2.6"
+version = "0.2.7"
 description = "ToDoch – selbst gehostete, minimalistische To-do- und Termin-App"
 license = "MIT"
 requires-python = ">=3.12,<3.13"
@@ -27,6 +27,7 @@ dependencies = [
   "httpx>=0.27",
   "pyotp>=2.9",
   "segno>=1.6",
+  "defusedxml>=0.7",
 ]
 
 [dependency-groups]

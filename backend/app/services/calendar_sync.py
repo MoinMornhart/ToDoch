@@ -621,6 +621,12 @@ class OutlookCalendar:
 
 
 def _client(conn: CalendarConnection, http: httpx.AsyncClient, owner: User) -> CalendarClient:
+    if conn.provider == "caldav":
+        # Erst hier laden: caldav.py baut auf den Grundlagen dieses Moduls auf
+        from app.services.caldav import CalDav, CalDavCalendar
+
+        dav = CalDav(http, allow_private=owner.is_admin)
+        return CalDavCalendar(dav, conn.remote_calendar_id, owner.timezone)
     if conn.provider == "microsoft":
         return OutlookCalendar(http, owner.timezone)
     return GoogleCalendar(http, conn.remote_calendar_id, owner.timezone)
@@ -772,20 +778,28 @@ async def sync_connection(
     now = now or datetime.now(UTC)
     conn.last_synced_at = now
     try:
-        refresh = crypto.decrypt_str(conn.token_encrypted, context=token_context(conn.id))
-        config = calendar_provider(settings, conn.provider) if settings else None
-        if config is None:
-            raise SyncError(oauth.NOT_CONFIGURED)
-        try:
-            tokens = await oauth.refresh_access(config, refresh)
-        except oauth.OAuthError as exc:
-            raise SyncError(exc.message) from exc
-        if tokens.refresh_token and tokens.refresh_token != refresh:
-            conn.token_encrypted = crypto.encrypt(
-                tokens.refresh_token, context=token_context(conn.id)
-            )
-        headers = {"Authorization": f"Bearer {tokens.access_token}"}
-        async with httpx.AsyncClient(timeout=TIMEOUT, transport=TRANSPORT, headers=headers) as http:
+        secret = crypto.decrypt_str(conn.token_encrypted, context=token_context(conn.id))
+        headers: dict[str, str] = {}
+        auth: httpx.Auth | None = None
+        if conn.provider == "caldav":
+            # CalDAV: Benutzername und App-Passwort – kein OAuth, keine App-Registrierung
+            auth = httpx.BasicAuth(conn.account_email, secret)
+        else:
+            config = calendar_provider(settings, conn.provider) if settings else None
+            if config is None:
+                raise SyncError(oauth.NOT_CONFIGURED)
+            try:
+                tokens = await oauth.refresh_access(config, secret)
+            except oauth.OAuthError as exc:
+                raise SyncError(exc.message) from exc
+            if tokens.refresh_token and tokens.refresh_token != secret:
+                conn.token_encrypted = crypto.encrypt(
+                    tokens.refresh_token, context=token_context(conn.id)
+                )
+            headers = {"Authorization": f"Bearer {tokens.access_token}"}
+        async with httpx.AsyncClient(
+            timeout=TIMEOUT, transport=TRANSPORT, headers=headers, auth=auth
+        ) as http:
             api = _client(conn, http, owner)
             try:
                 await _pull(db, conn, owner, api, now)

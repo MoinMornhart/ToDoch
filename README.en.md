@@ -180,7 +180,12 @@ The other way round, copy the private calendar link from Google or Outlook (ToDo
 settings page) and paste it under “Add calendars”. Requirement: ToDoch is reachable from the
 internet; Google and Outlook refresh subscriptions only every few hours.
 
-**Real two-way sync:** under **Areas → Sync online calendars**, pick an area and click “Connect Google
+**Nextcloud, iCloud & co. (CalDAV) – no setup:** under **Areas → Sync online calendars**, pick the
+provider (Nextcloud, iCloud, mailbox.org, Posteo, GMX, WEB.DE or your own server), enter your user
+name and app password, click “Find calendars”, done – real two-way sync without any app
+registration. For Nextcloud, the address of your server is enough.
+
+**Real two-way sync with Google/Outlook:** under **Areas → Sync online calendars**, pick an area and click “Connect Google
 Calendar” or “Connect Outlook calendar”: events of that area show up at the provider, and what you
 add there shows up in ToDoch – changes and deletions both ways, every 5 minutes or at the push of a
 button. Requires `todoch oauth google` once (plus enabling the “Google Calendar API”) or
@@ -384,7 +389,7 @@ todoch logs [app|web|db|worker]  # view logs
 | ✅ | **1 · Foundation** | Sign-in, sessions, areas, tasks, quick add, search, PWA, Proxmox quickstart |
 | ✅ | **2 · Calendar** | Events, series, month / week / day / agenda, drag & drop, conflicts, ICS subscriptions for Apple, Google & Outlook, push reminders, overview, dark mode |
 | ✅ | **4 · Email** | Own “Email” section, mailboxes via IMAP, task from email, automatic appointment detection with confirmation inbox, rules |
-| 🚧 | **5 · Sync** | ✅ Gmail & Microsoft via OAuth (“Connect with …”), two-way sync with Google Calendar and Outlook, subscription links without setup · ⏳ CalDAV (Nextcloud, iCloud) |
+| ✅ | **5 · Sync** | Gmail & Microsoft via OAuth (“Connect with …”), two-way sync with Google Calendar, Outlook and CalDAV (Nextcloud, iCloud & co.), subscription links without setup |
 | ✅ | **6 · Passkeys & two-factor** | Passkeys (Face ID / Touch ID / Windows Hello / security keys), two-factor with an authenticator app (TOTP), recovery codes |
 | ⏳ | **7 · Groups** | Shared areas, roles, invitations, assignments, comments |
 | ⏳ | **8 · Hardening** | Data export, account deletion, restore tests, security review against OWASP ASVS L2 |

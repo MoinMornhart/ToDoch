@@ -5,7 +5,9 @@ from __future__ import annotations
 import json
 import uuid
 from typing import Any, Literal
+from urllib.parse import urlsplit
 
+import httpx
 from fastapi import APIRouter, HTTPException, Request, status
 from sqlalchemy import func, select, update
 
@@ -13,9 +15,16 @@ from app.api.deps import DB, CurrentUser, Res, client_ip
 from app.api.tasks import area_for_new_item
 from app.i18n import language_from, translate
 from app.models import CalendarConnection, Event, User
-from app.schemas.calendar_sync import ConnectionOut, ConnectionPatch, ConnectStartIn
+from app.schemas.calendar_sync import (
+    CalDavCalendarOut,
+    CalDavConnectIn,
+    CalDavLogin,
+    ConnectionOut,
+    ConnectionPatch,
+    ConnectStartIn,
+)
 from app.schemas.mail import OAuthStartOut
-from app.services import audit
+from app.services import audit, caldav
 from app.services import calendar_sync as sync
 from app.services import mail_oauth as oauth
 
@@ -38,6 +47,7 @@ def connection_out(conn: CalendarConnection, language: str = "de") -> Connection
         last_success_at=conn.last_success_at,
         last_error=translate(conn.last_error, language) if conn.last_error else None,
         created_at=conn.created_at,
+        server=urlsplit(conn.remote_calendar_id).hostname if conn.provider == "caldav" else None,
     )
 
 
@@ -150,6 +160,85 @@ async def finish(
     await db.flush()
     await sync.sync_connection(db, res.crypto, res.settings, existing, user)
     return None
+
+
+def _dav_http(username: str, password: str) -> httpx.AsyncClient:
+    return httpx.AsyncClient(
+        timeout=sync.TIMEOUT, transport=sync.TRANSPORT, auth=httpx.BasicAuth(username, password)
+    )
+
+
+def _unprocessable(message: str) -> HTTPException:
+    return HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, message)
+
+
+@router.post("/caldav/discover", response_model=list[CalDavCalendarOut])
+async def caldav_discover(
+    body: CalDavLogin, res: Res, user: CurrentUser
+) -> list[CalDavCalendarOut]:
+    """Kalender unter einer Adresse finden (Server oder direkt ein Kalender)."""
+    await res.limiter.enforce("caldav-discover", str(user.id), limit=20, window=600)
+    try:
+        async with _dav_http(body.username, body.password) as http:
+            found = await caldav.CalDav(http, allow_private=user.is_admin).discover(body.url)
+    except sync.SyncError as exc:
+        raise _unprocessable(exc.message) from exc
+    except httpx.HTTPError as exc:
+        raise _unprocessable(caldav.UNREACHABLE) from exc
+    return [CalDavCalendarOut(url=f.url, name=f.name) for f in found[:50]]
+
+
+@router.post("/caldav", response_model=ConnectionOut, status_code=status.HTTP_201_CREATED)
+async def caldav_connect(
+    body: CalDavConnectIn, request: Request, db: DB, res: Res, user: CurrentUser
+) -> ConnectionOut:
+    """Ohne App-Registrierung: Adresse, Benutzer und App-Passwort – erst prüfen, dann speichern."""
+    await res.limiter.enforce("caldav-connect", str(user.id), limit=10, window=600)
+    area = await area_for_new_item(db, user, body.area_id)
+    count = await db.scalar(
+        select(func.count())
+        .select_from(CalendarConnection)
+        .where(CalendarConnection.owner_id == user.id)
+    )
+    if (count or 0) >= MAX_CONNECTIONS:
+        raise HTTPException(
+            status.HTTP_409_CONFLICT, f"Höchstens {MAX_CONNECTIONS} Kalenderverbindungen möglich."
+        )
+    try:
+        async with _dav_http(body.username, body.password) as http:
+            dav = caldav.CalDav(http, allow_private=user.is_admin)
+            await caldav.CalDavCalendar(dav, body.calendar_url, user.timezone).changes(None)
+    except sync.SyncError as exc:
+        raise _unprocessable(exc.message) from exc
+    except httpx.HTTPError as exc:
+        raise _unprocessable(caldav.UNREACHABLE) from exc
+    conn_id = uuid.uuid4()
+    conn = CalendarConnection(
+        id=conn_id,
+        owner_id=user.id,
+        area_id=area.id,
+        area=area,
+        provider="caldav",
+        account_email=body.username,
+        remote_calendar_id=body.calendar_url,
+        token_encrypted=res.crypto.encrypt(body.password, context=sync.token_context(conn_id)),
+        enabled=True,
+        event_count=0,
+    )
+    db.add(conn)
+    audit.record(
+        db,
+        "calendar.connected",
+        user_id=user.id,
+        ip=client_ip(request),
+        connection=str(conn_id),
+        provider="caldav",
+        server=urlsplit(body.calendar_url).hostname,
+    )
+    await db.flush()
+    await sync.sync_connection(db, res.crypto, res.settings, conn, user)
+    await db.refresh(conn)
+    return connection_out(conn, _language(request))
 
 
 @router.post("/{connection_id}/sync", response_model=ConnectionOut)

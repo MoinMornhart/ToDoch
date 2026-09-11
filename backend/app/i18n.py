@@ -129,6 +129,17 @@ EXACT: dict[str, str] = {
     "Der Outlook-Kalender hat die Anmeldung abgelehnt. Bitte neu verbinden.": (
         "The Outlook calendar rejected the sign-in. Please reconnect."
     ),
+    "Der CalDAV-Kalender ist nicht erreichbar.": "The CalDAV calendar cannot be reached.",
+    "Der CalDAV-Server hat die Anmeldung abgelehnt. Benutzername und App-Passwort prüfen.": (
+        "The CalDAV server rejected the sign-in. Check the user name and app password."
+    ),
+    "Der CalDAV-Server antwortet nicht wie erwartet.": (
+        "The CalDAV server does not respond as expected."
+    ),
+    "Unter dieser Adresse wurde kein Kalender gefunden.": "No calendar was found at this address.",
+    "Ohne Verschlüsselung (http://) ist CalDAV nur im eigenen Netz erlaubt.": (
+        "Without encryption (http://), CalDAV is only allowed in the local network."
+    ),
     "Mindestens eine Bedingung angeben.": "Enter at least one condition.",
     "Mindestens eine Aktion wählen.": "Choose at least one action.",
     "Unbekannter Push-Dienst": "Unknown push service",
@@ -163,6 +174,7 @@ NOUNS = {
     "Passkeys": "passkeys",
     "Postfächer": "mailboxes",
     "Regeln": "rules",
+    "Kalenderverbindungen": "calendar connections",
 }
 
 Render = Callable[[re.Match[str]], str]

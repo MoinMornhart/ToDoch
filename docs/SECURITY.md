@@ -95,6 +95,13 @@ Tokens.
 (`Calendars.ReadWrite`), nur Aufrufe an `graph.microsoft.com`; Folgeseiten der Liste werden nur
 geladen, wenn sie ebenfalls dort liegen (kein SSRF über `@odata.nextLink`).
 
+**CalDAV (Nextcloud, iCloud & Co., seit v0.2.7)**: Benutzername und App-Passwort werden erst
+nach einem erfolgreichen Abruf gespeichert, das Passwort AES-256-GCM-verschlüsselt und nie
+ausgegeben. Jede Adresse – auch nach Weiterleitungen – wird wie bei Kalender-Abos geprüft
+(kein Loopback, keine Cloud-Metadaten, Heimnetz nur für Admins); unverschlüsseltes `http://` nur
+im eigenen Netz. XML-Antworten liest ToDoch mit defusedxml (keine Entity-Bomben, kein XXE),
+höchstens 5 MB je Antwort.
+
 **Google Kalender abgleichen (seit v0.2.5)**
 - Eigene Zustimmung nur für Termine (`calendar.events`), getrennt vom Postfach; dasselbe
   State-/PKCE-Verfahren und derselbe Rücksprung. Der Bereich steht im State und wird beim

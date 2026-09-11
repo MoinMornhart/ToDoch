@@ -174,7 +174,12 @@ kopieren (ToDoch verlinkt die richtige Einstellungsseite) und unter „Kalender 
 Voraussetzung: ToDoch ist aus dem Internet erreichbar; Google/Outlook aktualisieren Abos nur alle
 paar Stunden.
 
-**Echter Zwei-Wege-Abgleich:** Unter **Bereiche → Online-Kalender abgleichen** einen Bereich wählen
+**Nextcloud, iCloud & Co. (CalDAV) – ohne Einrichtung:** Unter **Bereiche → Online-Kalender
+abgleichen** Anbieter wählen (Nextcloud, iCloud, mailbox.org, Posteo, GMX, WEB.DE oder eigener
+Server), Benutzername und App-Passwort eingeben, „Kalender suchen“, fertig – echter Zwei-Wege-Abgleich
+ohne App-Registrierung. Bei Nextcloud genügt die Adresse deines Servers.
+
+**Echter Zwei-Wege-Abgleich mit Google/Outlook:** Unter **Bereiche → Online-Kalender abgleichen** einen Bereich wählen
 und „Google Kalender verbinden“ bzw. „Outlook-Kalender verbinden“ klicken: Termine dieses Bereichs
 erscheinen beim Anbieter, was du dort einträgst, erscheint in ToDoch – Änderungen und Löschungen in
 beide Richtungen, alle 5 Minuten oder auf Knopfdruck. Dafür einmalig `todoch oauth google` (plus
@@ -376,7 +381,7 @@ todoch logs [app|web|db|worker]  # Protokolle ansehen
 | ✅ | **1 · Grundgerüst** | Anmeldung, Sitzungen, Bereiche, Aufgaben, Schnellerfassung, Suche, PWA, Proxmox-Quickstart |
 | ✅ | **2 · Kalender** | Termine, Serien, Monat / Woche / Tag / Agenda, Drag & Drop, Konflikte, ICS-Abos für Apple, Google & Outlook, Erinnerungen per Push, Übersicht, Dunkelmodus |
 | ✅ | **4 · E-Mail** | Eigener Bereich „E-Mail“, Postfächer per IMAP, Aufgabe aus Mail, automatische Terminerkennung mit Bestätigungs-Inbox, Regeln |
-| 🚧 | **5 · Synchronisation** | ✅ Gmail & Microsoft per OAuth („Mit … verbinden“), Zwei-Wege-Sync mit Google Kalender und Outlook, Abo-Links ohne Einrichtung · ⏳ CalDAV (Nextcloud, iCloud) |
+| ✅ | **5 · Synchronisation** | Gmail & Microsoft per OAuth („Mit … verbinden“), Zwei-Wege-Sync mit Google Kalender, Outlook und CalDAV (Nextcloud, iCloud & Co.), Abo-Links ohne Einrichtung |
 | ✅ | **6 · Passkeys & Zwei-Faktor** | Passkeys (Face ID / Touch ID / Windows Hello / Sicherheitsschlüssel), Zwei-Faktor per Authenticator-App (TOTP), Wiederherstellungscodes |
 | ⏳ | **7 · Gruppen** | Gemeinsame Bereiche, Rollen, Einladungen, Zuweisungen, Kommentare |
 | ⏳ | **8 · Härtung** | Datenexport, Kontolöschung, Restore-Tests, Security-Review nach OWASP ASVS L2 |

@@ -4,6 +4,17 @@ Alle Änderungen an Todoch – die neueste Version steht oben.
 Versionsschema: `0.0.1 → 0.0.2 → … → 0.0.9 → 0.1.0 → … → 0.9.9 → 1.0.0`.
 Im Container spielt der Befehl `update` immer die neueste Version ein.
 
+## [0.1.0] – 2026-09-11
+
+Passkeys: Anmelden ohne Passwort
+
+- Anmelden mit Passkey – Face ID, Touch ID, Windows Hello, Handy oder Sicherheitsschlüssel, ohne E-Mail und Passwort einzutippen
+- Passkeys erscheinen auch direkt im Autofill des E-Mail-Felds
+- Einstellungen → Passkeys: hinzufügen (mit Passwort-Bestätigung), umbenennen, entfernen; zeigt synchronisierte Passkeys und letzte Nutzung
+- Angemeldete Geräte zeigen, ob per Passkey oder Passwort angemeldet wurde
+- Sicherheit: Einmal-Challenges (kein Replay), Prüfung von Herkunft und RP-ID, Erkennung geklonter Schlüssel, Rate-Limits und Audit-Log
+- „Telefontermin“ heißt jetzt „Vereinbarter Termin“ – für Termine, die am Telefon ausgemacht wurden; Ort steht standardmäßig auf „Vor Ort“
+
 ## [0.0.9] – 2026-09-11
 
 Telefontermine – Meilenstein 3 abgeschlossen

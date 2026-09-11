@@ -31,6 +31,20 @@ melden, nicht als öffentliches Issue.
   erneute Anmeldung ein Fingertipp – dann werden die Standardwerte gesenkt.
 - Passwortwechsel beendet alle anderen Sitzungen.
 
+**Passkeys (WebAuthn, seit v0.1.0)**
+- Anmeldung ohne Benutzernamen über „discoverable credentials“ (`residentKey: required`,
+  `userVerification: preferred`); geprüft mit py_webauthn gegen RP-ID und Origin aus `TODOCH_ORIGIN`.
+- Challenges liegen fünf Minuten in Redis und werden beim Prüfen gelöscht – jede gilt genau einmal
+  (kein Replay). Registrierungs-Challenges sind an die Sitzung gebunden.
+- Ein neuer Passkey braucht das aktuelle Passwort – eine übernommene Sitzung reicht nicht, um sich
+  dauerhaft Zugang zu verschaffen.
+- Der Signaturzähler darf nicht zurückspringen (Erkennung geklonter Schlüssel); das `userHandle`
+  muss zum Konto passen. Fehlschläge sind rate-limitiert und landen im Audit-Log, Hinzufügen und
+  Entfernen ebenfalls.
+- Gespeichert werden nur öffentliche Schlüssel. Das Passwort bleibt als Rückfall bestehen.
+- Tests prüfen den kompletten Ablauf mit einem Software-Authenticator (echte ES256-Signaturen) und
+  im Browser mit Chromiums virtuellem Authenticator.
+
 **Anfragen**
 - Größenlimit für Anfragen (Standard 1 MB, geprüft per `Content-Length` und beim Lesen).
 - Strikte Validierung aller Eingaben (Pydantic), Längenlimits für alle Felder.
@@ -68,7 +82,7 @@ gebunden (kein Umkopieren zwischen Datensätzen möglich).
 
 ## Offene Punkte (geplant)
 
-- Passkeys, TOTP und Wiederherstellungscodes (M6).
+- TOTP und Wiederherstellungscodes (M6), danach kürzere Sitzungs-Standardwerte.
 - Upload-Prüfung per Magic Bytes, Anhänge außerhalb des Webroots (M3).
 - SSRF-Schutz, ReDoS-Timeouts, Härtung des ICS-Parsers (M4/M5).
 - Datenexport und Kontolöschung (DSGVO), getesteter Restore in der CI, Review nach OWASP ASVS L2 (M8).

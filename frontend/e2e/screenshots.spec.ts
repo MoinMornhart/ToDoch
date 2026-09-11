@@ -31,7 +31,7 @@ async function login(page: Page) {
 	await page.goto('/login');
 	await page.getByLabel('E-Mail-Adresse').fill(EMAIL);
 	await page.getByLabel('Passwort').fill(PASSWORD);
-	await page.getByRole('button', { name: 'Anmelden' }).click();
+	await page.getByRole('button', { name: 'Anmelden', exact: true }).click();
 	await expect(page).toHaveURL(/\/$/);
 	await expect(page.getByRole('region', { name: 'Nächste Termine' })).toBeVisible();
 }

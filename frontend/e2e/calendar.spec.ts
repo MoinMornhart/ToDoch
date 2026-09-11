@@ -18,7 +18,7 @@ test('Kalender: Serie anlegen, ein Vorkommen ändern und löschen', async ({ pag
 	await page.goto('/login');
 	await page.getByLabel('E-Mail-Adresse').fill(EMAIL);
 	await page.getByLabel('Passwort').fill(PASSWORD);
-	await page.getByRole('button', { name: 'Anmelden' }).click();
+	await page.getByRole('button', { name: 'Anmelden', exact: true }).click();
 	await expect(page).toHaveURL(/\/$/);
 
 	await page.getByRole('link', { name: 'Kalender' }).first().click();

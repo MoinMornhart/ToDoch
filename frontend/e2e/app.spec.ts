@@ -99,7 +99,7 @@ test('Bereiche filtern alle Ansichten', async ({ page }) => {
 	await page.goto('/login');
 	await page.getByLabel('E-Mail-Adresse').fill(EMAIL);
 	await page.getByLabel('Passwort').fill(PASSWORD);
-	await page.getByRole('button', { name: 'Anmelden' }).click();
+	await page.getByRole('button', { name: 'Anmelden', exact: true }).click();
 	await expect(page).toHaveURL(/\/$/);
 	await page.goto('/today');
 
@@ -127,11 +127,11 @@ test('Abmelden, falsches Passwort, erneut anmelden', async ({ page }) => {
 	await page.goto('/login');
 	await page.getByLabel('E-Mail-Adresse').fill(EMAIL);
 	await page.getByLabel('Passwort').fill('falsches-passwort');
-	await page.getByRole('button', { name: 'Anmelden' }).click();
+	await page.getByRole('button', { name: 'Anmelden', exact: true }).click();
 	await expect(page.getByRole('alert')).toHaveText('E-Mail-Adresse oder Passwort ist falsch.');
 
 	await page.getByLabel('Passwort').fill(PASSWORD);
-	await page.getByRole('button', { name: 'Anmelden' }).click();
+	await page.getByRole('button', { name: 'Anmelden', exact: true }).click();
 	await expect(page).toHaveURL(/\/$/);
 	await page.goto('/today');
 

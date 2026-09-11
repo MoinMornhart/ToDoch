@@ -300,6 +300,7 @@
 	{:else if draft}
 		<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 		<form class="flex flex-col gap-6" onsubmit={save} onkeydown={onKeydown}>
+			<p class="-mb-2 text-sm text-muted">{t('phone.intro')}</p>
 			{#if error}<p role="alert" class="text-sm text-danger">{error}</p>{/if}
 			{#if restored}
 				<p

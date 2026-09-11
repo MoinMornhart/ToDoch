@@ -5,6 +5,7 @@
 	import { describeAgent } from '$lib/agent';
 	import { api, ApiError } from '$lib/api';
 	import ContactsSettings from '$lib/components/ContactsSettings.svelte';
+	import PasskeySettings from '$lib/components/PasskeySettings.svelte';
 	import PageHeader from '$lib/components/PageHeader.svelte';
 	import PushSettings from '$lib/components/PushSettings.svelte';
 	import { i18n, t } from '$lib/i18n/index.svelte';
@@ -194,6 +195,8 @@
 		</form>
 	</section>
 
+	<PasskeySettings />
+
 	<section aria-labelledby="sessions-title">
 		<h2 id="sessions-title" class="mb-3 text-base font-semibold">{t('settings.sessions')}</h2>
 		<ul class="flex flex-col divide-y divide-line rounded-xl border border-line bg-raised">
@@ -209,7 +212,9 @@
 						<p class="text-xs text-muted">
 							{t('settings.lastSeen')}: {formatDateTime(item.last_seen_at)}{item.ip
 								? ` · ${item.ip}`
-								: ''}
+								: ''} · {item.auth_method === 'passkey'
+								? t('settings.method.passkey')
+								: t('settings.method.password')}
 						</p>
 					</div>
 					{#if !item.current}

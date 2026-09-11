@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Todoch API",
-    "version": "0.0.8"
+    "version": "0.0.9"
   },
   "paths": {
     "/api/health": {
@@ -296,6 +296,264 @@
         "responses": {
           "204": {
             "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/passkeys": {
+      "get": {
+        "tags": [
+          "passkeys"
+        ],
+        "summary": "List Passkeys",
+        "operationId": "list_passkeys_api_auth_passkeys_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PasskeyOut"
+                  },
+                  "type": "array",
+                  "title": "Response List Passkeys Api Auth Passkeys Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/passkeys/register/options": {
+      "post": {
+        "tags": [
+          "passkeys"
+        ],
+        "summary": "Register Options",
+        "operationId": "register_options_api_auth_passkeys_register_options_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterOptionsIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Register Options Api Auth Passkeys Register Options Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/passkeys/register/verify": {
+      "post": {
+        "tags": [
+          "passkeys"
+        ],
+        "summary": "Register Verify",
+        "operationId": "register_verify_api_auth_passkeys_register_verify_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterVerifyIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PasskeyOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/passkeys/{passkey_id}": {
+      "patch": {
+        "tags": [
+          "passkeys"
+        ],
+        "summary": "Rename Passkey",
+        "operationId": "rename_passkey_api_auth_passkeys__passkey_id__patch",
+        "parameters": [
+          {
+            "name": "passkey_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Passkey Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasskeyPatch"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PasskeyOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "passkeys"
+        ],
+        "summary": "Delete Passkey",
+        "operationId": "delete_passkey_api_auth_passkeys__passkey_id__delete",
+        "parameters": [
+          {
+            "name": "passkey_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Passkey Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/passkeys/login/options": {
+      "post": {
+        "tags": [
+          "passkeys"
+        ],
+        "summary": "Login Options",
+        "operationId": "login_options_api_auth_passkeys_login_options_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginOptionsOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/passkeys/login/verify": {
+      "post": {
+        "tags": [
+          "passkeys"
+        ],
+        "summary": "Login Verify",
+        "operationId": "login_verify_api_auth_passkeys_login_verify_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginVerifyIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserOut"
+                }
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
@@ -3721,6 +3979,46 @@
         ],
         "title": "LoginIn"
       },
+      "LoginOptionsOut": {
+        "properties": {
+          "challenge_id": {
+            "type": "string",
+            "title": "Challenge Id"
+          },
+          "options": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Options"
+          }
+        },
+        "type": "object",
+        "required": [
+          "challenge_id",
+          "options"
+        ],
+        "title": "LoginOptionsOut"
+      },
+      "LoginVerifyIn": {
+        "properties": {
+          "challenge_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{16,64}$",
+            "title": "Challenge Id"
+          },
+          "credential": {
+            "additionalProperties": true,
+            "type": "object",
+            "maxProperties": 10,
+            "title": "Credential"
+          }
+        },
+        "type": "object",
+        "required": [
+          "challenge_id",
+          "credential"
+        ],
+        "title": "LoginVerifyIn"
+      },
       "MePatch": {
         "properties": {
           "display_name": {
@@ -3901,6 +4199,73 @@
         ],
         "title": "OccurrenceOut"
       },
+      "PasskeyOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "last_used_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Used At"
+          },
+          "backed_up": {
+            "type": "boolean",
+            "title": "Backed Up"
+          },
+          "device_type": {
+            "type": "string",
+            "title": "Device Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "created_at",
+          "last_used_at",
+          "backed_up",
+          "device_type"
+        ],
+        "title": "PasskeyOut"
+      },
+      "PasskeyPatch": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          }
+        },
+        "type": "object",
+        "title": "PasskeyPatch"
+      },
       "PasswordChangeIn": {
         "properties": {
           "current_password": {
@@ -4077,6 +4442,44 @@
           "tokens"
         ],
         "title": "QuickAddPreview"
+      },
+      "RegisterOptionsIn": {
+        "properties": {
+          "password": {
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Password"
+          }
+        },
+        "type": "object",
+        "required": [
+          "password"
+        ],
+        "title": "RegisterOptionsIn",
+        "description": "Neuer Passkey nur mit Passwort-Bestätigung – eine gestohlene Sitzung reicht nicht."
+      },
+      "RegisterVerifyIn": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "credential": {
+            "additionalProperties": true,
+            "type": "object",
+            "maxProperties": 10,
+            "title": "Credential"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "credential"
+        ],
+        "title": "RegisterVerifyIn"
       },
       "SearchOut": {
         "properties": {

@@ -10,7 +10,9 @@ function isoInDays(days: number): string {
 	return date.toLocaleDateString('en-CA');
 }
 
-test('Telefontermin mit Entwurf, Kontaktvorschlag, Folgeaufgabe und ICS', async ({ page }) => {
+test('Vereinbarter Termin mit Entwurf, Kontaktvorschlag, Folgeaufgabe und ICS', async ({
+	page
+}) => {
 	const problems: string[] = [];
 	page.on('console', (m) => {
 		if (/content security policy|refused to/i.test(m.text())) problems.push(m.text());
@@ -20,13 +22,17 @@ test('Telefontermin mit Entwurf, Kontaktvorschlag, Folgeaufgabe und ICS', async 
 	await page.goto('/login');
 	await page.getByLabel('E-Mail-Adresse').fill(EMAIL);
 	await page.getByLabel('Passwort').fill(PASSWORD);
-	await page.getByRole('button', { name: 'Anmelden' }).click();
+	await page.getByRole('button', { name: 'Anmelden', exact: true }).click();
 	await expect(page).toHaveURL(/\/$/);
 
 	// Kürzel „t“ öffnet das Formular
 	await page.locator('main h1').click();
 	await page.keyboard.press('t');
-	const form = page.getByRole('dialog', { name: 'Telefontermin' });
+	const form = page.getByRole('dialog', { name: 'Vereinbarter Termin' });
+	await expect(form.getByRole('button', { name: 'Vor Ort' })).toHaveAttribute(
+		'aria-pressed',
+		'true'
+	);
 	await expect(form).toBeVisible();
 	await form.getByLabel('Name', { exact: true }).fill('Anna Berger');
 	await form.getByLabel('Firma').fill('Berger GmbH');
@@ -72,7 +78,7 @@ test('Telefontermin mit Entwurf, Kontaktvorschlag, Folgeaufgabe und ICS', async 
 	await expect(form).toBeHidden();
 
 	// Kontaktvorschlag beim Tippen
-	await page.getByRole('button', { name: 'Telefontermin' }).click();
+	await page.getByRole('button', { name: 'Vereinbarter Termin' }).click();
 	await form.getByLabel('Name', { exact: true }).fill('');
 	await form.getByLabel('Name', { exact: true }).pressSequentially('Ann');
 	await form.getByRole('option', { name: /Anna Berger/ }).click();

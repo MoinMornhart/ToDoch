@@ -6,6 +6,7 @@ from app.models.base import Base
 from app.models.contact import Contact
 from app.models.event import Event
 from app.models.feed import FeedToken
+from app.models.passkey import Passkey
 from app.models.push import PushSubscription, ReminderLog, ServerKey
 from app.models.task import ChecklistItem, Task
 from app.models.user import User, UserSession
@@ -18,6 +19,7 @@ __all__ = [
     "Contact",
     "Event",
     "FeedToken",
+    "Passkey",
     "PushSubscription",
     "ReminderLog",
     "ServerKey",

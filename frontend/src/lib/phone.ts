@@ -65,7 +65,8 @@ export function blankDraft(
 		time: '09:00',
 		duration: 30,
 		allDay: false,
-		placeKind: 'phone',
+		// Meist ein Termin vor Ort (z. B. Arzt), der nur am Telefon ausgemacht wurde
+		placeKind: 'onsite',
 		place: '',
 		url: '',
 		tzid,

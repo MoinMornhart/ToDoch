@@ -8,6 +8,7 @@ from httpx import AsyncClient
 
 from app.main import create_app
 from tests.conftest import make_settings
+from tests.webauthn_soft import SoftAuthenticator, register_passkey
 
 
 async def _alice_objects(alice: AsyncClient) -> dict[str, Any]:
@@ -42,6 +43,7 @@ async def _alice_objects(alice: AsyncClient) -> dict[str, Any]:
         )
     ).json()
     contact = (await alice.post("/api/contacts", json={"name": "Vertraulich"})).json()
+    passkey = await register_passkey(alice, SoftAuthenticator())
     return {
         "area": areas[0],
         "task": task,
@@ -50,6 +52,7 @@ async def _alice_objects(alice: AsyncClient) -> dict[str, Any]:
         "feed": feed,
         "subscription": subscription,
         "contact": contact,
+        "passkey": passkey,
     }
 
 
@@ -143,6 +146,7 @@ def test_every_object_route_is_covered() -> None:
         "feed_id",
         "subscription_id",
         "contact_id",
+        "passkey_id",
     }
     assert params <= known, params
 
@@ -160,6 +164,7 @@ async def test_every_object_route_rejects_foreign_ids(
         "feed_id": objects["feed"]["id"],
         "subscription_id": objects["subscription"]["id"],
         "contact_id": objects["contact"]["id"],
+        "passkey_id": objects["passkey"]["id"],
     }
     url = re.sub(r"\{(\w+_id)\}", lambda m: ids[m.group(1)], path)
     body = {} if method in ("PATCH", "PUT") else None

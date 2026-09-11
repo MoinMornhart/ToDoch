@@ -14,7 +14,7 @@ test('Übersicht als Startseite, Aufgabe als Ticket, gekürzter Kalender', async
 	await page.goto('/login');
 	await page.getByLabel('E-Mail-Adresse').fill(EMAIL);
 	await page.getByLabel('Passwort').fill(PASSWORD);
-	await page.getByRole('button', { name: 'Anmelden' }).click();
+	await page.getByRole('button', { name: 'Anmelden', exact: true }).click();
 
 	// Übersicht
 	await expect(page).toHaveURL(/\/$/);

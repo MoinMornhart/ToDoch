@@ -229,6 +229,16 @@ export interface PushDevice {
 	last_success_at: string | null;
 }
 
+export interface PasskeyInfo {
+	id: string;
+	name: string;
+	created_at: string;
+	last_used_at: string | null;
+	/** In iCloud-Schlüsselbund, Google-Passwortmanager & Co. synchronisiert */
+	backed_up: boolean;
+	device_type: string;
+}
+
 export interface SessionInfo {
 	id: string;
 	created_at: string;

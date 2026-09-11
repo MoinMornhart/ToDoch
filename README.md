@@ -85,7 +85,7 @@ Pro Bereich legst du fest, welche Tage und Stunden der Kalender zeigt – z. B. 
 | :---: | --- |
 | <kbd>n</kbd> | Neue Aufgabe |
 | <kbd>c</kbd> | Neuer Termin |
-| <kbd>t</kbd> | Telefontermin |
+| <kbd>t</kbd> | Vereinbarten Termin eintragen |
 | <kbd>/</kbd> | Suchen |
 | <kbd>j</kbd> / <kbd>k</kbd> | Nächste / vorherige Aufgabe |
 | <kbd>x</kbd> | Erledigt |
@@ -140,14 +140,14 @@ sein (z. B. hinter einem Reverse-Proxy).
 Todoch meldet sich dann vor Terminen per Push, auch wenn die App geschlossen ist (auf dem iPhone nach
 „Zum Home-Bildschirm“). Die nötigen Schlüssel erzeugt der Server selbst.
 
-### 📞 Telefontermine
+### 📞 Vereinbarte Termine
 
-Ein Formular für alles, was am Telefon, persönlich oder per Post vereinbart wurde – mit
-<kbd>t</kbd> oder über **Neu → Telefontermin**:
+Termin beim Arzt am Telefon ausgemacht? Ein Formular für alles, was am Telefon, persönlich
+oder per Post vereinbart wurde – mit <kbd>t</kbd> oder über **Neu → Vereinbarter Termin**:
 
 - **Kontakt** mit Name, Firma, Telefon, E-Mail und Adresse – gespeicherte Kontakte werden beim
   Tippen vorgeschlagen (kein CRM, nur das Nötigste; verwaltbar unter *Einstellungen → Kontakte*)
-- **Termin** mit Dauer, Ort (telefonisch, vor Ort, Video mit Link) und eigener Zeitzone
+- **Termin** mit Dauer, Ort (vor Ort, telefonisch, Video mit Link) und eigener Zeitzone
 - **Vereinbarung**: per Telefon / persönlich / Post, Gesprächsdatum, Gesprächspartner
 - **Notizen** in Markdown für Gesprächsinhalt, Aktenzeichen, was mitzubringen ist – durchsuchbar
 - **Folgeaufgabe** wie „Unterlagen vorbereiten“, automatisch X Tage vorher fällig und mit dem Termin verknüpft
@@ -165,7 +165,7 @@ Ein Formular für alles, was am Telefon, persönlich oder per Post vereinbart wu
 
 | | |
 | --- | --- |
-| 🔑 **Anmeldung** | Einrichtung nur mit Einmalcode, Argon2id-Passwörter mit Abgleich gegen Leak-Listen, Sperre mit wachsender Wartezeit nach Fehlversuchen |
+| 🔑 **Anmeldung** | **Passkeys** (Face ID, Touch ID, Windows Hello, Sicherheitsschlüssel) ohne Benutzernamen, Einrichtung nur mit Einmalcode, Argon2id-Passwörter mit Abgleich gegen Leak-Listen, Sperre mit wachsender Wartezeit nach Fehlversuchen |
 | 🍪 **Sitzungen** | Serverseitig und einzeln widerrufbar, Geräteübersicht, „Überall abmelden“, Idle- und Absolut-Timeout |
 | 🛡️ **Browser** | Strenge Content-Security-Policy ohne `unsafe-inline`, CSRF-Schutz, HSTS und alle wichtigen Security-Header |
 | 🧾 **Nachvollziehbar** | Audit-Log, das sich per Datenbank-Trigger nicht nachträglich ändern lässt |
@@ -257,7 +257,9 @@ Todoch startet nicht, wenn Schlüssel fehlen, zu kurz sind oder noch Platzhalter
 
 ## 🌐 Adresse, HTTPS und Passkeys
 
-Passkeys (ab Meilenstein 6) funktionieren nur über **HTTPS mit festem Hostnamen** – nie über eine IP.
+Passkeys funktionieren nur über **HTTPS mit festem Hostnamen** – nie über eine IP. Sie sind fest an
+diesen Hostnamen gebunden: Wer die Domain später ändert, muss Passkeys neu hinzufügen (das Passwort
+funktioniert weiter).
 Todoch kennt drei Betriebsarten, umschaltbar mit einem Befehl:
 
 | Befehl | Passt, wenn … | HTTPS macht … |
@@ -326,10 +328,10 @@ todoch logs [app|web|db|worker]  # Protokolle ansehen
 | :---: | --- | --- |
 | ✅ | **1 · Grundgerüst** | Anmeldung, Sitzungen, Bereiche, Aufgaben, Schnellerfassung, Suche, PWA, Proxmox-Quickstart |
 | ✅ | **2 · Kalender** | Termine, Serien, Monat / Woche / Tag / Agenda, Drag & Drop, Konflikte, ICS-Abos für Apple, Google & Outlook, Erinnerungen per Push, Übersicht, Dunkelmodus |
-| ✅ | **3 · Telefontermine** | Formular für telefonisch vereinbarte Termine, Kontaktvorschläge, Folgeaufgaben, lokaler Entwurf, ICS zum Weitergeben |
+| ✅ | **3 · Vereinbarte Termine** | Formular für am Telefon oder persönlich ausgemachte Termine, Kontaktvorschläge, Folgeaufgaben, lokaler Entwurf, ICS zum Weitergeben |
 | ⏳ | **4 · E-Mail** | Eigener Bereich „E-Mail“ in der Navigation, Postfächer per IMAP, Regeln, automatische Terminerkennung, Bestätigungs-Inbox |
 | ⏳ | **5 · Synchronisation** | Gmail & Microsoft per OAuth, Zwei-Wege-Sync mit CalDAV, Google und Microsoft |
-| ⏳ | **6 · Passkeys** | Anmeldung mit Face ID / Touch ID / Windows Hello, TOTP, Wiederherstellungscodes |
+| 🚧 | **6 · Passkeys** | ✅ Anmeldung mit Face ID / Touch ID / Windows Hello / Sicherheitsschlüssel · ⏳ TOTP, Wiederherstellungscodes |
 | ⏳ | **7 · Gruppen** | Gemeinsame Bereiche, Rollen, Einladungen, Zuweisungen, Kommentare |
 | ⏳ | **8 · Härtung** | Datenexport, Kontolöschung, Restore-Tests, Security-Review nach OWASP ASVS L2 |
 

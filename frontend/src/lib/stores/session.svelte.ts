@@ -38,8 +38,13 @@ class Session {
 	}
 
 	async login(email: string, password: string): Promise<void> {
+		this.signedIn(await api<User>('/auth/login', { method: 'POST', body: { email, password } }));
+	}
+
+	/** Nach jeder Anmeldung (Passwort oder Passkey): alten Offline-Stand verwerfen. */
+	signedIn(user: User): void {
 		clearOfflineCache();
-		this.setUser(await api<User>('/auth/login', { method: 'POST', body: { email, password } }));
+		this.setUser(user);
 	}
 
 	async logout(everywhere = false): Promise<void> {

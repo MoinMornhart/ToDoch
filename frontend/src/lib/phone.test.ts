@@ -87,8 +87,10 @@ describe('Telefontermin', () => {
 	});
 
 	it('beschreibt den Ort je nach Art', () => {
-		expect(locationFor(draft({ phone: '030 1' }), LABELS)).toBe('Telefonisch: 030 1');
-		expect(locationFor(draft(), LABELS)).toBe('Telefonisch');
+		expect(locationFor(draft(), LABELS)).toBe('Vor Ort');
+		const byPhone = draft({ placeKind: 'phone', phone: '030 1' });
+		expect(locationFor(byPhone, LABELS)).toBe('Telefonisch: 030 1');
+		expect(locationFor(draft({ placeKind: 'phone' }), LABELS)).toBe('Telefonisch');
 		expect(locationFor(draft({ placeKind: 'onsite' }), LABELS)).toBe('Vor Ort');
 		expect(locationFor(draft({ placeKind: 'onsite', place: 'Büro 3' }), LABELS)).toBe('Büro 3');
 		const video = draft({ placeKind: 'video', url: ' https://meet.example/x ' });

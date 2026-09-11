@@ -4,6 +4,12 @@ Alle Änderungen an Todoch – die neueste Version steht oben.
 Versionsschema: `0.0.1 → 0.0.2 → … → 0.0.9 → 0.1.0 → … → 0.9.9 → 1.0.0`.
 Im Container spielt der Befehl `update` immer die neueste Version ein.
 
+## [0.3.7] – 2026-09-11
+
+Sicherheitskonzept: veralteten Verweis auf Anhänge korrigiert
+
+- Offener Punkt zu Datei-Anhängen verweist nicht mehr auf Meilenstein 3 (Telefontermine wurden in v0.1.6 entfernt) – ToDoch hat bisher keine Uploads
+
 ## [0.3.6] – 2026-09-11
 
 IP-Adressen im Audit-Log nur 90 Tage – Meilenstein 8 abgeschlossen

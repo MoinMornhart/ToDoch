@@ -263,7 +263,8 @@ unter `keys/` neben der Sicherung liegen.
 ## Offene Punkte (geplant)
 
 - Kürzere Sitzungs-Standardwerte, nachdem Passkeys und Zwei-Faktor verbreitet genutzt werden.
-- Upload-Prüfung per Magic Bytes, Anhänge außerhalb des Webroots (M3).
+- Falls Datei-Anhänge kommen: Prüfung per Magic Bytes, Ablage außerhalb des Webroots (bisher gibt
+  es keine Uploads).
 - Signierte Releases, die der Container vor dem Update prüft.
 
 ## Datenexport und Kontolöschung (seit v0.3.0)

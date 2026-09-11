@@ -37,6 +37,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import Settings
 from app.models import CalendarConnection, CalendarTombstone, Event, User
 from app.security.crypto import Crypto, DecryptionError
+from app.services import external_calendars as feeds
 from app.services import mail_oauth as oauth
 from app.services.event_recurrence import WEEKDAYS, RuleError, normalize_event_rule, rule_fields
 from app.services.events import midnight_utc
@@ -54,6 +55,13 @@ SCOPES = {
 TIMEOUT = httpx.Timeout(20.0, connect=10.0)
 # Tests setzen hier einen Nachbau von Google Kalender bzw. Outlook ein
 TRANSPORT: httpx.AsyncBaseTransport | None = None
+
+
+def transport(*, allow_private: bool) -> httpx.AsyncBaseTransport:
+    """Im Betrieb geht jede Verbindung genau an die geprüfte IP (kein DNS-Rebinding)."""
+    return TRANSPORT or feeds.pinned_transport(allow_private=allow_private)
+
+
 MAX_PAGES = 20
 GRAPH_PAGES = 50
 MAX_PUSH = 200
@@ -798,7 +806,10 @@ async def sync_connection(
                 )
             headers = {"Authorization": f"Bearer {tokens.access_token}"}
         async with httpx.AsyncClient(
-            timeout=TIMEOUT, transport=TRANSPORT, headers=headers, auth=auth
+            timeout=TIMEOUT,
+            transport=transport(allow_private=owner.is_admin),
+            headers=headers,
+            auth=auth,
         ) as http:
             api = _client(conn, http, owner)
             try:

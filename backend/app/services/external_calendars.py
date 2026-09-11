@@ -15,6 +15,7 @@ from __future__ import annotations
 import ipaddress
 import logging
 import socket
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 from datetime import UTC, date, datetime, time, timedelta
 from typing import Any
@@ -22,6 +23,7 @@ from urllib.parse import urljoin, urlsplit
 from zoneinfo import ZoneInfo
 
 import anyio.to_thread
+import httpcore
 import httpx
 from icalendar import Calendar
 from sqlalchemy import select
@@ -110,9 +112,67 @@ async def check_address(host: str, port: int, *, allow_private: bool) -> list[st
         addr = ipaddress.ip_address(text.split("%", 1)[0])
         if _blocked(addr):
             raise FeedError("Diese Adresse ist nicht erlaubt.")
-        if addr.is_private and not allow_private:
+        # Nicht öffentlich: Heimnetz, aber auch 100.64.0.0/10 (CGNAT, NetBird, Tailscale)
+        if not addr.is_global and not allow_private:
             raise FeedError("Adressen im eigenen Netz kann nur ein Admin einbinden.")
     return addresses
+
+
+class PinnedBackend(httpcore.AsyncNetworkBackend):
+    """Verbindet genau mit der gerade geprüften IP – kein zweites Auflösen, kein DNS-Rebinding.
+
+    httpcore verbindet mit dem Ergebnis von ``connect_tcp`` und startet TLS danach mit dem
+    Hostnamen – Zertifikat und SNI gelten also weiter für den Namen, nicht für die IP.
+    """
+
+    def __init__(self, *, allow_private: bool) -> None:
+        self.allow_private = allow_private
+        self.inner: httpcore.AsyncNetworkBackend = httpcore.AnyIOBackend()
+
+    async def connect_tcp(
+        self,
+        host: str,
+        port: int,
+        timeout: float | None = None,  # noqa: ASYNC109 – Schnittstelle von httpcore
+        local_address: str | None = None,
+        socket_options: Iterable[Any] | None = None,
+    ) -> httpcore.AsyncNetworkStream:
+        try:
+            addresses = await check_address(host, port, allow_private=self.allow_private)
+        except FeedError as exc:
+            raise httpcore.ConnectError(exc.message) from exc
+        error: Exception | None = None
+        for address in addresses:
+            try:
+                return await self.inner.connect_tcp(
+                    address,
+                    port,
+                    timeout=timeout,
+                    local_address=local_address,
+                    socket_options=socket_options,
+                )
+            except httpcore.ConnectError as exc:
+                error = exc
+        raise httpcore.ConnectError(str(error))
+
+    async def connect_unix_socket(
+        self,
+        path: str,
+        timeout: float | None = None,  # noqa: ASYNC109 – Schnittstelle von httpcore
+        socket_options: Iterable[Any] | None = None,
+    ) -> httpcore.AsyncNetworkStream:
+        raise httpcore.ConnectError("Unix-Sockets sind nicht erlaubt.")
+
+    async def sleep(self, seconds: float) -> None:
+        await self.inner.sleep(seconds)
+
+
+def pinned_transport(*, allow_private: bool) -> httpx.AsyncHTTPTransport:
+    """httpx-Transport für Adressen, die Nutzer eintragen (Kalender-Abos, CalDAV)."""
+    transport = httpx.AsyncHTTPTransport(trust_env=False)
+    # httpx reicht kein eigenes Netzwerk-Backend durch – der Pool ist öffentlich genug dafür
+    transport._pool._network_backend = PinnedBackend(allow_private=allow_private)
+    return transport
 
 
 async def fetch_ics(
@@ -127,7 +187,10 @@ async def fetch_ics(
     current = url
     try:
         async with httpx.AsyncClient(
-            timeout=TIMEOUT, follow_redirects=False, headers=headers, transport=transport
+            timeout=TIMEOUT,
+            follow_redirects=False,
+            headers=headers,
+            transport=transport or pinned_transport(allow_private=allow_private),
         ) as client:
             for _ in range(MAX_REDIRECTS + 1):
                 await check_url(current, allow_private=allow_private)

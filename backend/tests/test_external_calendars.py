@@ -116,6 +116,9 @@ def test_invalid_file() -> None:
         ("http://localhost/x.ics", ["127.0.0.1"], True, False),
         ("http://metadata/x.ics", ["169.254.169.254"], True, False),
         ("http://[::ffff:127.0.0.1]/x.ics", ["::ffff:127.0.0.1"], True, False),
+        # NetBird/Tailscale/CGNAT gehören zum eigenen Netz, nicht zum Internet
+        ("http://peer.netbird.cloud/x.ics", ["100.100.1.1"], False, False),
+        ("http://peer.netbird.cloud/x.ics", ["100.100.1.1"], True, True),
         ("ftp://calendar.example/a.ics", ["93.184.216.34"], True, False),
         ("https://", [], True, False),
     ],

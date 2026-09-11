@@ -15,7 +15,7 @@ melden, nicht als öffentliches Issue.
 | **Gestohlenes Backup** | Zugangsdaten und Inhalte auslesen | Passwörter nur als Argon2id-Hash; Mail-Passwörter/OAuth-Tokens (ab M4/M5) mit AES-256-GCM verschlüsselt, Schlüssel liegt **nicht** in der Datenbank und nicht im Backup-Archiv, sondern getrennt (`keys/`) |
 | **Kompromittierter Browser / XSS** | Sitzung übernehmen, Daten abgreifen | Sitzungscookie `HttpOnly`, `Secure`, `SameSite=Lax`, Präfix `__Host-`; strenge CSP ohne `'unsafe-inline'` (Skripte nur aus eigenen Dateien); Markdown serverseitig per Allowlist bereinigt; Sitzungen einzeln widerrufbar, „Überall abmelden“ |
 | **Fremde Website (CSRF)** | Aktionen im Namen des Nutzers auslösen | Double-Submit-Token (`__Host-todoch_csrf` + Header `X-CSRF-Token`) **und** Origin-/Referer-Prüfung für jede zustandsändernde Anfrage; `SameSite=Lax` |
-| **Bösartige E-Mail** | Tracking, Skriptausführung, ReDoS, SSRF, Speicher-DoS | HTML aus Mails wird nie gerendert, sondern serverseitig zu Text (nh3); Größen-, Anzahl- und Zeitlimits beim Abholen; SSRF-Schutz für Mailserver, Kalender-Abos und später CalDAV |
+| **Bösartige E-Mail** | Tracking, Skriptausführung, ReDoS, SSRF, Speicher-DoS | HTML aus Mails wird nie gerendert, sondern serverseitig zu Text (nh3); Größen-, Anzahl- und Zeitlimits beim Abholen; SSRF-Schutz für Mailserver, Kalender-Abos und CalDAV – verbunden wird immer genau mit der geprüften IP |
 | **Andere Nutzer derselben Instanz** | Fremde Daten sehen oder ändern (IDOR) | Zentrale Autorisierung `can(user, action, obj)`; jede Abfrage filtert serverseitig; nicht sichtbare Objekte ergeben 404; automatisierte Tests prüfen **jede** Route mit Objekt-ID gegen Fremdzugriff |
 
 ## Umgesetzte Maßnahmen (Stand v0.0.1)
@@ -157,6 +157,22 @@ Meilenstein 4, sobald verschlüsselte Zugangsdaten gespeichert werden). Danach k
 Schlüssel entfernt werden. Jedes Chiffrat enthält die Schlüssel-ID und ist per AAD an sein Feld
 gebunden (kein Umkopieren zwischen Datensätzen möglich).
 
+## Adressen von Nutzern: geprüft und festgenagelt (seit v0.3.2)
+
+Kalender-Abos, CalDAV und Online-Kalender verbinden sich über ein eigenes Netzwerk-Backend
+(`PinnedBackend` in `services/external_calendars.py`): Der Name wird beim Verbinden aufgelöst,
+jede IP geprüft und genau mit dieser IP verbunden – TLS-Zertifikat und SNI gelten weiter für den
+Namen. Ein Server, der bei der Prüfung eine öffentliche und beim Verbinden eine interne Adresse
+nennt (DNS-Rebinding), kommt so nicht mehr ins Heimnetz, an Loopback oder ins Docker-Netz. Für
+Postfächer gilt das schon seit v0.2.1.
+
+Wer kein Admin ist, erreicht nur öffentliche Adressen (`is_global`). Gesperrt sind damit auch
+100.64.0.0/10 (CGNAT, NetBird, Tailscale), die Python nicht als „privat“ zählt. Admins dürfen ins
+eigene Netz (z. B. Streamo oder Nextcloud im Heimnetz), Loopback, Link-Local und Cloud-Metadaten
+bleiben auch für sie gesperrt.
+
+Mail-Regeln vergleichen nur Text (kein regulärer Ausdruck) – ReDoS ist dort nicht möglich.
+
 ## Getestete Wiederherstellung (seit v0.3.1)
 
 Eine Sicherung zählt erst, wenn sie sich zurückspielen lässt. `scripts/restore-test.sh` läuft bei
@@ -169,7 +185,6 @@ unter `keys/` neben der Sicherung liegen.
 
 - Kürzere Sitzungs-Standardwerte, nachdem Passkeys und Zwei-Faktor verbreitet genutzt werden.
 - Upload-Prüfung per Magic Bytes, Anhänge außerhalb des Webroots (M3).
-- ReDoS-Timeouts für Mail-Regeln, SSRF-Schutz für CalDAV (M4/M5).
 - Review nach OWASP ASVS L2 (M8).
 
 ## Datenexport und Kontolöschung (seit v0.3.0)

@@ -4,6 +4,16 @@ Alle Änderungen an Todoch – die neueste Version steht oben.
 Versionsschema: `0.0.1 → 0.0.2 → … → 0.0.9 → 0.1.0 → … → 0.9.9 → 1.0.0`.
 Im Container spielt der Befehl `update` immer die neueste Version ein.
 
+## [0.3.2] – 2026-09-11
+
+Schutz vor DNS-Rebinding für Kalender-Abos und CalDAV (Sicherheitsprüfung, Teil 1)
+
+- Kalender-Abos, CalDAV und Online-Kalender verbinden sich jetzt genau mit der geprüften IP – ein Server kann nicht mehr bei der Prüfung eine öffentliche und beim Verbinden eine interne Adresse nennen (DNS-Rebinding)
+- TLS-Zertifikat und SNI gelten dabei weiter für den Hostnamen
+- Nicht-Admins erreichen nur noch öffentliche Adressen: auch 100.64.0.0/10 (CGNAT, NetBird, Tailscale) ist gesperrt
+- Neue Tests für das Festnageln der IP und gegen DNS-Rebinding
+- Doku: Sicherheitskonzept um den Abschnitt zu geprüften und festgenagelten Adressen ergänzt
+
 ## [0.3.1] – 2026-09-11
 
 Getestete Wiederherstellung in der CI (Meilenstein 8, Teil 2)

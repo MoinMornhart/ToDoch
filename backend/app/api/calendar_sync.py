@@ -162,9 +162,11 @@ async def finish(
     return None
 
 
-def _dav_http(username: str, password: str) -> httpx.AsyncClient:
+def _dav_http(username: str, password: str, allow_private: bool) -> httpx.AsyncClient:
     return httpx.AsyncClient(
-        timeout=sync.TIMEOUT, transport=sync.TRANSPORT, auth=httpx.BasicAuth(username, password)
+        timeout=sync.TIMEOUT,
+        transport=sync.transport(allow_private=allow_private),
+        auth=httpx.BasicAuth(username, password),
     )
 
 
@@ -179,7 +181,7 @@ async def caldav_discover(
     """Kalender unter einer Adresse finden (Server oder direkt ein Kalender)."""
     await res.limiter.enforce("caldav-discover", str(user.id), limit=20, window=600)
     try:
-        async with _dav_http(body.username, body.password) as http:
+        async with _dav_http(body.username, body.password, user.is_admin) as http:
             found = await caldav.CalDav(http, allow_private=user.is_admin).discover(body.url)
     except sync.SyncError as exc:
         raise _unprocessable(exc.message) from exc
@@ -205,7 +207,7 @@ async def caldav_connect(
             status.HTTP_409_CONFLICT, f"Höchstens {MAX_CONNECTIONS} Kalenderverbindungen möglich."
         )
     try:
-        async with _dav_http(body.username, body.password) as http:
+        async with _dav_http(body.username, body.password, user.is_admin) as http:
             dav = caldav.CalDav(http, allow_private=user.is_admin)
             await caldav.CalDavCalendar(dav, body.calendar_url, user.timezone).changes(None)
     except sync.SyncError as exc:

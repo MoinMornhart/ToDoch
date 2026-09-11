@@ -20,6 +20,7 @@ from app.api import (
     events,
     feeds,
     mail,
+    mail_oauth,
     mail_rules,
     meta,
     passkeys,
@@ -102,6 +103,7 @@ def create_app(settings: Settings | None = None, resources: Resources | None = N
         push,
         contacts,
         mail_rules,
+        mail_oauth,
         mail,
     )
     for module in modules:

@@ -23,6 +23,7 @@
     <li>Credentials such as subscription addresses with tokens are stored encrypted with AES-256-GCM; keys can be rotated.</li>
     <li>Added calendars are only fetched from checked addresses: no loopback, no cloud metadata, home network for admins only, even after redirects (SSRF protection).</li>
     <li>Mailboxes only over encrypted connections (SSL/TLS or STARTTLS with certificate checks), with the same address checks and pinned to the checked IP. ToDoch only reads along, the password is stored encrypted, and emails are shown as plain text only – never HTML, images or tracking.</li>
+    <li>“Connect with Google/Microsoft” uses OAuth with PKCE and a one-time state; only an encrypted refresh token is stored – never the account password.</li>
     <li>Every object belongs to an area; other people's objects behave as if they didn't exist (404). Automated tests check every route for this.</li>
     <li>An audit log for sign-ins and security-relevant changes – append-only, enforced by database triggers.</li>
   </ul>

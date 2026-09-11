@@ -65,6 +65,13 @@ class Settings(BaseSettings):
     max_body_bytes: int = Field(default=1_048_576, ge=1024)
     log_level: Literal["debug", "info", "warning", "error"] = "info"
 
+    # „Mit Google/Microsoft verbinden“ für Postfächer (OAuth) – einrichten mit „todoch oauth“
+    google_client_id: str | None = None
+    google_client_secret: SecretStr | None = None
+    microsoft_client_id: str | None = None
+    microsoft_client_secret: SecretStr | None = None
+    microsoft_tenant: str = Field(default="common", pattern=r"^[A-Za-z0-9.-]{1,100}$")
+
     @field_validator("origin")
     @classmethod
     def _validate_origin(cls, value: str) -> str:

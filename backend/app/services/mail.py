@@ -32,9 +32,11 @@ import nh3
 from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.config import Settings
 from app.models import MailAccount, MailMessage, User
 from app.security.crypto import Crypto, DecryptionError
 from app.services import external_calendars as feeds
+from app.services import mail_oauth as oauth
 from app.services.mail_rules import enabled_rules, run_rules
 from app.services.mail_suggestions import detect
 
@@ -74,6 +76,8 @@ class ImapTarget:
     username: str
     password: str
     folder: str = "INBOX"
+    # Bei Google/Microsoft (OAuth): Anmeldung per XOAUTH2 statt Passwort
+    access_token: str | None = None
 
 
 @dataclass
@@ -263,7 +267,11 @@ def _fetch(
     conn: Any, target: ImapTarget, uidvalidity: int | None, last_uid: int, limit: int, today: date
 ) -> FetchResult:
     try:
-        conn.login(target.username, target.password)
+        if target.access_token:
+            auth = oauth.xoauth2(target.username, target.access_token)
+            conn.authenticate("XOAUTH2", lambda _challenge: auth)
+        else:
+            conn.login(target.username, target.password)
     except imaplib.IMAP4.error as exc:
         raise MailError(
             "Anmeldung am Postfach fehlgeschlagen. Benutzername und Passwort prüfen."
@@ -364,15 +372,34 @@ async def fetch_mailbox(
 # --- Speichern ------------------------------------------------------------------------------
 
 
-def target_for(account: MailAccount, password: str) -> ImapTarget:
+def target_for(account: MailAccount, secret: str, access_token: str | None = None) -> ImapTarget:
     return ImapTarget(
         host=account.imap_host,
         port=account.imap_port,
         security=account.security,
         username=account.username,
-        password=password,
+        password="" if access_token else secret,
         folder=account.folder,
+        access_token=access_token,
     )
+
+
+async def _oauth_access(
+    crypto: Crypto, account: MailAccount, refresh_token: str, settings: Settings | None
+) -> str:
+    """Frisches Zugriffstoken; ein vom Anbieter erneuertes Refresh-Token wird gespeichert."""
+    config = oauth.provider(settings, account.oauth_provider or "") if settings else None
+    if config is None:
+        raise MailError(oauth.NOT_CONFIGURED)
+    try:
+        tokens = await oauth.refresh_access(config, refresh_token)
+    except oauth.OAuthError as exc:
+        raise MailError(exc.message) from exc
+    if tokens.refresh_token and tokens.refresh_token != refresh_token:
+        account.password_encrypted = crypto.encrypt(
+            tokens.refresh_token, context=password_context(account.id)
+        )
+    return tokens.access_token
 
 
 async def apply_result(
@@ -453,18 +480,27 @@ async def apply_result(
 
 
 async def sync_account(
-    db: AsyncSession, crypto: Crypto, account: MailAccount, owner: User, *, limit: int = BATCH
+    db: AsyncSession,
+    crypto: Crypto,
+    account: MailAccount,
+    owner: User,
+    *,
+    settings: Settings | None = None,
+    limit: int = BATCH,
 ) -> int:
     """Einmal abgleichen. Fehler landen in ``last_error``, gespeicherte Mails bleiben."""
     now = datetime.now(UTC)
     account.last_synced_at = now
     added = 0
     try:
-        password = crypto.decrypt_str(
+        secret = crypto.decrypt_str(
             account.password_encrypted, context=password_context(account.id)
         )
+        access_token = None
+        if account.auth == "oauth2":
+            access_token = await _oauth_access(crypto, account, secret, settings)
         result = await fetch_mailbox(
-            target_for(account, password),
+            target_for(account, secret, access_token),
             allow_private=owner.is_admin,
             uidvalidity=account.uidvalidity,
             last_uid=account.last_uid,
@@ -481,7 +517,9 @@ async def sync_account(
     return added
 
 
-async def sync_due_accounts(db: AsyncSession, crypto: Crypto) -> int:
+async def sync_due_accounts(
+    db: AsyncSession, crypto: Crypto, settings: Settings | None = None
+) -> int:
     """Für den Worker: alle fälligen Postfächer abgleichen."""
     now = datetime.now(UTC)
     accounts = list(await db.scalars(select(MailAccount).where(MailAccount.enabled.is_(True))))
@@ -497,7 +535,7 @@ async def sync_due_accounts(db: AsyncSession, crypto: Crypto) -> int:
         if owner is None or not owner.is_active:
             continue
         try:
-            await sync_account(db, crypto, account, owner)
+            await sync_account(db, crypto, account, owner, settings=settings)
         except Exception:  # ein kaputtes Postfach darf die anderen nicht aufhalten
             log.exception("Abgleich von Postfach %s fehlgeschlagen", account.id)
             await db.rollback()

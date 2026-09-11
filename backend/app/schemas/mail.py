@@ -66,6 +66,18 @@ class MailAccountOut(BaseModel):
     last_success_at: datetime | None
     last_error: str | None
     created_at: datetime
+    # „password“ (IMAP-Passwort) oder „oauth2“ (mit Google/Microsoft verbunden)
+    auth: str = "password"
+    provider: str | None = None
+
+
+class OAuthProvidersOut(BaseModel):
+    google: bool
+    microsoft: bool
+
+
+class OAuthStartOut(BaseModel):
+    url: str
 
 
 class SuggestionOut(BaseModel):

@@ -19,7 +19,13 @@ export interface MailAccountInfo {
 	last_success_at: string | null;
 	last_error: string | null;
 	created_at: string;
+	/** „oauth2“: mit Google/Microsoft verbunden (ohne Passwort). */
+	auth: 'password' | 'oauth2';
+	provider: OAuthProvider | null;
 }
+
+export type OAuthProvider = 'google' | 'microsoft';
+export type OAuthProviders = Record<OAuthProvider, boolean>;
 
 export interface MailMessage {
 	id: string;

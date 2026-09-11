@@ -111,6 +111,13 @@ EXACT: dict[str, str] = {
         "The stored password cannot be decrypted."
     ),
     "Kein offener Terminvorschlag.": "No open appointment suggestion.",
+    "Die Anmeldung beim Anbieter ist fehlgeschlagen.": "Signing in with the provider failed.",
+    "Die Verbindung zum Anbieter ist abgelaufen. Bitte das Postfach neu verbinden.": (
+        "The connection to the provider has expired. Please reconnect the mailbox."
+    ),
+    "Die Anmeldung bei diesem Anbieter ist auf dem Server nicht eingerichtet.": (
+        "Signing in with this provider is not set up on the server."
+    ),
     "Mindestens eine Bedingung angeben.": "Enter at least one condition.",
     "Mindestens eine Aktion wählen.": "Choose at least one action.",
     "Unbekannter Push-Dienst": "Unknown push service",

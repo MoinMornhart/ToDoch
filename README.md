@@ -184,8 +184,11 @@ einem Klick **eine Aufgabe daraus machen** – mit Betreff als Titel und der Mai
   Bereich *Privat* mit Priorität und Tags, oder Newsletter gleich als gelesen markieren. Einfacher
   Textvergleich (keine regulären Ausdrücke), auch nachträglich auf vorhandene Mails anwendbar
 
-Gmail, iCloud und Yahoo brauchen ein App-Passwort; Microsoft-Konten (Outlook, Hotmail) folgen mit
-OAuth in Meilenstein 5.
+**Gmail und Outlook/Hotmail per Knopfdruck:** „Mit Google verbinden“ bzw. „Mit Microsoft verbinden“
+anklicken, beim Anbieter anmelden, fertig – kein App-Passwort, keine Servereinstellungen. Dafür muss
+der Admin einmalig im Container `todoch oauth google` bzw. `todoch oauth microsoft` ausführen; der
+Befehl erklärt Schritt für Schritt, wo man Client-ID und Secret bekommt. ToDoch speichert nur ein
+verschlüsseltes Refresh-Token, nie dein Google- oder Microsoft-Passwort.
 
 ### 🔒 Sicher ab Werk
 
@@ -321,6 +324,7 @@ todoch setup-code                # Einrichtungslink erneut anzeigen
 todoch users                     # Benutzer auflisten
 todoch reset-password <e-mail>   # Passwort vergessen? Neues Zufallspasswort
 todoch disable-2fa <e-mail>      # Authenticator-App verloren? Zwei-Faktor abschalten
+todoch oauth google              # „Mit Google verbinden“ einrichten (ebenso: microsoft)
 todoch backup                    # Datenbank sichern → /var/backups/todoch
 todoch restore <datei>           # Sicherung einspielen (sichert vorher den aktuellen Stand)
 todoch logs [app|web|db|worker]  # Protokolle ansehen
@@ -356,7 +360,7 @@ todoch logs [app|web|db|worker]  # Protokolle ansehen
 | ✅ | **1 · Grundgerüst** | Anmeldung, Sitzungen, Bereiche, Aufgaben, Schnellerfassung, Suche, PWA, Proxmox-Quickstart |
 | ✅ | **2 · Kalender** | Termine, Serien, Monat / Woche / Tag / Agenda, Drag & Drop, Konflikte, ICS-Abos für Apple, Google & Outlook, Erinnerungen per Push, Übersicht, Dunkelmodus |
 | ✅ | **4 · E-Mail** | Eigener Bereich „E-Mail“, Postfächer per IMAP, Aufgabe aus Mail, automatische Terminerkennung mit Bestätigungs-Inbox, Regeln |
-| ⏳ | **5 · Synchronisation** | Gmail & Microsoft per OAuth, Zwei-Wege-Sync mit CalDAV, Google und Microsoft |
+| 🚧 | **5 · Synchronisation** | ✅ Gmail & Microsoft per OAuth („Mit … verbinden“) · ⏳ Zwei-Wege-Sync mit CalDAV, Google und Microsoft |
 | ✅ | **6 · Passkeys & Zwei-Faktor** | Passkeys (Face ID / Touch ID / Windows Hello / Sicherheitsschlüssel), Zwei-Faktor per Authenticator-App (TOTP), Wiederherstellungscodes |
 | ⏳ | **7 · Gruppen** | Gemeinsame Bereiche, Rollen, Einladungen, Zuweisungen, Kommentare |
 | ⏳ | **8 · Härtung** | Datenexport, Kontolöschung, Restore-Tests, Security-Review nach OWASP ASVS L2 |

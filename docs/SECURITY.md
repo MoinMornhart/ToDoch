@@ -75,6 +75,18 @@ melden, nicht als öffentliches Issue.
 - Mails anderer Nutzer sind wie nicht vorhanden (404) – auch dafür prüfen die Autorisierungstests
   jede Route.
 
+**Mit Google/Microsoft verbinden (OAuth 2.0, seit v0.2.4)**
+- Authorization-Code-Flow mit PKCE (S256). Der `state` ist zufällig, zehn Minuten gültig, gilt genau
+  einmal (Redis `GETDEL`) und ist an Nutzer und Anbieter gebunden – ein fremder oder wiederholter
+  Rücksprung wird verworfen.
+- Die Adressen der Anbieter sind fest eingebaut (kein SSRF); Client-ID und Secret stehen nur in der
+  Server-Konfiguration (`todoch oauth …`), nie in der Datenbank oder im Browser.
+- Gespeichert wird nur das Refresh-Token, AES-256-GCM-verschlüsselt wie ein Postfach-Passwort;
+  Zugriffstoken leben nur für einen Abgleich im Speicher. Erneuert der Anbieter das Refresh-Token,
+  wird das neue gespeichert. Die IMAP-Anmeldung läuft per XOAUTH2 über TLS.
+- Die E-Mail-Adresse kommt aus dem ID-Token, das ToDoch direkt per TLS vom Token-Endpunkt erhält
+  (OpenID Connect Core 3.1.3.7).
+
 **Anfragen**
 - Größenlimit für Anfragen (Standard 1 MB, geprüft per `Content-Length` und beim Lesen).
 - Strikte Validierung aller Eingaben (Pydantic), Längenlimits für alle Felder.

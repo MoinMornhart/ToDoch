@@ -1,8 +1,16 @@
 <script lang="ts">
-	import { MailPlus, RefreshCw, Trash, TriangleAlert } from '@lucide/svelte';
+	import { LogIn, MailPlus, RefreshCw, Trash, TriangleAlert } from '@lucide/svelte';
+	import { onMount } from 'svelte';
 	import { api, ApiError } from '$lib/api';
 	import { i18n, t } from '$lib/i18n/index.svelte';
-	import { guessImap, type MailAccountInfo, type MailSecurity } from '$lib/mail';
+	import {
+		guessImap,
+		type MailAccountInfo,
+		type MailSecurity,
+		type OAuthProvider,
+		type OAuthProviders
+	} from '$lib/mail';
+	import { session } from '$lib/stores/session.svelte';
 	import { toasts } from '$lib/stores/toasts.svelte';
 
 	let {
@@ -22,6 +30,31 @@
 	let syncing = $state<string | null>(null);
 	let confirmId = $state<string | null>(null);
 	const guess = $derived(guessImap(email));
+	let providers = $state<OAuthProviders>({ google: false, microsoft: false });
+	let connecting = $state<OAuthProvider | null>(null);
+	const quick = $derived(providers.google || providers.microsoft);
+
+	onMount(async () => {
+		try {
+			providers = await api<OAuthProviders>('/mail/oauth/providers');
+		} catch {
+			// ohne Schnellverbindung weiter – das Formular funktioniert immer
+		}
+	});
+
+	/** Zur Anmeldeseite von Google bzw. Microsoft – zurück geht es nach /mail. */
+	async function connect(provider: OAuthProvider) {
+		connecting = provider;
+		try {
+			const { url } = await api<{ url: string }>(`/mail/oauth/${provider}/start`, {
+				method: 'POST'
+			});
+			window.location.assign(url);
+		} catch (error) {
+			report(error);
+			connecting = null;
+		}
+	}
 
 	function report(error: unknown) {
 		toasts.error(error instanceof ApiError ? error.message : t('error.generic'));
@@ -153,6 +186,37 @@
 				</li>
 			{/each}
 		</ul>
+	{/if}
+
+	{#if quick}
+		<p class="mb-2 text-sm">{t('mail.quickConnect')}</p>
+		<div class="mb-5 flex flex-wrap gap-2">
+			{#if providers.google}
+				<button
+					type="button"
+					class="btn btn-primary"
+					disabled={connecting !== null}
+					onclick={() => connect('google')}
+				>
+					<LogIn size={16} aria-hidden="true" />{t('mail.connectGoogle')}
+				</button>
+			{/if}
+			{#if providers.microsoft}
+				<button
+					type="button"
+					class="btn btn-primary"
+					disabled={connecting !== null}
+					onclick={() => connect('microsoft')}
+				>
+					<LogIn size={16} aria-hidden="true" />{t('mail.connectMicrosoft')}
+				</button>
+			{/if}
+		</div>
+		<p class="mb-2 text-sm text-muted">{t('mail.orManual')}</p>
+	{:else if session.user?.is_admin}
+		<p class="mb-4 rounded-lg bg-surface-2 px-3 py-2 text-xs text-muted">
+			{t('mail.oauthMissing')}
+		</p>
 	{/if}
 
 	<form class="grid gap-3 sm:grid-cols-2" onsubmit={add}>

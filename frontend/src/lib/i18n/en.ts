@@ -551,9 +551,23 @@ export const en: Record<MessageKey, string> = {
 	'mail.fromText': 'detected in the text',
 	'mail.allDay': 'all day',
 	'mail.hintAppPassword':
-		'With this provider you need an app password (create it in your account settings), not your normal password.',
+		'When adding it by hand, this provider needs an app password (create it in your account settings). Easier: “Connect with Google” above, if available.',
 	'mail.hintOAuth':
-		'Microsoft only allows IMAP with OAuth sign-in – that comes with milestone 5. Until then, Outlook and Hotmail accounts cannot be added here.',
+		'Microsoft only allows IMAP with a Microsoft sign-in – please use “Connect with Microsoft” above. If the button is missing, an admin has to set it up once.',
+	'mail.quickConnect': 'The easiest way – no app password, no server settings:',
+	'mail.connectGoogle': 'Connect with Google',
+	'mail.connectMicrosoft': 'Connect with Microsoft',
+	'mail.orManual': 'Or add another mailbox by hand via IMAP:',
+	'mail.oauthMissing':
+		'Admin note: for the “Connect with Google” and “Connect with Microsoft” buttons, run “todoch oauth google” or “todoch oauth microsoft” once in the container.',
+	'mail.connected': 'Mailbox connected – fetching your emails',
+	'mail.oauthDenied': 'Sign-in cancelled.',
+	'mail.oauthExpired': 'The sign-in took too long – please connect again.',
+	'mail.oauthFailed': 'Signing in with the provider failed.',
+	'mail.oauthNoEmail': 'The provider did not send an email address.',
+	'mail.oauthImap':
+		'Signed in, but the mailbox cannot be opened – is IMAP enabled at the provider?',
+	'mail.oauthLimit': 'At most 10 mailboxes allowed.',
 
 	'error.generic': 'Something went wrong.'
 };

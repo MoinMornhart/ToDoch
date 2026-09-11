@@ -58,6 +58,8 @@ def account_out(account: MailAccount, unread: int, language: str = "de") -> Mail
         last_success_at=account.last_success_at,
         last_error=translate(account.last_error, language) if account.last_error else None,
         created_at=account.created_at,
+        auth=account.auth,
+        provider=account.oauth_provider,
     )
 
 
@@ -265,7 +267,7 @@ async def update_account(
             account=str(account.id),
         )
         await db.flush()
-        await mail.sync_account(db, res.crypto, account, user)
+        await mail.sync_account(db, res.crypto, account, user, settings=res.settings)
     else:
         await db.commit()
     await db.refresh(account)
@@ -278,7 +280,7 @@ async def sync_now(
 ) -> MailAccountOut:
     account = await _own_account(db, user, account_id)
     await res.limiter.enforce("mail-sync", str(account.id), limit=10, window=600)
-    await mail.sync_account(db, res.crypto, account, user)
+    await mail.sync_account(db, res.crypto, account, user, settings=res.settings)
     await db.refresh(account)
     return await _account_out(db, account, request)
 

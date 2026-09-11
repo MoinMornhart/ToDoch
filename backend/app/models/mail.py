@@ -31,6 +31,7 @@ class MailAccount(UUIDPk, Timestamps, Base):
     __table_args__ = (
         CheckConstraint("refresh_minutes between 5 and 1440", name="refresh_minutes"),
         CheckConstraint("security in ('ssl', 'starttls')", name="security"),
+        CheckConstraint("auth in ('password', 'oauth2')", name="auth"),
     )
 
     owner_id: Mapped[uuid.UUID] = mapped_column(
@@ -52,6 +53,10 @@ class MailAccount(UUIDPk, Timestamps, Base):
     last_success_at: Mapped[datetime | None]
     last_error: Mapped[str | None] = mapped_column(String(300))
     message_count: Mapped[int] = mapped_column(default=0)
+    # „oauth2“: mit Google/Microsoft verbunden – dann steht in password_encrypted das
+    # (ebenso verschlüsselte) Refresh-Token statt eines Passworts
+    auth: Mapped[str] = mapped_column(String(10), default="password", server_default="password")
+    oauth_provider: Mapped[str | None] = mapped_column(String(20))
 
 
 class MailMessage(UUIDPk, Base):

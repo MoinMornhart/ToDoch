@@ -35,6 +35,8 @@ class FakeMailbox:
     password: str | None = None  # None: jedes Passwort passt
     messages: dict[int, tuple[bytes, bool]] = field(default_factory=dict)
     connections: list[tuple[str, str]] = field(default_factory=list)
+    token: str | None = None  # erwartetes OAuth-Zugriffstoken (None: jedes passt)
+    oauth_logins: list[str] = field(default_factory=list)
     searches: list[tuple[str, ...]] = field(default_factory=list)
 
     def add(self, raw: bytes, *, seen: bool = False) -> int:
@@ -55,6 +57,16 @@ class FakeImap:
         if self.box.password is not None and password != self.box.password:
             raise imaplib.IMAP4.error("[AUTHENTICATIONFAILED] Invalid credentials")
         return "OK", [b"Logged in"]
+
+    def authenticate(self, mechanism: str, authobject: Any) -> tuple[str, list[bytes]]:
+        assert mechanism == "XOAUTH2"
+        data = authobject(b"").decode()
+        user, _, rest = data.partition("\x01auth=Bearer ")
+        token = rest.rstrip("\x01")
+        if self.box.token is not None and token != self.box.token:
+            raise imaplib.IMAP4.error("[AUTHENTICATIONFAILED] Invalid credentials")
+        self.box.oauth_logins.append(f"{user.removeprefix('user=')}:{token}")
+        return "OK", [b"Authenticated"]
 
     def select(self, mailbox: str, readonly: bool = False) -> tuple[str, list[bytes]]:
         assert readonly, "ToDoch wählt Postfächer nur lesend aus"

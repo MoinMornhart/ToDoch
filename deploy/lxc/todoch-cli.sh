@@ -23,6 +23,9 @@ HELP="ToDoch – Verwaltung
   todoch make-admin <e-mail>           Verwaltungsrechte vergeben
   todoch disable-2fa <e-mail>          Zwei-Faktor abschalten (Authenticator-App verloren)
 
+  todoch oauth                         „Mit Google/Microsoft verbinden“ – Stand anzeigen
+  todoch oauth google|microsoft        Einmalig einrichten (Client-ID und Secret eintragen)
+
   todoch backup                        Datenbank sichern (nach ${TODOCH_BACKUPS})
   todoch restore <datei>               Sicherung wiederherstellen
   todoch logs [dienst]                 Protokolle ansehen (app, worker, web, db, redis)
@@ -213,6 +216,50 @@ cmd_restore() {
   apply_config
 }
 
+cmd_oauth() {
+  need_root
+  local provider=${1-} name upper id secret redirect
+  if [[ "$provider" != "google" && "$provider" != "microsoft" ]]; then
+    echo -e "Postfächer per Knopfdruck verbinden (ohne App-Passwort):\n"
+    for name in google microsoft; do
+      upper=${name^^}
+      if [[ -n "$(get_env "TODOCH_${upper}_CLIENT_ID")" ]]; then
+        echo -e "  ${name^}: ${GN}eingerichtet${CL}"
+      else
+        echo -e "  ${name^}: ${YW}nicht eingerichtet${CL}  →  todoch oauth ${name}"
+      fi
+    done
+    echo ""
+    return
+  fi
+  upper=${provider^^}
+  redirect="$(get_env TODOCH_ORIGIN)/api/mail/oauth/${provider}/callback"
+  echo -e "\n${BOLD}Einmalige Einrichtung für ${provider^}${CL} (ca. 5 Minuten):\n"
+  if [[ "$provider" == "google" ]]; then
+    echo -e "${TAB}1. ${BOLD}https://console.cloud.google.com${CL} → Projekt anlegen → „Gmail API“ aktivieren"
+    echo -e "${TAB}2. OAuth-Zustimmungsbildschirm: „Extern“, danach Status ${BOLD}„In Produktion“${CL}"
+    echo -e "${TAB}   (im Status „Test“ läuft die Verbindung nach 7 Tagen ab)"
+    echo -e "${TAB}3. Anmeldedaten → OAuth-Client-ID → „Webanwendung“, autorisierte Weiterleitungs-URI:"
+  else
+    echo -e "${TAB}1. ${BOLD}https://entra.microsoft.com${CL} → App-Registrierungen → Neue Registrierung"
+    echo -e "${TAB}2. Kontotypen: „Konten in allen Organisationsverzeichnissen und persönliche Microsoft-Konten“"
+    echo -e "${TAB}3. API-Berechtigungen → Microsoft Graph → Delegiert: IMAP.AccessAsUser.All, offline_access, email"
+    echo -e "${TAB}4. Zertifikate & Geheimnisse → Neuer geheimer Clientschlüssel; Umleitungs-URI (Web):"
+  fi
+  echo -e "${TAB}   ${BGN}${redirect}${CL}\n"
+  read -r -p "Client-ID: " id
+  read -r -s -p "Client-Secret (wird nicht angezeigt): " secret
+  echo ""
+  if ! [[ "$id" =~ ^[A-Za-z0-9._~+/=-]{8,200}$ && "$secret" =~ ^[A-Za-z0-9._~+/=-]{8,200}$ ]]; then
+    msg_error "Client-ID oder Secret sehen ungültig aus – bitte vollständig kopieren."
+    exit 1
+  fi
+  set_env "TODOCH_${upper}_CLIENT_ID" "$id"
+  set_env "TODOCH_${upper}_CLIENT_SECRET" "$secret"
+  apply_config
+  msg_ok "${provider^} ist eingerichtet – in ToDoch unter E-Mail → „Mit ${provider^} verbinden“."
+}
+
 run_admin() {
   todoch_compose exec -T app python -m app.cli "$@"
 }
@@ -237,6 +284,10 @@ main() {
       exit 1
     }
     run_admin "$1" "$2"
+    ;;
+  oauth)
+    shift
+    cmd_oauth "$@"
     ;;
   backup) cmd_backup ;;
   restore)

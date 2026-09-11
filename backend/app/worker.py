@@ -44,7 +44,7 @@ async def sync_calendars(ctx: dict[str, Any]) -> int:
 
 async def sync_mail(ctx: dict[str, Any]) -> int:
     async with ctx["sessionmaker"]() as db:
-        return await sync_due_accounts(db, ctx["crypto"])
+        return await sync_due_accounts(db, ctx["crypto"], ctx["settings"])
 
 
 async def startup(ctx: dict[str, Any]) -> None:

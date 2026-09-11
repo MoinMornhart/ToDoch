@@ -192,8 +192,11 @@ the notes.
   the *Private* area with priority and tags, or mark newsletters as read right away. Plain text
   matching (no regular expressions), can also be applied to existing emails
 
-Gmail, iCloud and Yahoo need an app password; Microsoft accounts (Outlook, Hotmail) follow with OAuth
-in milestone 5.
+**Gmail and Outlook/Hotmail with one click:** click “Connect with Google” or “Connect with
+Microsoft”, sign in with the provider, done – no app password, no server settings. An admin runs
+`todoch oauth google` or `todoch oauth microsoft` once in the container; the command explains step by
+step where to get the client ID and secret. ToDoch only stores an encrypted refresh token, never your
+Google or Microsoft password.
 
 ### 🔒 Secure by default
 
@@ -330,6 +333,7 @@ todoch setup-code                # show the setup link again
 todoch users                     # list users
 todoch reset-password <email>    # forgot your password? new random password
 todoch disable-2fa <email>       # lost your authenticator app? turn off two-factor
+todoch oauth google              # set up “Connect with Google” (same for: microsoft)
 todoch backup                    # back up the database → /var/backups/todoch
 todoch restore <file>            # restore a backup (backs up the current state first)
 todoch logs [app|web|db|worker]  # view logs
@@ -365,7 +369,7 @@ todoch logs [app|web|db|worker]  # view logs
 | ✅ | **1 · Foundation** | Sign-in, sessions, areas, tasks, quick add, search, PWA, Proxmox quickstart |
 | ✅ | **2 · Calendar** | Events, series, month / week / day / agenda, drag & drop, conflicts, ICS subscriptions for Apple, Google & Outlook, push reminders, overview, dark mode |
 | ✅ | **4 · Email** | Own “Email” section, mailboxes via IMAP, task from email, automatic appointment detection with confirmation inbox, rules |
-| ⏳ | **5 · Sync** | Gmail & Microsoft via OAuth, two-way sync with CalDAV, Google and Microsoft |
+| 🚧 | **5 · Sync** | ✅ Gmail & Microsoft via OAuth (“Connect with …”) · ⏳ two-way sync with CalDAV, Google and Microsoft |
 | ✅ | **6 · Passkeys & two-factor** | Passkeys (Face ID / Touch ID / Windows Hello / security keys), two-factor with an authenticator app (TOTP), recovery codes |
 | ⏳ | **7 · Groups** | Shared areas, roles, invitations, assignments, comments |
 | ⏳ | **8 · Hardening** | Data export, account deletion, restore tests, security review against OWASP ASVS L2 |

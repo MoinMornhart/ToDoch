@@ -550,9 +550,23 @@ export const de = {
 	'mail.fromText': 'im Text erkannt',
 	'mail.allDay': 'ganztägig',
 	'mail.hintAppPassword':
-		'Bei diesem Anbieter brauchst du ein App-Passwort (in den Kontoeinstellungen erzeugen), nicht dein normales Passwort.',
+		'Hier von Hand brauchst du bei diesem Anbieter ein App-Passwort (in den Kontoeinstellungen erzeugen). Einfacher: oben „Mit Google verbinden“, falls vorhanden.',
 	'mail.hintOAuth':
-		'Microsoft erlaubt IMAP nur noch mit OAuth-Anmeldung – das kommt mit Meilenstein 5. Bis dahin lassen sich Outlook- und Hotmail-Konten hier nicht einbinden.',
+		'Microsoft erlaubt IMAP nur mit Anmeldung über Microsoft – bitte oben „Mit Microsoft verbinden“ nutzen. Fehlt der Knopf, muss der Admin ihn einmal einrichten.',
+	'mail.quickConnect': 'Am einfachsten – ohne App-Passwort und Servereinstellungen:',
+	'mail.connectGoogle': 'Mit Google verbinden',
+	'mail.connectMicrosoft': 'Mit Microsoft verbinden',
+	'mail.orManual': 'Oder ein anderes Postfach von Hand per IMAP einbinden:',
+	'mail.oauthMissing':
+		'Admin-Hinweis: Für die Knöpfe „Mit Google verbinden“ und „Mit Microsoft verbinden“ einmal im Container „todoch oauth google“ bzw. „todoch oauth microsoft“ ausführen.',
+	'mail.connected': 'Postfach verbunden – die Mails werden geholt',
+	'mail.oauthDenied': 'Anmeldung abgebrochen.',
+	'mail.oauthExpired': 'Die Anmeldung hat zu lange gedauert – bitte noch einmal verbinden.',
+	'mail.oauthFailed': 'Die Anmeldung beim Anbieter ist fehlgeschlagen.',
+	'mail.oauthNoEmail': 'Der Anbieter hat keine E-Mail-Adresse übermittelt.',
+	'mail.oauthImap':
+		'Angemeldet, aber das Postfach lässt sich nicht öffnen – ist IMAP beim Anbieter eingeschaltet?',
+	'mail.oauthLimit': 'Höchstens 10 Postfächer möglich.',
 
 	'error.generic': 'Etwas ist schiefgelaufen.'
 } as const;

@@ -23,6 +23,7 @@ RAISERS = {
     "_reject",
     "FeedError",
     "MailError",
+    "OAuthError",
 }
 
 

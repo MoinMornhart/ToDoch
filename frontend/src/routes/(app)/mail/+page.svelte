@@ -13,6 +13,8 @@
 		X
 	} from '@lucide/svelte';
 	import { onMount } from 'svelte';
+	import { goto } from '$app/navigation';
+	import { page } from '$app/state';
 	import { api, ApiError } from '$lib/api';
 	import MailAccounts from '$lib/components/MailAccounts.svelte';
 	import MailRules from '$lib/components/MailRules.svelte';
@@ -132,7 +134,25 @@
 		timer = setTimeout(() => void loadMessages().catch(report), 250);
 	}
 
+	/** Rückmeldung nach „Mit Google/Microsoft verbinden“ (Rücksprung mit ?connected / ?oauth_error). */
+	function oauthMessage(code: string): string {
+		const messages: Record<string, string> = {
+			denied: t('mail.oauthDenied'),
+			expired: t('mail.oauthExpired'),
+			noemail: t('mail.oauthNoEmail'),
+			imap: t('mail.oauthImap'),
+			limit: t('mail.oauthLimit')
+		};
+		return messages[code] ?? t('mail.oauthFailed');
+	}
+
 	onMount(() => {
+		const params = page.url.searchParams;
+		const connected = params.get('connected');
+		const failure = params.get('oauth_error');
+		if (connected) toasts.show(t('mail.connected'));
+		if (failure) toasts.error(oauthMessage(failure));
+		if (connected || failure) void goto('/mail', { replaceState: true });
 		void refresh();
 		return () => clearTimeout(timer);
 	});

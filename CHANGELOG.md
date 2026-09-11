@@ -4,6 +4,16 @@ Alle Änderungen an Todoch – die neueste Version steht oben.
 Versionsschema: `0.0.1 → 0.0.2 → … → 0.0.9 → 0.1.0 → … → 0.9.9 → 1.0.0`.
 Im Container spielt der Befehl `update` immer die neueste Version ein.
 
+## [0.2.4] – 2026-09-11
+
+Mit Google und Microsoft verbinden – Postfach per Knopfdruck (Meilenstein 5, Teil 1)
+
+- Neue Knöpfe unter E-Mail → Postfächer & Regeln: „Mit Google verbinden“ und „Mit Microsoft verbinden“ – anmelden, bestätigen, fertig; kein App-Passwort, keine Servereinstellungen, Outlook/Hotmail funktionieren jetzt
+- Einmalige Einrichtung im Container: todoch oauth google bzw. todoch oauth microsoft – erklärt Schritt für Schritt, zeigt die Rücksprungadresse und fragt Client-ID und Secret ab
+- Sicherheit: OAuth 2.0 mit PKCE, einmaliger an Nutzer und Anbieter gebundener State, nur verschlüsseltes Refresh-Token gespeichert, IMAP-Anmeldung per XOAUTH2, erneuerte Tokens werden übernommen
+- Abgelaufene Verbindung: Hinweis am Postfach, erneutes Verbinden repariert sie ohne zweites Postfach
+- README, SECURITY.md, .env.example und Webseite ergänzt
+
 ## [0.2.3] – 2026-09-11
 
 Regeln für E-Mails – Meilenstein 4 abgeschlossen

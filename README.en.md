@@ -410,7 +410,7 @@ todoch logs [app|web|db|worker]  # view logs
 | ✅ | **5 · Sync** | Gmail & Microsoft via OAuth (“Connect with …”), two-way sync with Google Calendar, Outlook and CalDAV (Nextcloud, iCloud & co.), subscription links without setup |
 | ✅ | **6 · Passkeys & two-factor** | Passkeys (Face ID / Touch ID / Windows Hello / security keys), two-factor with an authenticator app (TOTP), recovery codes |
 | ✅ | **7 · Groups** | Shared areas, roles, invitation links, assignments, comments |
-| 🚧 | **8 · Hardening** | ✅ Data export, account deletion · ⏳ restore tests, security review against OWASP ASVS L2 |
+| ✅ | **8 · Hardening** | Data export, account deletion, tested restore in CI, security review against OWASP ASVS L2 with all findings fixed |
 
 Every change ships as a new version (`0.0.1 → 0.0.2 → … → 0.0.9 → 0.1.0`) with a description in the
 [changelog](CHANGELOG.md) (German) and the [releases](https://github.com/MoinMornhart/Todoch/releases).

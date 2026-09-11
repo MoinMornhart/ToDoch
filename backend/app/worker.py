@@ -14,6 +14,7 @@ from app.config import load_settings
 from app.db import create_engine, create_sessionmaker
 from app.models import UserSession
 from app.security.crypto import Crypto
+from app.services.audit import forget_old_ips
 from app.services.calendar_sync import sync_due_connections
 from app.services.external_calendars import sync_due_calendars
 from app.services.mail import sync_due_accounts
@@ -31,6 +32,11 @@ async def cleanup_sessions(ctx: dict[str, Any]) -> int:
         await db.commit()
         await cleanup_reminder_log(db)
         return int(result.rowcount or 0)
+
+
+async def forget_audit_ips(ctx: dict[str, Any]) -> int:
+    async with ctx["sessionmaker"]() as db:
+        return await forget_old_ips(db)
 
 
 async def send_reminders(ctx: dict[str, Any]) -> int:
@@ -76,6 +82,8 @@ class WorkerSettings:
     ]
     cron_jobs: ClassVar[list[Any]] = [
         cron(cleanup_sessions, minute={17}, run_at_startup=True),
+        # Täglich: IP-Adressen aus Audit-Einträgen entfernen, die älter als 90 Tage sind
+        cron(forget_audit_ips, hour={3}, minute={41}),
         # Jede Minute: fällige Terminerinnerungen verschicken
         cron(send_reminders, second={0}, timeout=50),
         # Alle 5 Minuten: abonnierte Kalender abgleichen, deren Intervall abgelaufen ist

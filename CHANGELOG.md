@@ -4,6 +4,16 @@ Alle Änderungen an Todoch – die neueste Version steht oben.
 Versionsschema: `0.0.1 → 0.0.2 → … → 0.0.9 → 0.1.0 → … → 0.9.9 → 1.0.0`.
 Im Container spielt der Befehl `update` immer die neueste Version ein.
 
+## [0.3.6] – 2026-09-11
+
+IP-Adressen im Audit-Log nur 90 Tage – Meilenstein 8 abgeschlossen
+
+- Audit-Log bleibt nur anhängbar, aber die Datenbank erlaubt jetzt genau eine Änderung: IP-Adressen aus Einträgen, die älter als 90 Tage sind, zu entfernen
+- Täglicher Hintergrund-Job entfernt diese IPs; Ereignis, Zeitpunkt und pseudonyme Nutzer-ID bleiben
+- Tests prüfen, dass jede andere Änderung und jedes Löschen weiter abgewiesen wird
+- Sicherheitskonzept: Zusammenfassung der Prüfung nach OWASP ASVS L2 mit allen Funden, bewussten Abweichungen und nicht zutreffenden Punkten
+- Meilenstein 8 (Härtung) abgeschlossen: Datenexport, Kontolöschung, getestete Wiederherstellung, Security-Review
+
 ## [0.3.5] – 2026-09-11
 
 Offline-Speicher ohne Mails, Updates nur vom Tag, CA-Fingerabdruck (Sicherheitsprüfung, Teil 4)

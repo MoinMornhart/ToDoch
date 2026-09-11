@@ -157,6 +157,47 @@ Meilenstein 4, sobald verschlüsselte Zugangsdaten gespeichert werden). Danach k
 Schlüssel entfernt werden. Jedes Chiffrat enthält die Schlüssel-ID und ist per AAD an sein Feld
 gebunden (kein Umkopieren zwischen Datensätzen möglich).
 
+## Audit-Log: IP-Adressen nur 90 Tage (seit v0.3.6)
+
+Das Audit-Log ist weiter nur anhängbar – mit genau einer Ausnahme, die die Datenbank selbst prüft:
+Bei Einträgen, die älter als 90 Tage sind, darf die IP-Adresse entfernt werden, sonst nichts. Ein
+täglicher Job erledigt das. Ereignis, Zeitpunkt und pseudonyme Nutzer-ID bleiben, auch nach dem
+Löschen eines Kontos; eine übernommene App kann frische Einträge weiterhin nicht verändern.
+
+## Review nach OWASP ASVS 4.0.3 Level 2 (v0.3.1–v0.3.6)
+
+Der Code wurde Kapitel für Kapitel gegen ASVS L2 geprüft. Alle belegten Funde sind behoben:
+
+| Fund | ASVS | Behoben in |
+| --- | --- | --- |
+| DNS-Rebinding bei Kalender-Abos und CalDAV (SSRF) | V12.6.1, V5.2.6 | v0.3.2 |
+| 100.64.0.0/10 (CGNAT, NetBird, Tailscale) für Nicht-Admins erreichbar | V12.6.1 | v0.3.2 |
+| Client-IP über `X-Forwarded-For` fälschbar (Rate-Limits, Audit-Log) | V2.2.1, V7.1.4 | v0.3.3 |
+| Admins ändern ihr Passwort ohne das alte | V2.1.6, V3.7.1 | v0.3.4 |
+| Passkeys ohne erzwungene Gerätesperre, trotzdem als zweiter Faktor | V2.2 (AAL2) | v0.3.4 |
+| Falscher Code beim Kontolöschen nicht im Audit-Log | V7.1.3 | v0.3.4 |
+| Service Worker hielt Mails und Sitzungen offline vor | V8.2.1, V8.2.3 | v0.3.5 |
+| `update` fiel ohne Tag still auf `main` zurück | V10.3.2 | v0.3.5 |
+| CA-Zertifikat per HTTP ohne Vergleichsmöglichkeit | V9.1 | v0.3.5 |
+| IP-Adressen im Audit-Log ohne Löschfrist | V8.3.8 | v0.3.6 |
+
+**Bewusste Abweichung:** Sitzungen laufen nach 12 Stunden ohne Nutzung bzw. spätestens nach 7 Tagen
+ab (ASVS L2: 30 Minuten bzw. 12 Stunden). Für eine selbst gehostete To-do-App im eigenen Netz wiegt
+das tägliche Neuanmelden schwerer; beide Werte sind per `.env` einstellbar, jede Sitzung ist einzeln
+widerrufbar, und „Überall abmelden“ beendet alle.
+
+**Erfüllt** (Stichproben im Code): V1.1 Bedrohungsmodell · V2.1 Passwortregeln (≥ 12 Zeichen,
+Leak-Liste, keine Kompositionsregeln) · V2.4 Argon2id · V2.8 TOTP mit Replay-Schutz · V2.10 keine
+fest eingebauten Zugangsdaten · V3.2/V3.4 Sitzungs-Token und Cookies · V3.3 Abmelden, Widerruf ·
+V4.1/V4.2 zentrale Autorisierung, 404 für Fremdes, CSRF doppelt geprüft · V5.3 Ausgabe escaped,
+nur ORM-Abfragen · V5.5 defusedxml · V6.2/V6.4 AES-256-GCM, Schlüssel getrennt · V7.1.1 keine
+Geheimnisse in Logs · V8.3 Export und Löschen · V9 TLS und HSTS · V12.1 Größenlimits · V13.1
+OpenAPI im Betrieb aus · V14.4 Security-Header und CSP · V14.5 kein CORS · gehärtete Container.
+
+**Nicht zutreffend:** V2.5 Passwort-Reset per Mail (nur `todoch reset-password` in der Konsole) ·
+V3.5 JWT · V12.2–12.5 Datei-Uploads · V13.4 GraphQL · V4.3.1 Admin-Weboberfläche (Verwaltung nur in
+der Konsole).
+
 ## Gerät, Updates und Zertifikat (seit v0.3.5)
 
 - **Offline-Speicher im Browser:** Der Service Worker legt nur Aufgaben, Termine, Bereiche und den
@@ -223,7 +264,7 @@ unter `keys/` neben der Sicherung liegen.
 
 - Kürzere Sitzungs-Standardwerte, nachdem Passkeys und Zwei-Faktor verbreitet genutzt werden.
 - Upload-Prüfung per Magic Bytes, Anhänge außerhalb des Webroots (M3).
-- Review nach OWASP ASVS L2 (M8).
+- Signierte Releases, die der Container vor dem Update prüft.
 
 ## Datenexport und Kontolöschung (seit v0.3.0)
 

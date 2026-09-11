@@ -4,6 +4,14 @@ Alle Änderungen an Todoch – die neueste Version steht oben.
 Versionsschema: `0.0.1 → 0.0.2 → … → 0.0.9 → 0.1.0 → … → 0.9.9 → 1.0.0`.
 Im Container spielt der Befehl `update` immer die neueste Version ein.
 
+## [0.1.7] – 2026-09-11
+
+Eigene Webseite mit Doku
+
+- Neue Webseite auf GitHub Pages: https://moinmornhart.github.io/ToDoch/ – Startseite und Doku auf Deutsch und Englisch
+- Doku-Seiten: Installation, Kalender & Abos (inkl. Streamo × ToDoch), Sicherheit – Proxmox-Befehl zum Kopieren
+- Wird automatisch neu gebaut, sobald sich Seite oder Screenshots ändern; Link in beiden READMEs
+
 ## [0.1.6] – 2026-09-11
 
 „Vereinbarter Termin“ entfernt

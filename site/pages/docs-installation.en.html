@@ -1,0 +1,41 @@
+<!-- {"path":"en/docs/installation.html","lang":"en","alt":"docs/installation.html","title":"Installation – ToDoch","description":"Install ToDoch on Proxmox with one command, run it with Docker Compose, set up domain and HTTPS, update and back up."} -->
+<article class="doc">
+  <p class="crumbs"><a href="{{base}}en/">ToDoch</a> › <a href="{{base}}en/docs/">Docs</a> › Installation</p>
+  <h1>Installation</h1>
+
+  <h2>Proxmox – one command</h2>
+  <p>In the <b>Proxmox host shell</b> (as root):</p>
+  <div class="code"><code id="cmd">bash -c "$(curl -fsSL https://raw.githubusercontent.com/MoinMornhart/Todoch/main/ct/todoch.sh)"</code><button class="copy" data-copy="#cmd">Copy</button></div>
+  <p>The script asks for <b>Default</b> or <b>Advanced</b>, creates an unprivileged Debian 13 container (2 CPU · 2 GB RAM · 16 GB disk), installs Docker, generates all keys and starts ToDoch. At the end it prints the address and a <b>one-time setup link</b> for your account. The container's Proxmox console is accessible without a password.</p>
+  <p class="note">Unattended, e.g. via SSH: <code>var_ctid=108 var_hostname=todoch var_domain=todoch.example.com var_proxy=yes bash -c "$(curl …)"</code> – all variables are listed in the README.</p>
+
+  <h2>Updating</h2>
+  <p>Type <code>update</code> in the container console. ToDoch backs up the database first, builds the new version, checks it and rolls back to the old one automatically if anything goes wrong.</p>
+
+  <h2>Address and HTTPS</h2>
+  <p>Passkeys only work over HTTPS with a fixed hostname. Three modes, switchable with one command:</p>
+  <table>
+    <tr><th>Command</th><th>Fits when …</th><th>HTTPS is handled by …</th></tr>
+    <tr><td><code>todoch domain todoch.example.com --proxy</code></td><td>a reverse proxy sits in front (NetBird, Nginx Proxy Manager, Traefik)</td><td>the proxy – ToDoch speaks HTTP on port 80</td></tr>
+    <tr><td><code>todoch domain todoch.home.arpa</code></td><td>ToDoch only runs in your home network</td><td>ToDoch with its own CA</td></tr>
+    <tr><td><code>todoch domain todoch.example.com --acme</code></td><td>the domain points straight at the server</td><td>ToDoch with Let's Encrypt</td></tr>
+  </table>
+  <p class="note">Reverse proxy: use <code>http://&lt;container-IP&gt;:80</code> as the target – HTTP, not HTTPS. <code>todoch info</code> shows it at any time.</p>
+
+  <h2>Administration inside the container</h2>
+  <table>
+    <tr><td><code>todoch info</code></td><td>Address, mode, status of all services</td></tr>
+    <tr><td><code>todoch setup-code</code></td><td>Show the setup link again</td></tr>
+    <tr><td><code>todoch users</code></td><td>List users</td></tr>
+    <tr><td><code>todoch reset-password &lt;email&gt;</code></td><td>New random password</td></tr>
+    <tr><td><code>todoch backup</code> / <code>todoch restore &lt;file&gt;</code></td><td>Back up and restore the database</td></tr>
+    <tr><td><code>todoch logs [app|web|db|worker]</code></td><td>View logs</td></tr>
+  </table>
+  <p class="note">The keys for stored credentials are kept separately from the backup in <code>/var/backups/todoch/keys/</code>. Store both together in a safe place – no restore without the keys.</p>
+
+  <h2>Docker Compose without Proxmox</h2>
+  <div class="code"><code id="compose">git clone https://github.com/MoinMornhart/ToDoch.git && cd ToDoch
+cp .env.example deploy/.env && chmod 600 deploy/.env
+docker compose -f deploy/docker-compose.yml up -d --build</code><button class="copy" data-copy="#compose">Copy</button></div>
+  <p>Fill in <code>deploy/.env</code> (every variable is explained), then open <code>https://&lt;TODOCH_DOMAIN&gt;/setup#code=&lt;TODOCH_SETUP_TOKEN&gt;</code>. ToDoch refuses to start if keys are missing, too short or still contain placeholders.</p>
+</article>

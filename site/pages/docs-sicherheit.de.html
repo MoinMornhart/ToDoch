@@ -1,0 +1,30 @@
+<!-- {"path":"docs/sicherheit.html","lang":"de","alt":"en/docs/security.html","title":"Sicherheit – ToDoch","description":"Wie ToDoch Konten, Sitzungen und Daten schützt: Passkeys, Argon2id, CSP, CSRF- und SSRF-Schutz, Verschlüsselung, Audit-Log."} -->
+<article class="doc">
+  <p class="crumbs"><a href="{{base}}">ToDoch</a> › <a href="{{base}}docs/">Doku</a> › Sicherheit</p>
+  <h1>Sicherheit</h1>
+  <p>ToDoch folgt einem Grundsatz: <b>Sicherheit vor Komfort</b> – sichere Voreinstellungen, nichts Sicherheitsrelevantes zum Abschalten. Das vollständige Bedrohungsmodell steht in <a href="https://github.com/MoinMornhart/ToDoch/blob/main/docs/SECURITY.md">docs/SECURITY.md</a>.</p>
+
+  <h2>Anmeldung</h2>
+  <ul>
+    <li><b>Passkeys</b> (WebAuthn) mit Face ID, Touch ID, Windows Hello oder Sicherheitsschlüssel – ohne Benutzernamen, mit Einmal-Challenges, Prüfung von Herkunft und Domain und Erkennung geklonter Schlüssel.</li>
+    <li><b>Passwörter</b> mit Argon2id, mindestens 12 Zeichen, abgeglichen gegen eine Offline-Liste gestohlener Passwörter.</li>
+    <li>Sperre mit wachsender Wartezeit nach Fehlversuchen, Einrichtung nur mit Einmalcode.</li>
+  </ul>
+
+  <h2>Sitzungen</h2>
+  <p>Serverseitig gespeichert (nur als Hash), einzeln widerrufbar, mit Idle- und Absolut-Timeout. Die Geräteübersicht zeigt, ob per Passkey oder Passwort angemeldet wurde; „Überall abmelden“ beendet alle.</p>
+
+  <h2>Im Browser</h2>
+  <p>Strenge Content-Security-Policy ohne <code>unsafe-inline</code>, CSRF-Schutz nach dem Double-Submit-Verfahren mit Origin-Prüfung, HSTS, <code>X-Frame-Options</code>, <code>Referrer-Policy: no-referrer</code> und eine enge <code>Permissions-Policy</code>. Die Tests schlagen fehl, sobald der Browser einen CSP-Verstoß meldet.</p>
+
+  <h2>Daten</h2>
+  <ul>
+    <li>Zugangsdaten wie Abo-Adressen mit Token werden mit AES-256-GCM verschlüsselt gespeichert; Schlüssel lassen sich rotieren.</li>
+    <li>Eingebundene Kalender werden nur über geprüfte Adressen abgerufen: kein Loopback, keine Cloud-Metadaten, Heimnetz nur für Admins, auch nach Weiterleitungen (SSRF-Schutz).</li>
+    <li>Jedes Objekt gehört einem Bereich; fremde Objekte sind wie nicht vorhandene (404). Automatische Tests prüfen jede Route darauf.</li>
+    <li>Ein Audit-Log für Anmeldungen und sicherheitsrelevante Änderungen – per Datenbank-Trigger nur anhängbar.</li>
+  </ul>
+
+  <h2>Betrieb</h2>
+  <p>Container ohne Root-Rechte, schreibgeschützt, alle Capabilities entzogen; Datenbank und Redis ohne offene Ports in einem internen Netz. Keine Telemetrie, keine CDNs, keine Anfragen an fremde Dienste – außer den Kalendern, die du selbst einbindest, und den Push-Diensten der Browser.</p>
+</article>

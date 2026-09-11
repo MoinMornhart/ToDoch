@@ -4,7 +4,7 @@
 
 # ToDoch
 
-**Deutsch** · [English](README.en.md)
+**Deutsch** · [English](README.en.md) · 🌐 **[Webseite & Doku](https://moinmornhart.github.io/ToDoch/)**
 
 **Deine To-dos und Termine – auf deinem eigenen Server.**<br>
 Minimalistisch, schnell mit der Tastatur, sicher ab Werk. Keine Cloud, kein Tracking.

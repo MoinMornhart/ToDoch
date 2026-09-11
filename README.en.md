@@ -4,7 +4,7 @@
 
 # ToDoch
 
-[Deutsch](README.md) · **English**
+[Deutsch](README.md) · **English** · 🌐 **[Website & docs](https://moinmornhart.github.io/ToDoch/en/)**
 
 **Your to-dos and appointments – on your own server.**<br>
 Minimalist, fast from the keyboard, secure by default. No cloud, no tracking.

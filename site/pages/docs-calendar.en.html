@@ -1,0 +1,26 @@
+<!-- {"path":"en/docs/calendar.html","lang":"en","alt":"docs/kalender.html","title":"Calendar & subscriptions – ToDoch","description":"Subscribe to your ToDoch events in Apple, Google or Outlook, add Streamo and other ICS calendars, push reminders."} -->
+<article class="doc">
+  <p class="crumbs"><a href="{{base}}en/">ToDoch</a> › <a href="{{base}}en/docs/">Docs</a> › Calendar &amp; subscriptions</p>
+  <h1>Calendar &amp; subscriptions</h1>
+  <p>ToDoch has its own calendar with month, week, day and agenda. It works with other calendars in both directions: your events can be shown elsewhere, and other calendars – like Streamo – can be brought into ToDoch.</p>
+
+  <h2>Your events in Apple, Google or Outlook</h2>
+  <p>Under <b>Areas → Subscribe to calendar (ICS)</b> you create a secret link – for all areas or just one, with all details, titles only or just “busy”. One click opens it in Apple Calendar, Google Calendar or Outlook; every link can be revoked on its own.</p>
+  <p class="note">Google and Outlook.com fetch the calendar from the internet – ToDoch has to be publicly reachable for that, e.g. behind a reverse proxy.</p>
+
+  <h2>Streamo × ToDoch</h2>
+  <p><a href="https://github.com/MoinMornhart/Streamo">Streamo</a> provides a calendar with everything you have planned: films (with time and running time), watch plans, new episodes and titles about to leave a subscription.</p>
+  <ol class="steps">
+    <li>In Streamo, open the <b>Calendar</b> tab and copy the subscription address (<code>http://&lt;streamo&gt;:3000/api/public/calendar/…ics</code>).</li>
+    <li>Optionally create an area called “Streamo” in ToDoch – the form then picks it automatically.</li>
+    <li>Under <b>Areas → Add calendars</b>, enter a name and the address, choose how often to sync (15 minutes to daily) and click <b>Add</b>.</li>
+  </ol>
+  <p>From then on ToDoch syncs in the background, and instantly at the push of a button: new events are added, changed ones updated, removed ones deleted. These events are read-only in ToDoch – you change them in Streamo.</p>
+  <p class="note">Streamo usually runs in your home network. Only an <b>admin</b> can add such addresses. If the copied address contains <code>localhost</code>, replace it with the Streamo container's IP – otherwise ToDoch can't reach it.</p>
+
+  <h2>Adding other calendars</h2>
+  <p>Any ICS address (<code>https://</code>, <code>http://</code> or <code>webcal://</code>) works the same way – public holidays, school holidays, a work calendar. Recurrences and exceptions are imported; times without a time zone use the time zone of your profile.</p>
+
+  <h2>Reminders</h2>
+  <p>Enable <b>Settings → Reminders as notifications</b> on each device. ToDoch then notifies you before events via push, even when the app is closed – on iPhone after “Add to Home Screen”. The server generates the required keys itself.</p>
+</article>

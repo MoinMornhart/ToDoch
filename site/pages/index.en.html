@@ -1,0 +1,78 @@
+<!-- {"path":"en/index.html","lang":"en","alt":"index.html","title":"ToDoch – to-dos and appointments on your own server","description":"Self-hosted to-do and calendar app: quick add, calendar with recurring events, passkeys, Streamo integration, German and English – one command on Proxmox."} -->
+<section class="hero">
+  <img class="logo" src="{{base}}icon.svg" alt="" width="96" height="96">
+  <h1>Your to-dos and appointments.<br><span class="grad">On your own server.</span></h1>
+  <p class="lead">Minimalist, fast from the keyboard, secure by default. Tasks, calendar and reminders in one app that runs on your Proxmox – no cloud, no tracking.</p>
+  <div class="cta">
+    <a class="btn primary" href="#install">Install on Proxmox</a>
+    <a class="btn" href="{{base}}en/docs/">Read the docs</a>
+    <a class="btn" href="https://github.com/MoinMornhart/ToDoch">View on GitHub</a>
+  </div>
+  <figure class="shot"><img src="{{base}}{{shots}}uebersicht.png" alt="The overview: due today, overdue, next events and areas" width="1280" height="800"></figure>
+</section>
+
+<section id="install" class="card">
+  <h2>Installed in a few minutes</h2>
+  <p>Run it on the Proxmox VE host – in the style of the community scripts: it creates a Debian container, installs Docker, generates all keys and shows you the setup link at the end.</p>
+  <div class="code"><code id="cmd">bash -c "$(curl -fsSL https://raw.githubusercontent.com/MoinMornhart/Todoch/main/ct/todoch.sh)"</code><button class="copy" data-copy="#cmd">Copy</button></div>
+  <p class="small">Updating? Just type <code>update</code> inside the container – with a backup first and automatic rollback. Without Proxmox it works with Docker Compose. <a href="{{base}}en/docs/installation.html">Installation guide →</a></p>
+</section>
+
+<section id="features">
+  <h2 class="center">What's inside</h2>
+  <div class="grid">
+    <article class="feature"><span>🏠</span><h3>Overview</h3><p>Everything at a glance when you open it: due today, overdue, next events, what's coming up and how much is open in each area.</p></article>
+    <article class="feature"><span>⚡</span><h3>Quick add</h3><p>Type one line and ToDoch detects date, time, priority, tags, area and recurrence. Tags (#), areas (@) and ISO dates work in any language.</p></article>
+    <article class="feature"><span>📝</span><h3>Tasks as tickets</h3><p>A complete form with checklist, Markdown notes, priority, tags and recurrence – daily, on weekdays, monthly, yearly.</p></article>
+    <article class="feature"><span>🗓️</span><h3>Calendar</h3><p>Month, week, day and agenda, drag &amp; drop, series with “only this / following / all”, fixed appointments and overlap warnings.</p></article>
+    <article class="feature"><span>🗂️</span><h3>Areas</h3><p>Work, Private and your own areas with colour and icon. Each area has its own calendar days and hours – e.g. work only Mon–Fri, 8–18.</p></article>
+    <article class="feature"><span>🍿</span><h3>Streamo × ToDoch</h3><p>Planned films, watch plans and new episodes from Streamo show up in your calendar automatically – and so does any other ICS calendar.</p></article>
+    <article class="feature"><span>📡</span><h3>ICS subscriptions</h3><p>Secret links for Apple, Google and Outlook – for all areas or one, with all details, titles only or just “busy”.</p></article>
+    <article class="feature"><span>🔔</span><h3>Reminders</h3><p>Web push on phone and desktop, even when the app is closed. The server generates the keys itself.</p></article>
+    <article class="feature"><span>🔑</span><h3>Passkeys</h3><p>Sign in with Face ID, Touch ID, Windows Hello or a security key – no username, no password.</p></article>
+    <article class="feature"><span>⌨️</span><h3>Keyboard first</h3><p><code>n</code> new task, <code>c</code> new event, <code>/</code> search, <code>j</code>/<code>k</code> navigate, <code>x</code> done, <code>?</code> all shortcuts.</p></article>
+    <article class="feature"><span>🌙</span><h3>Light &amp; dark, EN &amp; DE</h3><p>Dark mode with one click or following your system, English and German – switchable on the sign-in page, server messages included.</p></article>
+    <article class="feature"><span>📱</span><h3>Everywhere</h3><p>Installable as an app (PWA) on phone and desktop, with a ➕ button and a read-only view when you're offline.</p></article>
+  </div>
+</section>
+
+<section>
+  <h2 class="center">What it looks like</h2>
+  <figure class="big"><img src="{{base}}{{shots}}kalender-woche.png" alt="Calendar week view" loading="lazy" width="1280" height="800"><figcaption>Calendar – week</figcaption></figure>
+  <div class="grid two">
+    <figure><img src="{{base}}{{shots}}heute.png" alt="Today view" loading="lazy"><figcaption>Today</figcaption></figure>
+    <figure><img src="{{base}}{{shots}}ticket.png" alt="Create a task as a ticket" loading="lazy"><figcaption>Task as a ticket</figcaption></figure>
+    <figure><img src="{{base}}{{shots}}kalender-monat.png" alt="Calendar month view" loading="lazy"><figcaption>Calendar – month</figcaption></figure>
+    <figure><img src="{{base}}{{shots}}uebersicht-dunkel.png" alt="Overview in dark mode" loading="lazy"><figcaption>Dark mode</figcaption></figure>
+  </div>
+  <div class="phones">
+    <figure><img src="{{base}}{{shots}}mobil.png" alt="ToDoch on a phone" loading="lazy"><figcaption>On the phone</figcaption></figure>
+    <figure><img src="{{base}}{{shots}}mobil-demnaechst.png" alt="Upcoming on a phone" loading="lazy"><figcaption>Upcoming</figcaption></figure>
+  </div>
+</section>
+
+<section class="card">
+  <h2>🍿 Streamo × ToDoch</h2>
+  <p><a href="https://github.com/MoinMornhart/Streamo">Streamo</a> knows which films you plan to watch, when new episodes air and what is about to leave your subscriptions – ToDoch brings all of that into your calendar automatically.</p>
+  <ol class="steps">
+    <li><b>In Streamo</b>, copy the subscription address under <i>Calendar</i>.</li>
+    <li><b>In ToDoch</b>, paste it under <i>Areas → Add calendars</i> and pick an area, e.g. “Streamo”.</li>
+    <li><b>Done</b> – ToDoch syncs in the background. Plan a film for Saturday 8:15 pm and it shows up in your calendar shortly after, with its running time.</li>
+  </ol>
+  <a class="btn" href="{{base}}en/docs/calendar.html">Set up calendars &amp; subscriptions →</a>
+</section>
+
+<section class="card">
+  <h2>🔒 Secure by default</h2>
+  <p>Passkeys, Argon2id passwords checked against leak lists, server-side sessions, a strict Content Security Policy without <code>unsafe-inline</code>, CSRF and SSRF protection, encrypted credentials, an audit log that cannot be altered afterwards and non-root containers. Your data stays on your server.</p>
+  <a class="btn" href="{{base}}en/docs/security.html">Security in detail →</a>
+</section>
+
+<section>
+  <h2 class="center">Docs</h2>
+  <div class="grid docgrid">
+    <a class="feature" href="{{base}}en/docs/installation.html"><span>🚀</span><h3>Installation</h3><p>Proxmox, Docker Compose, domain &amp; HTTPS, updates, backups.</p></a>
+    <a class="feature" href="{{base}}en/docs/calendar.html"><span>🗓️</span><h3>Calendar &amp; subscriptions</h3><p>ICS links, adding Streamo and other calendars, reminders.</p></a>
+    <a class="feature" href="{{base}}en/docs/security.html"><span>🔐</span><h3>Security</h3><p>Passkeys, sessions, protections, what is stored.</p></a>
+  </div>
+</section>

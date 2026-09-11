@@ -1,0 +1,26 @@
+<!-- {"path":"docs/kalender.html","lang":"de","alt":"en/docs/calendar.html","title":"Kalender & Abos – ToDoch","description":"ToDoch-Termine in Apple, Google oder Outlook abonnieren, Streamo und andere ICS-Kalender einbinden, Erinnerungen per Push."} -->
+<article class="doc">
+  <p class="crumbs"><a href="{{base}}">ToDoch</a> › <a href="{{base}}docs/">Doku</a> › Kalender &amp; Abos</p>
+  <h1>Kalender &amp; Abos</h1>
+  <p>ToDoch hat einen eigenen Kalender mit Monat, Woche, Tag und Agenda. Er arbeitet in beide Richtungen mit anderen Kalendern zusammen: Deine Termine lassen sich woanders anzeigen, und fremde Kalender – wie Streamo – lassen sich in ToDoch einbinden.</p>
+
+  <h2>Eigene Termine in Apple, Google oder Outlook</h2>
+  <p>Unter <b>Bereiche → Kalender abonnieren (ICS)</b> erzeugst du einen geheimen Link – für alle Bereiche oder nur einen, mit allen Details, nur Titeln oder nur „Belegt“. Ein Klick öffnet ihn in Apple Kalender, Google Kalender oder Outlook; jeder Link lässt sich einzeln widerrufen.</p>
+  <p class="note">Google und Outlook.com holen den Kalender aus dem Internet – dafür muss ToDoch öffentlich erreichbar sein, z. B. hinter einem Reverse-Proxy.</p>
+
+  <h2>Streamo × ToDoch</h2>
+  <p><a href="https://github.com/MoinMornhart/Streamo">Streamo</a> liefert einen Kalender mit allem, was du dir vorgenommen hast: geplante Filme (mit Uhrzeit und Laufzeit), Sehpläne, neue Folgen und Titel, die bald aus einem Abo verschwinden.</p>
+  <ol class="steps">
+    <li>In Streamo den Reiter <b>Kalender</b> öffnen und die Abo-Adresse kopieren (<code>http://&lt;streamo&gt;:3000/api/public/calendar/…ics</code>).</li>
+    <li>In ToDoch optional einen Bereich „Streamo“ anlegen – das Formular wählt ihn dann von selbst.</li>
+    <li>Unter <b>Bereiche → Kalender einbinden</b> Name und Adresse eintragen, Abgleich wählen (15 Minuten bis täglich) und <b>Einbinden</b> klicken.</li>
+  </ol>
+  <p>Ab dann gleicht ToDoch im Hintergrund ab und auf Knopfdruck sofort: Neue Termine kommen dazu, geänderte werden aktualisiert, entfallene gelöscht. In ToDoch sind diese Termine nur lesbar – geändert wird in Streamo.</p>
+  <p class="note">Streamo läuft meist im Heimnetz. Solche Adressen darf nur ein <b>Admin</b> eintragen. Steht in der kopierten Adresse <code>localhost</code>, durch die IP des Streamo-Containers ersetzen – sonst erreicht ToDoch sie nicht.</p>
+
+  <h2>Andere Kalender einbinden</h2>
+  <p>Genauso funktioniert jede ICS-Adresse (<code>https://</code>, <code>http://</code> oder <code>webcal://</code>) – Feiertage, Schulferien, ein Arbeitskalender. Wiederholungen und Ausnahmen werden übernommen; Uhrzeiten ohne Zeitzone gelten in der Zeitzone deines Profils.</p>
+
+  <h2>Erinnerungen</h2>
+  <p>Unter <b>Einstellungen → Erinnerungen als Benachrichtigung</b> für jedes Gerät einschalten. ToDoch meldet sich dann vor Terminen per Push, auch wenn die App geschlossen ist – auf dem iPhone nach „Zum Home-Bildschirm“. Die nötigen Schlüssel erzeugt der Server selbst.</p>
+</article>

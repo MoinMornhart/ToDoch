@@ -1,0 +1,78 @@
+<!-- {"path":"index.html","lang":"de","alt":"en/index.html","title":"ToDoch – To-dos und Termine auf deinem eigenen Server","description":"Selbst gehostete To-do- und Kalender-App: Schnellerfassung, Kalender mit Serien, Passkeys, Streamo-Anbindung, Deutsch und Englisch – mit einem Befehl auf Proxmox."} -->
+<section class="hero">
+  <img class="logo" src="{{base}}icon.svg" alt="" width="96" height="96">
+  <h1>Deine To-dos und Termine.<br><span class="grad">Auf deinem eigenen Server.</span></h1>
+  <p class="lead">Minimalistisch, schnell mit der Tastatur, sicher ab Werk. Aufgaben, Kalender und Erinnerungen in einer App, die auf deinem Proxmox läuft – keine Cloud, kein Tracking.</p>
+  <div class="cta">
+    <a class="btn primary" href="#install">Auf Proxmox installieren</a>
+    <a class="btn" href="{{base}}docs/">Doku lesen</a>
+    <a class="btn" href="https://github.com/MoinMornhart/ToDoch">Auf GitHub ansehen</a>
+  </div>
+  <figure class="shot"><img src="{{base}}{{shots}}uebersicht.png" alt="Die Übersicht: heute fällig, überfällig, nächste Termine und Bereiche" width="1280" height="800"></figure>
+</section>
+
+<section id="install" class="card">
+  <h2>In ein paar Minuten installiert</h2>
+  <p>Auf dem Proxmox-VE-Host ausführen – im Stil der Community-Scripts: Das Skript legt einen Debian-Container an, installiert Docker, erzeugt alle Schlüssel und zeigt dir am Ende den Einrichtungslink.</p>
+  <div class="code"><code id="cmd">bash -c "$(curl -fsSL https://raw.githubusercontent.com/MoinMornhart/Todoch/main/ct/todoch.sh)"</code><button class="copy" data-copy="#cmd">Kopieren</button></div>
+  <p class="small">Aktualisieren? Im Container einfach <code>update</code> eingeben – mit Sicherung vorher und automatischem Rückfall. Ohne Proxmox geht es per Docker Compose. <a href="{{base}}docs/installation.html">Zur Installationsanleitung →</a></p>
+</section>
+
+<section id="features">
+  <h2 class="center">Was drin ist</h2>
+  <div class="grid">
+    <article class="feature"><span>🏠</span><h3>Übersicht</h3><p>Nach dem Öffnen alles auf einen Blick: heute fällig, überfällig, nächste Termine, was demnächst ansteht und wie viel in jedem Bereich offen ist.</p></article>
+    <article class="feature"><span>⚡</span><h3>Schnellerfassung</h3><p>Eine Zeile tippen – „Rechnung zahlen morgen 14:00 !hoch #finanzen @arbeit“ – ToDoch erkennt Datum, Uhrzeit, Priorität, Tags, Bereich und Wiederholung.</p></article>
+    <article class="feature"><span>📝</span><h3>Aufgaben als Ticket</h3><p>Vollständiges Formular mit Unterpunkten, Markdown-Notizen, Priorität, Tags und Wiederholungen – täglich, an Wochentagen, monatlich, jährlich.</p></article>
+    <article class="feature"><span>🗓️</span><h3>Kalender</h3><p>Monat, Woche, Tag und Agenda, Drag &amp; Drop, Serien mit „nur dieser / folgende / alle“, feste Termine und Warnung bei Überschneidungen.</p></article>
+    <article class="feature"><span>🗂️</span><h3>Bereiche</h3><p>Arbeit, Privat und eigene Bereiche mit Farbe und Symbol. Pro Bereich eigene Kalendertage und -stunden – z. B. Arbeit nur Mo–Fr, 8–18 Uhr.</p></article>
+    <article class="feature"><span>🍿</span><h3>Streamo × ToDoch</h3><p>Geplante Filme, Sehpläne und neue Folgen aus Streamo landen automatisch im Kalender – genauso jeder andere ICS-Kalender.</p></article>
+    <article class="feature"><span>📡</span><h3>ICS-Abos</h3><p>Geheime Links für Apple, Google und Outlook – für alle Bereiche oder einen, mit allen Details, nur Titeln oder nur „Belegt“.</p></article>
+    <article class="feature"><span>🔔</span><h3>Erinnerungen</h3><p>Web-Push auf Handy und Desktop, auch wenn die App geschlossen ist. Die Schlüssel erzeugt der Server selbst.</p></article>
+    <article class="feature"><span>🔑</span><h3>Passkeys</h3><p>Anmelden mit Face ID, Touch ID, Windows Hello oder Sicherheitsschlüssel – ohne Benutzernamen und Passwort.</p></article>
+    <article class="feature"><span>⌨️</span><h3>Tastatur zuerst</h3><p><code>n</code> neue Aufgabe, <code>c</code> neuer Termin, <code>/</code> Suche, <code>j</code>/<code>k</code> navigieren, <code>x</code> erledigt, <code>?</code> alle Kürzel.</p></article>
+    <article class="feature"><span>🌙</span><h3>Hell &amp; dunkel, DE &amp; EN</h3><p>Dunkelmodus per Klick oder nach System, Deutsch und Englisch – schon auf der Anmeldeseite umschaltbar, samt Fehlermeldungen des Servers.</p></article>
+    <article class="feature"><span>📱</span><h3>Überall</h3><p>Installierbar als App (PWA) auf Handy und Desktop, mit ➕-Knopf und Leseansicht, wenn das Netz weg ist.</p></article>
+  </div>
+</section>
+
+<section>
+  <h2 class="center">So sieht es aus</h2>
+  <figure class="big"><img src="{{base}}{{shots}}kalender-woche.png" alt="Kalender in der Wochenansicht" loading="lazy" width="1280" height="800"><figcaption>Kalender – Woche</figcaption></figure>
+  <div class="grid two">
+    <figure><img src="{{base}}{{shots}}heute.png" alt="Ansicht Heute" loading="lazy"><figcaption>Heute</figcaption></figure>
+    <figure><img src="{{base}}{{shots}}ticket.png" alt="Aufgabe als Ticket anlegen" loading="lazy"><figcaption>Aufgabe als Ticket</figcaption></figure>
+    <figure><img src="{{base}}{{shots}}kalender-monat.png" alt="Kalender in der Monatsansicht" loading="lazy"><figcaption>Kalender – Monat</figcaption></figure>
+    <figure><img src="{{base}}{{shots}}uebersicht-dunkel.png" alt="Übersicht im Dunkelmodus" loading="lazy"><figcaption>Dunkelmodus</figcaption></figure>
+  </div>
+  <div class="phones">
+    <figure><img src="{{base}}{{shots}}mobil.png" alt="ToDoch auf dem Handy" loading="lazy"><figcaption>Auf dem Handy</figcaption></figure>
+    <figure><img src="{{base}}{{shots}}mobil-demnaechst.png" alt="Demnächst auf dem Handy" loading="lazy"><figcaption>Demnächst</figcaption></figure>
+  </div>
+</section>
+
+<section class="card">
+  <h2>🍿 Streamo × ToDoch</h2>
+  <p><a href="https://github.com/MoinMornhart/Streamo">Streamo</a> weiß, welche Filme du dir vorgenommen hast, wann neue Folgen erscheinen und was bald aus deinem Abo verschwindet – ToDoch holt das automatisch in deinen Kalender.</p>
+  <ol class="steps">
+    <li><b>In Streamo</b> unter <i>Kalender</i> die Abo-Adresse kopieren.</li>
+    <li><b>In ToDoch</b> unter <i>Bereiche → Kalender einbinden</i> einfügen und einen Bereich wählen, z. B. „Streamo“.</li>
+    <li><b>Fertig</b> – ToDoch gleicht im Hintergrund ab. Plant du einen Film für Samstag 20:15, steht er kurz darauf im Kalender, mit Laufzeit.</li>
+  </ol>
+  <a class="btn" href="{{base}}docs/kalender.html">Kalender &amp; Abos einrichten →</a>
+</section>
+
+<section class="card">
+  <h2>🔒 Sicher ab Werk</h2>
+  <p>Passkeys, Argon2id-Passwörter mit Leak-Abgleich, serverseitige Sitzungen, strenge Content-Security-Policy ohne <code>unsafe-inline</code>, CSRF- und SSRF-Schutz, verschlüsselte Zugangsdaten, ein Audit-Log, das sich nicht nachträglich ändern lässt, und Container ohne Root-Rechte. Deine Daten bleiben auf deinem Server.</p>
+  <a class="btn" href="{{base}}docs/sicherheit.html">Sicherheit im Detail →</a>
+</section>
+
+<section>
+  <h2 class="center">Doku</h2>
+  <div class="grid docgrid">
+    <a class="feature" href="{{base}}docs/installation.html"><span>🚀</span><h3>Installation</h3><p>Proxmox, Docker Compose, Domain &amp; HTTPS, Updates, Sicherung.</p></a>
+    <a class="feature" href="{{base}}docs/kalender.html"><span>🗓️</span><h3>Kalender &amp; Abos</h3><p>ICS-Links, Streamo und andere Kalender einbinden, Erinnerungen.</p></a>
+    <a class="feature" href="{{base}}docs/sicherheit.html"><span>🔐</span><h3>Sicherheit</h3><p>Passkeys, Sitzungen, Schutzmaßnahmen, was gespeichert wird.</p></a>
+  </div>
+</section>

@@ -1,0 +1,30 @@
+<!-- {"path":"en/docs/security.html","lang":"en","alt":"docs/sicherheit.html","title":"Security – ToDoch","description":"How ToDoch protects accounts, sessions and data: passkeys, Argon2id, CSP, CSRF and SSRF protection, encryption, audit log."} -->
+<article class="doc">
+  <p class="crumbs"><a href="{{base}}en/">ToDoch</a> › <a href="{{base}}en/docs/">Docs</a> › Security</p>
+  <h1>Security</h1>
+  <p>ToDoch follows one principle: <b>security before convenience</b> – secure defaults, nothing security-relevant can be switched off. The full threat model is in <a href="https://github.com/MoinMornhart/ToDoch/blob/main/docs/SECURITY.md">docs/SECURITY.md</a> (German).</p>
+
+  <h2>Sign-in</h2>
+  <ul>
+    <li><b>Passkeys</b> (WebAuthn) with Face ID, Touch ID, Windows Hello or a security key – without a username, with one-time challenges, origin and domain checks and detection of cloned keys.</li>
+    <li><b>Passwords</b> with Argon2id, at least 12 characters, checked against an offline list of stolen passwords.</li>
+    <li>Lockout with increasing delay after failed attempts, setup only with a one-time code.</li>
+  </ul>
+
+  <h2>Sessions</h2>
+  <p>Stored server-side (as a hash only), individually revocable, with idle and absolute timeouts. The device overview shows whether you signed in with a passkey or a password; “Sign out everywhere” ends them all.</p>
+
+  <h2>In the browser</h2>
+  <p>A strict Content Security Policy without <code>unsafe-inline</code>, double-submit CSRF protection with origin checks, HSTS, <code>X-Frame-Options</code>, <code>Referrer-Policy: no-referrer</code> and a tight <code>Permissions-Policy</code>. The tests fail as soon as the browser reports a CSP violation.</p>
+
+  <h2>Data</h2>
+  <ul>
+    <li>Credentials such as subscription addresses with tokens are stored encrypted with AES-256-GCM; keys can be rotated.</li>
+    <li>Added calendars are only fetched from checked addresses: no loopback, no cloud metadata, home network for admins only, even after redirects (SSRF protection).</li>
+    <li>Every object belongs to an area; other people's objects behave as if they didn't exist (404). Automated tests check every route for this.</li>
+    <li>An audit log for sign-ins and security-relevant changes – append-only, enforced by database triggers.</li>
+  </ul>
+
+  <h2>Operations</h2>
+  <p>Non-root, read-only containers with all capabilities dropped; database and Redis without open ports in an internal network. No telemetry, no CDNs, no requests to third parties – except the calendars you add yourself and the browsers' push services.</p>
+</article>

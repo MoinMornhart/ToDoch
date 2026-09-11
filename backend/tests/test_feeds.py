@@ -58,7 +58,7 @@ async def test_feed_contains_events_series_and_exceptions(
     text = r.text.replace("\r\n ", "")
     for expected in (
         "BEGIN:VCALENDAR",
-        "X-WR-CALNAME:Todoch",
+        "X-WR-CALNAME:ToDoch",
         "SUMMARY:Jour fixe",
         "RRULE:FREQ=WEEKLY",
         "EXDATE;TZID=Europe/Berlin",
@@ -99,7 +99,7 @@ async def test_area_feed_with_busy_details(
     assert "SUMMARY:Belegt" in text
     assert "Kunde Berger" not in text and "Büro" not in text
     assert "Privat-Termin" not in text
-    assert "X-WR-CALNAME:Todoch – Arbeit" in text
+    assert "X-WR-CALNAME:ToDoch – Arbeit" in text
 
 
 async def test_title_only_hides_details(alice: AsyncClient, client_factory: ClientFactory) -> None:

@@ -18,6 +18,7 @@ from starlette.datastructures import Headers, MutableHeaders
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
 from app.config import Settings
+from app.i18n import language_from, translate
 
 SESSION_COOKIE = "__Host-todoch_session"
 CSRF_COOKIE = "__Host-todoch_csrf"
@@ -87,10 +88,11 @@ class SecurityMiddleware:
         method: str = scope["method"]
         is_api = path.startswith("/api/")
         limit = self.settings.max_body_bytes
+        language = language_from(request_headers.get("accept-language"))
 
         length = request_headers.get("content-length")
         if length is not None and (not length.isdigit() or int(length) > limit):
-            await self._reject(send, 413, "Die Anfrage ist zu groß.")
+            await self._reject(send, 413, translate("Die Anfrage ist zu groß.", language))
             return
 
         cookies = parse_cookies(request_headers.get("cookie"))
@@ -98,13 +100,13 @@ class SecurityMiddleware:
 
         if is_api and method not in SAFE_METHODS and not path.startswith(self.exempt):
             if not self._origin_allowed(request_headers):
-                await self._reject(send, 403, "Die Herkunft der Anfrage ist nicht erlaubt.")
+                message = "Die Herkunft der Anfrage ist nicht erlaubt."
+                await self._reject(send, 403, translate(message, language))
                 return
             token = request_headers.get(CSRF_HEADER, "")
             if not csrf_cookie or not token or not compare_digest(csrf_cookie, token):
-                await self._reject(
-                    send, 403, "CSRF-Prüfung fehlgeschlagen. Bitte die Seite neu laden."
-                )
+                message = "CSRF-Prüfung fehlgeschlagen. Bitte die Seite neu laden."
+                await self._reject(send, 403, translate(message, language))
                 return
 
         new_csrf = secrets.token_urlsafe(32) if is_api and not csrf_cookie else None

@@ -47,7 +47,7 @@ sw.addEventListener('push', (event) => {
 		data = { body: event.data?.text() };
 	}
 	event.waitUntil(
-		sw.registration.showNotification(data.title ?? 'Todoch', {
+		sw.registration.showNotification(data.title ?? 'ToDoch', {
 			body: data.body,
 			tag: data.tag,
 			icon: '/icon-192.png',

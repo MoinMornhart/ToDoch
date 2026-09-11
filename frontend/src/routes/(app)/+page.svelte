@@ -87,7 +87,7 @@
 	}
 </script>
 
-<svelte:head><title>{t('nav.dashboard')} · Todoch</title></svelte:head>
+<svelte:head><title>{t('nav.dashboard')} · ToDoch</title></svelte:head>
 
 <header class="mb-6">
 	<p class="text-sm text-muted">{formatLongDate(today, i18n.locale)}</p>

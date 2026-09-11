@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Todoch – Installation im LXC-Container (wird von ct/todoch.sh aufgerufen).
-# Richtet Docker ein, erzeugt alle Geheimnisse, baut und startet Todoch.
+# ToDoch – Installation im LXC-Container (wird von ct/todoch.sh aufgerufen).
+# Richtet Docker ein, erzeugt alle Geheimnisse, baut und startet ToDoch.
 # Copyright (c) 2026 MoinMornhart | Lizenz: MIT | https://github.com/MoinMornhart/Todoch
 
 set -Eeuo pipefail
@@ -54,7 +54,7 @@ systemctl restart docker
 silent docker info
 msg_ok "Docker $(docker version --format '{{.Server.Version}}') installiert"
 
-msg_info "Lade Todoch"
+msg_info "Lade ToDoch"
 VERSION=$(latest_version || true)
 if [[ -z "$VERSION" ]]; then
   msg_error "Die neueste Version konnte nicht ermittelt werden."
@@ -62,7 +62,7 @@ if [[ -z "$VERSION" ]]; then
 fi
 download_release "$VERSION" "${TODOCH_RELEASES}/${VERSION}"
 ln -sfn "${TODOCH_RELEASES}/${VERSION}" "$TODOCH_HOME"
-msg_ok "Todoch v${VERSION} geladen"
+msg_ok "ToDoch v${VERSION} geladen"
 
 msg_info "Erzeuge Konfiguration und Schlüssel"
 domain="${DOMAIN:-}"
@@ -75,7 +75,7 @@ mode="${mode:-internal}"
 (
   umask 077
   cat >"$TODOCH_ENV" <<EOF
-# Todoch – Konfiguration (erzeugt bei der Installation am $(date +%F)).
+# ToDoch – Konfiguration (erzeugt bei der Installation am $(date +%F)).
 # Ändern am besten mit „todoch domain …“ / „todoch port …“, danach wird automatisch neu gestartet.
 # ACHTUNG: Enthält die Schlüssel für gespeicherte Zugangsdaten – getrennt sichern!
 
@@ -100,18 +100,18 @@ EOF
 )
 msg_ok "Konfiguration unter ${TODOCH_ENV} (nur root lesbar)"
 
-msg_info "Baue Todoch – das dauert beim ersten Mal ein paar Minuten"
+msg_info "Baue ToDoch – das dauert beim ersten Mal ein paar Minuten"
 silent todoch_compose build --pull
-msg_ok "Todoch gebaut"
+msg_ok "ToDoch gebaut"
 
-msg_info "Starte Todoch"
+msg_info "Starte ToDoch"
 silent todoch_compose up -d
 if ! wait_healthy; then
-  msg_error "Todoch startet nicht – letzte Meldungen:"
+  msg_error "ToDoch startet nicht – letzte Meldungen:"
   todoch_compose logs --tail 60 || true
   exit 1
 fi
-msg_ok "Todoch läuft"
+msg_ok "ToDoch läuft"
 
 msg_info "Richte Konsole und Befehle ein"
 write_helpers

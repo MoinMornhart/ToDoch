@@ -3,6 +3,8 @@
  * Cookie im Header mit (Double-Submit) und wandelt Fehler in `ApiError` um.
  */
 
+import { i18n, t } from '$lib/i18n/index.svelte';
+
 export const CSRF_COOKIE = '__Host-todoch_csrf';
 
 export class ApiError extends Error {
@@ -42,9 +44,9 @@ export function errorMessage(data: unknown, status: number): string {
 			if (typeof first.msg === 'string') return first.msg.replace(/^Value error, /, '');
 		}
 	}
-	if (status === 429) return 'Zu viele Versuche. Bitte später erneut versuchen.';
-	if (status >= 500) return 'Der Server hat einen Fehler gemeldet. Bitte später erneut versuchen.';
-	return `Fehler ${status}`;
+	if (status === 429) return t('error.tooMany');
+	if (status >= 500) return t('error.server');
+	return t('error.status', { status });
 }
 
 let unauthorizedHandler: (() => void) | null = null;
@@ -64,7 +66,11 @@ export function buildUrl(path: string, query: Record<string, QueryValue> = {}, b
 
 export async function api<T>(path: string, options: RequestOptions = {}): Promise<T> {
 	const method = options.method ?? 'GET';
-	const headers: Record<string, string> = { Accept: 'application/json' };
+	// Fehlermeldungen des Servers kommen in der gewählten Sprache
+	const headers: Record<string, string> = {
+		Accept: 'application/json',
+		'Accept-Language': i18n.locale
+	};
 	if (options.body !== undefined) headers['Content-Type'] = 'application/json';
 	if (method !== 'GET') {
 		const token = readCookie(CSRF_COOKIE, globalThis.document?.cookie ?? '');
@@ -82,7 +88,7 @@ export async function api<T>(path: string, options: RequestOptions = {}): Promis
 		});
 	} catch (error) {
 		if (error instanceof DOMException && error.name === 'AbortError') throw error;
-		throw new ApiError(0, 'Keine Verbindung zum Server.');
+		throw new ApiError(0, t('error.offline'));
 	}
 
 	if (response.status === 204) return undefined as T;

@@ -22,7 +22,7 @@ describe('WebAuthn-Umwandlung', () => {
 	it('wandelt Registrierungs-Optionen um', () => {
 		const options = toCreationOptions({
 			challenge: 'AQID',
-			rp: { id: 'todoch.example', name: 'Todoch' },
+			rp: { id: 'todoch.example', name: 'ToDoch' },
 			user: { id: 'BAU', name: 'anna@example.org', displayName: 'Anna' },
 			pubKeyCredParams: [{ type: 'public-key', alg: -7 }],
 			excludeCredentials: [{ id: 'CQ', type: 'public-key', transports: ['internal'] }],

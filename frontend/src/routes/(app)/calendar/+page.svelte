@@ -121,7 +121,7 @@
 </script>
 
 <svelte:window onkeydown={onKeydown} />
-<svelte:head><title>{t('nav.calendar')} · Todoch</title></svelte:head>
+<svelte:head><title>{t('nav.calendar')} · ToDoch</title></svelte:head>
 
 <header class="mb-4 flex flex-wrap items-center gap-x-3 gap-y-2">
 	<div class="mr-auto">

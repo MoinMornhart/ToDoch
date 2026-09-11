@@ -71,7 +71,7 @@ async def run(command: str, email: str | None, settings: Settings) -> tuple[int,
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(prog="todoch", description="Todoch-Verwaltung")
+    parser = argparse.ArgumentParser(prog="todoch", description="ToDoch-Verwaltung")
     commands = parser.add_subparsers(dest="command", required=True)
     commands.add_parser("users", help="Benutzer auflisten")
     for name, text in (

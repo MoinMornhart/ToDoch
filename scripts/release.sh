@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Neue Todoch-Version veröffentlichen.
+# Neue ToDoch-Version veröffentlichen.
 #
 # Versionsschema: 0.0.1 → 0.0.2 → … → 0.0.9 → 0.1.0 → … → 0.9.9 → 1.0.0
 # Aufruf:  scripts/release.sh "Kurzbeschreibung" "Änderung 1" "Änderung 2" …

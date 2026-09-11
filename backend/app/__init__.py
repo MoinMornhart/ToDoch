@@ -1,4 +1,4 @@
-"""Todoch – selbst gehostete, minimalistische To-do- und Termin-App."""
+"""ToDoch – selbst gehostete, minimalistische To-do- und Termin-App."""
 
 from pathlib import Path
 

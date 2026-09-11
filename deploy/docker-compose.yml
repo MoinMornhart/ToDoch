@@ -1,4 +1,4 @@
-# Todoch – Docker Compose
+# ToDoch – Docker Compose
 #
 #   cp .env.example deploy/.env   # Werte eintragen (siehe Kommentare dort)
 #   docker compose -f deploy/docker-compose.yml up -d --build

@@ -1,8 +1,8 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "Todoch API",
-    "version": "0.1.0"
+    "title": "ToDoch API",
+    "version": "0.1.1"
   },
   "paths": {
     "/api/health": {

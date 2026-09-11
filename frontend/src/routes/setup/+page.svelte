@@ -16,7 +16,7 @@
 	let password = $state('');
 	let password2 = $state('');
 	let timezone = $state(browserZone);
-	let locale = $state<Locale>(navigator.language.toLowerCase().startsWith('en') ? 'en' : 'de');
+	let locale = $state<Locale>(i18n.locale);
 	let error = $state<string | null>(null);
 	let busy = $state(false);
 
@@ -61,12 +61,12 @@
 
 <svelte:window onhashchange={readCodeFromHash} />
 
-<svelte:head><title>{t('setup.title')} · Todoch</title></svelte:head>
+<svelte:head><title>{t('setup.title')} · ToDoch</title></svelte:head>
 
 <main id="main" class="grid min-h-dvh place-items-center px-4 py-10">
 	<form class="w-full max-w-md" onsubmit={submit}>
 		<p class="mb-4 flex items-center gap-2 text-sm font-semibold tracking-tight">
-			<Logo size={28} />Todoch
+			<Logo size={28} />ToDoch
 		</p>
 		<h1 class="mb-2 text-2xl font-semibold tracking-tight">{t('setup.title')}</h1>
 		<p class="mb-6 text-sm text-muted">{t('setup.intro')}</p>

@@ -56,7 +56,7 @@ from app.services import audit
 
 router = APIRouter(prefix="/api/auth/passkeys", tags=["passkeys"])
 
-RP_NAME = "Todoch"
+RP_NAME = "ToDoch"
 CHALLENGE_TTL = 300
 MAX_PASSKEYS = 20
 LOGIN_FAILED = "Anmeldung mit Passkey fehlgeschlagen."

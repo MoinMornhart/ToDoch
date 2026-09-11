@@ -4,7 +4,7 @@
 
 ## Kontext
 
-Todoch wurde von Grund auf neu aufgebaut. Vorgabe: Python/FastAPI, PostgreSQL, Redis + ARQ,
+ToDoch wurde von Grund auf neu aufgebaut. Vorgabe: Python/FastAPI, PostgreSQL, Redis + ARQ,
 SvelteKit/TypeScript/Tailwind als PWA, Caddy, Docker Compose, Tests mit pytest/Vitest/Playwright.
 
 ## Entscheidung

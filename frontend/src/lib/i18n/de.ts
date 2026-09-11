@@ -1,7 +1,7 @@
 export const de = {
-	'app.name': 'Todoch',
+	'app.name': 'ToDoch',
 	'app.loading': 'Wird geladen …',
-	'app.error': 'Todoch ist gerade nicht erreichbar.',
+	'app.error': 'ToDoch ist gerade nicht erreichbar.',
 	'app.retry': 'Erneut versuchen',
 	'app.offline': 'Offline – du siehst den zuletzt geladenen Stand.',
 	'app.skip': 'Zum Inhalt springen',
@@ -107,7 +107,7 @@ export const de = {
 	'login.password': 'Passwort',
 	'login.submit': 'Anmelden',
 
-	'setup.title': 'Todoch einrichten',
+	'setup.title': 'ToDoch einrichten',
 	'setup.intro':
 		'Lege das Konto für die Verwaltung an. Den Einrichtungscode zeigt der Server nach der Installation an (Befehl „todoch setup-code“).',
 	'setup.code': 'Einrichtungscode',
@@ -151,7 +151,7 @@ export const de = {
 	'settings.lastSeen': 'Zuletzt aktiv',
 	'settings.endSession': 'Abmelden',
 	'settings.logoutAll': 'Überall abmelden',
-	'settings.about': 'Über Todoch',
+	'settings.about': 'Über ToDoch',
 	'settings.version': 'Version {version}',
 
 	'nav.calendar': 'Kalender',
@@ -222,7 +222,7 @@ export const de = {
 
 	'feeds.title': 'Kalender abonnieren (ICS)',
 	'feeds.intro':
-		'Erzeuge einen geheimen Link, um deine Termine in Apple Kalender, Google Kalender, Outlook oder Thunderbird anzuzeigen. Dort werden sie nur angezeigt – ändern kannst du sie in Todoch.',
+		'Erzeuge einen geheimen Link, um deine Termine in Apple Kalender, Google Kalender, Outlook oder Thunderbird anzuzeigen. Dort werden sie nur angezeigt – ändern kannst du sie in ToDoch.',
 	'feeds.name': 'Name des Links',
 	'feeds.namePlaceholder': 'z. B. iPhone',
 	'feeds.area': 'Bereich',
@@ -249,7 +249,7 @@ export const de = {
 
 	'push.title': 'Erinnerungen als Benachrichtigung',
 	'push.intro':
-		'Todoch meldet sich vor Terminen mit Erinnerung – auch wenn die App geschlossen ist. Für jedes Gerät einzeln aktivieren.',
+		'ToDoch meldet sich vor Terminen mit Erinnerung – auch wenn die App geschlossen ist. Für jedes Gerät einzeln aktivieren.',
 	'push.enable': 'Auf diesem Gerät aktivieren',
 	'push.disable': 'Auf diesem Gerät deaktivieren',
 	'push.test': 'Testnachricht senden',
@@ -260,7 +260,7 @@ export const de = {
 		'Benachrichtigungen sind im Browser blockiert. Bitte in den Website-Einstellungen erlauben.',
 	'push.unsupported': 'Dieser Browser unterstützt keine Push-Benachrichtigungen.',
 	'push.iosHint':
-		'iPhone/iPad: Todoch zuerst über „Teilen → Zum Home-Bildschirm“ installieren und von dort öffnen, dann hier aktivieren.',
+		'iPhone/iPad: ToDoch zuerst über „Teilen → Zum Home-Bildschirm“ installieren und von dort öffnen, dann hier aktivieren.',
 	'push.devices': 'Geräte mit Erinnerungen',
 	'push.remove': 'Entfernen',
 
@@ -390,7 +390,7 @@ export const de = {
 	'passkeys.password': 'Passwort zur Bestätigung',
 	'passkeys.added': 'Passkey hinzugefügt',
 	'passkeys.cancelled': 'Vorgang abgebrochen.',
-	'passkeys.exists': 'Dieses Gerät hat schon einen Passkey für Todoch.',
+	'passkeys.exists': 'Dieses Gerät hat schon einen Passkey für ToDoch.',
 	'passkeys.created': 'Hinzugefügt am {date}',
 	'passkeys.lastUsed': 'zuletzt verwendet am {date}',
 	'passkeys.neverUsed': 'noch nicht verwendet',
@@ -405,6 +405,12 @@ export const de = {
 	'settings.method.password': 'Passwort',
 
 	'settings.adminNoCurrent': 'Als Admin brauchst du dein altes Passwort dafür nicht.',
+
+	'login.language': 'Sprache',
+	'error.tooMany': 'Zu viele Versuche. Bitte später erneut versuchen.',
+	'error.server': 'Der Server hat einen Fehler gemeldet. Bitte später erneut versuchen.',
+	'error.status': 'Fehler {status}',
+	'error.offline': 'Keine Verbindung zum Server.',
 
 	'error.generic': 'Etwas ist schiefgelaufen.'
 } as const;

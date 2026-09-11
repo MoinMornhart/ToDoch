@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Todoch – Proxmox VE LXC Quickstart (im Stil der community-scripts)
+# ToDoch – Proxmox VE LXC Quickstart (im Stil der community-scripts)
 #
 #   Installation – in der Shell des Proxmox-Hosts (als root):
 #     bash -c "$(curl -fsSL https://raw.githubusercontent.com/MoinMornhart/Todoch/main/ct/todoch.sh)"
@@ -16,11 +16,11 @@ source <(curl -fsSL -H "Accept: application/vnd.github.raw" \
   "https://api.github.com/repos/${REPO}/contents/deploy/lxc/build.func?ref=${TODOCH_BRANCH}" 2>/dev/null ||
   curl -fsSL "${REPO_RAW}/deploy/lxc/build.func?t=$(date +%s)")
 if ! declare -F start >/dev/null; then
-  echo "Todoch-Skripte konnten nicht von GitHub geladen werden (Internetverbindung?)." >&2
+  echo "ToDoch-Skripte konnten nicht von GitHub geladen werden (Internetverbindung?)." >&2
   exit 1
 fi
 
-APP="Todoch"
+APP="ToDoch"
 var_tags="${var_tags:-todo;kalender;productivity}"
 var_cpu="${var_cpu:-2}"
 var_ram="${var_ram:-2048}"

@@ -1,4 +1,4 @@
-# Heimnetz ohne öffentliche Domain: HTTPS mit eigener Todoch-CA.
+# Heimnetz ohne öffentliche Domain: HTTPS mit eigener ToDoch-CA.
 # Das Stammzertifikat gibt es unter http://<IP>/ca.crt – einmal auf jedem Gerät installieren.
 {
 	admin off

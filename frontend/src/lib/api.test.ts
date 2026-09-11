@@ -8,6 +8,7 @@ import {
 	onUnauthorized,
 	readCookie
 } from './api';
+import { detectLocale } from './i18n/index.svelte';
 
 function stubFetch(status: number, body: unknown) {
 	const fetchMock = vi.fn(
@@ -35,6 +36,14 @@ describe('api helpers', () => {
 		).toBe('Eine Uhrzeit braucht ein Datum.');
 		expect(errorMessage(null, 500)).toMatch(/Server/);
 		expect(errorMessage(null, 429)).toMatch(/Zu viele/);
+		expect(errorMessage(null, 418)).toBe('Fehler 418');
+	});
+
+	it('picks the language before sign-in', () => {
+		expect(detectLocale('en', ['de-DE'])).toBe('en');
+		expect(detectLocale(null, ['en-GB', 'de'])).toBe('en');
+		expect(detectLocale(null, ['fr-FR', 'de-AT'])).toBe('de');
+		expect(detectLocale('xx', ['fr'])).toBe('de');
 	});
 
 	it('builds URLs without empty parameters', () => {
@@ -57,6 +66,7 @@ describe('api()', () => {
 		const postHeaders = calls[1]?.[1].headers as Record<string, string>;
 		expect(getHeaders['X-CSRF-Token']).toBeUndefined();
 		expect(postHeaders['X-CSRF-Token']).toBe('abc');
+		expect(postHeaders['Accept-Language']).toBe('de');
 		expect(postHeaders['Content-Type']).toBe('application/json');
 		expect(calls[1]?.[1].body).toBe('{"title":"x"}');
 	});

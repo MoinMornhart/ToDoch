@@ -4,11 +4,16 @@
 	import { goto } from '$app/navigation';
 	import { ApiError } from '$lib/api';
 	import Logo from '$lib/components/Logo.svelte';
-	import { t } from '$lib/i18n/index.svelte';
+	import { i18n, t } from '$lib/i18n/index.svelte';
 	import { signInWithPasskey } from '$lib/passkeys';
 	import { session } from '$lib/stores/session.svelte';
 	import type { User } from '$lib/types';
 	import { autofillSupported, isCancelled, passkeysSupported } from '$lib/webauthn';
+
+	const LANGUAGES = [
+		['de', 'Deutsch'],
+		['en', 'English']
+	] as const;
 
 	let email = $state('');
 	let password = $state('');
@@ -86,12 +91,12 @@
 	}
 </script>
 
-<svelte:head><title>{t('login.title')} · Todoch</title></svelte:head>
+<svelte:head><title>{t('login.title')} · ToDoch</title></svelte:head>
 
 <main id="main" class="grid min-h-dvh place-items-center px-4">
 	<div class="w-full max-w-sm">
 		<p class="mb-4 flex items-center gap-2 text-sm font-semibold tracking-tight">
-			<Logo size={28} />Todoch
+			<Logo size={28} />ToDoch
 		</p>
 		<h1 class="mb-6 text-2xl font-semibold tracking-tight">{t('login.title')}</h1>
 		{#if error}<p role="alert" class="mb-4 text-sm text-danger">{error}</p>{/if}
@@ -135,5 +140,24 @@
 				{t('login.submit')}
 			</button>
 		</form>
+		<div
+			class="mt-8 flex justify-center gap-1 text-xs"
+			role="group"
+			aria-label={t('login.language')}
+		>
+			{#each LANGUAGES as [code, label] (code)}
+				<button
+					type="button"
+					lang={code}
+					class="rounded-md px-2 py-1 {i18n.locale === code
+						? 'bg-surface-2 font-medium text-fg'
+						: 'text-muted hover:text-fg'}"
+					aria-pressed={i18n.locale === code}
+					onclick={() => (i18n.locale = code)}
+				>
+					{label}
+				</button>
+			{/each}
+		</div>
 	</div>
 </main>

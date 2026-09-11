@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Todoch – Helfer für den Proxmox-Host (Container anlegen) und den Container (Update, Verwaltung).
+# ToDoch – Helfer für den Proxmox-Host (Container anlegen) und den Container (Update, Verwaltung).
 # Aufbau angelehnt an community-scripts/ProxmoxVE (build.func), aber eigenständig.
 # Copyright (c) 2026 MoinMornhart | Lizenz: MIT | https://github.com/MoinMornhart/Todoch
 # shellcheck disable=SC2034
@@ -245,7 +245,7 @@ write_helpers() {
   # Skripte stückweise – ein Überschreiben an Ort und Stelle würde es mitten im Lauf ändern.
   cat >/usr/local/bin/update.new <<EOF
 #!/usr/bin/env bash
-# Todoch aktualisieren: lädt immer die neueste Version von GitHub.
+# ToDoch aktualisieren: lädt immer die neueste Version von GitHub.
 branch=\$(cat /etc/todoch/branch 2>/dev/null || echo main)
 export TODOCH_BRANCH="\${branch}"
 bash -c "\$(curl -fsSL -H 'Accept: application/vnd.github.raw' "https://api.github.com/repos/${REPO}/contents/ct/todoch.sh?ref=\${branch}" || curl -fsSL "https://raw.githubusercontent.com/${REPO}/\${branch}/ct/todoch.sh?t=\$(date +%s)")"
@@ -256,7 +256,7 @@ EOF
 
   cat >/usr/local/bin/todoch.new <<'EOF'
 #!/usr/bin/env bash
-# Todoch-Verwaltung (Domain, Ports, Benutzer, Sicherung …). „todoch help“ zeigt alle Befehle.
+# ToDoch-Verwaltung (Domain, Ports, Benutzer, Sicherung …). „todoch help“ zeigt alle Befehle.
 exec bash /opt/todoch/deploy/lxc/todoch-cli.sh "$@"
 EOF
   chmod 755 /usr/local/bin/todoch.new
@@ -283,7 +283,7 @@ _t_mode=$(_t_get TODOCH_TLS_MODE)
 _t_http=$(_t_get TODOCH_HTTP_PORT)
 _t_http_suffix=$([ "${_t_http:-80}" = 80 ] || echo ":${_t_http}")
 echo ""
-echo -e "  \033[1;92mTodoch\033[0m v$(cat /opt/todoch/VERSION 2>/dev/null) · LXC \033[1m$(hostname)\033[0m · IP ${_t_ip}"
+echo -e "  \033[1;92mToDoch\033[0m v$(cat /opt/todoch/VERSION 2>/dev/null) · LXC \033[1m$(hostname)\033[0m · IP ${_t_ip}"
 echo -e "  🌐 $(_t_get TODOCH_ORIGIN)"
 [ "$_t_mode" = proxy ] && echo -e "  ↪  Ziel im Reverse-Proxy: http://${_t_ip}${_t_http_suffix}"
 [ "$_t_mode" = internal ] && echo -e "  🔐 Zertifikat für deine Geräte: http://${_t_ip}${_t_http_suffix}/ca.crt"
@@ -299,7 +299,7 @@ EOF
 # Update im Container: neue Version bauen, Daten sichern, umschalten, bei Fehlern zurück.
 todoch_update() {
   if [[ ! -f "$TODOCH_ENV" || ! -f "$TODOCH_HOME/deploy/docker-compose.yml" ]]; then
-    msg_error "Keine Todoch-Installation gefunden!"
+    msg_error "Keine ToDoch-Installation gefunden!"
     exit 1
   fi
   export DEBIAN_FRONTEND=noninteractive
@@ -322,14 +322,14 @@ todoch_update() {
 
   if ! version_gt "$latest" "$current" && [[ "${FORCE:-no}" != "yes" ]]; then
     write_helpers
-    msg_ok "Todoch ist aktuell (v${current})"
+    msg_ok "ToDoch ist aktuell (v${current})"
     return 0
   fi
 
   release="${TODOCH_RELEASES}/${latest}"
-  msg_info "Lade Todoch v${latest}"
+  msg_info "Lade ToDoch v${latest}"
   download_release "$latest" "$release"
-  msg_ok "Todoch v${latest} geladen"
+  msg_ok "ToDoch v${latest} geladen"
 
   msg_info "Baue v${latest} – das dauert ein paar Minuten"
   (
@@ -357,7 +357,7 @@ todoch_update() {
     if wait_healthy; then msg_ok "v${current} läuft wieder."; else msg_error "Bitte „todoch logs“ prüfen."; fi
     exit 1
   fi
-  msg_ok "Todoch auf v${latest} aktualisiert"
+  msg_ok "ToDoch auf v${latest} aktualisiert"
   write_helpers
   prune_releases
   print_changelog "$latest"
@@ -397,7 +397,7 @@ select_storage() {
     echo "${menu[0]}"
     return
   fi
-  whiptail --backtitle "Todoch" --title "SPEICHER" --menu "Speicher für ${label} wählen:" 16 64 6 "${menu[@]}" 3>&1 1>&2 2>&3
+  whiptail --backtitle "ToDoch" --title "SPEICHER" --menu "Speicher für ${label} wählen:" 16 64 6 "${menu[@]}" 3>&1 1>&2 2>&3
 }
 
 # Alle Werte lassen sich per Umgebungsvariable vorgeben (auch ohne Rückfragen, z. B. per SSH):
@@ -427,37 +427,37 @@ default_settings() {
 
 advanced_settings() {
   local v
-  v=$(whiptail --backtitle "Todoch" --title "CONTAINER-ID" --inputbox "Container-ID" 8 58 "$CT_ID" 3>&1 1>&2 2>&3) || exit 1
+  v=$(whiptail --backtitle "ToDoch" --title "CONTAINER-ID" --inputbox "Container-ID" 8 58 "$CT_ID" 3>&1 1>&2 2>&3) || exit 1
   CT_ID=$v
   if pct status "$CT_ID" &>/dev/null || qm status "$CT_ID" &>/dev/null; then
     msg_error "ID ${CT_ID} ist bereits vergeben."
     exit 1
   fi
-  v=$(whiptail --backtitle "Todoch" --title "HOSTNAME" --inputbox "Hostname (ergibt https://<name>.local)" 8 58 "$HN" 3>&1 1>&2 2>&3) || exit 1
+  v=$(whiptail --backtitle "ToDoch" --title "HOSTNAME" --inputbox "Hostname (ergibt https://<name>.local)" 8 58 "$HN" 3>&1 1>&2 2>&3) || exit 1
   HN=$(echo "${v,,}" | tr -cd 'a-z0-9-')
-  v=$(whiptail --backtitle "Todoch" --title "SPEICHERPLATZ" --inputbox "Festplatte in GB" 8 58 "$DISK_SIZE" 3>&1 1>&2 2>&3) || exit 1
+  v=$(whiptail --backtitle "ToDoch" --title "SPEICHERPLATZ" --inputbox "Festplatte in GB" 8 58 "$DISK_SIZE" 3>&1 1>&2 2>&3) || exit 1
   DISK_SIZE=$v
-  v=$(whiptail --backtitle "Todoch" --title "CPU" --inputbox "Anzahl CPU-Kerne" 8 58 "$CORE_COUNT" 3>&1 1>&2 2>&3) || exit 1
+  v=$(whiptail --backtitle "ToDoch" --title "CPU" --inputbox "Anzahl CPU-Kerne" 8 58 "$CORE_COUNT" 3>&1 1>&2 2>&3) || exit 1
   CORE_COUNT=$v
-  v=$(whiptail --backtitle "Todoch" --title "RAM" --inputbox "Arbeitsspeicher in MiB" 8 58 "$RAM_SIZE" 3>&1 1>&2 2>&3) || exit 1
+  v=$(whiptail --backtitle "ToDoch" --title "RAM" --inputbox "Arbeitsspeicher in MiB" 8 58 "$RAM_SIZE" 3>&1 1>&2 2>&3) || exit 1
   RAM_SIZE=$v
-  v=$(whiptail --backtitle "Todoch" --title "BRIDGE" --inputbox "Netzwerk-Bridge" 8 58 "$BRG" 3>&1 1>&2 2>&3) || exit 1
+  v=$(whiptail --backtitle "ToDoch" --title "BRIDGE" --inputbox "Netzwerk-Bridge" 8 58 "$BRG" 3>&1 1>&2 2>&3) || exit 1
   BRG=$v
-  v=$(whiptail --backtitle "Todoch" --title "IP-ADRESSE" --inputbox "IPv4 mit CIDR (z. B. 192.168.1.50/24) oder 'dhcp'" 8 58 "$NET" 3>&1 1>&2 2>&3) || exit 1
+  v=$(whiptail --backtitle "ToDoch" --title "IP-ADRESSE" --inputbox "IPv4 mit CIDR (z. B. 192.168.1.50/24) oder 'dhcp'" 8 58 "$NET" 3>&1 1>&2 2>&3) || exit 1
   NET=$v
   if [[ "$NET" != "dhcp" ]]; then
-    v=$(whiptail --backtitle "Todoch" --title "GATEWAY" --inputbox "Gateway-IP" 8 58 "" 3>&1 1>&2 2>&3) || exit 1
+    v=$(whiptail --backtitle "ToDoch" --title "GATEWAY" --inputbox "Gateway-IP" 8 58 "" 3>&1 1>&2 2>&3) || exit 1
     GATE=$v
   fi
-  v=$(whiptail --backtitle "Todoch" --title "VLAN" --inputbox "VLAN-Tag (leer = keiner)" 8 58 "$VLAN" 3>&1 1>&2 2>&3) || exit 1
+  v=$(whiptail --backtitle "ToDoch" --title "VLAN" --inputbox "VLAN-Tag (leer = keiner)" 8 58 "$VLAN" 3>&1 1>&2 2>&3) || exit 1
   VLAN=$v
-  v=$(whiptail --backtitle "Todoch" --title "DOMAIN" --inputbox "Eigene Domain, z. B. todoch.example.de (leer = https://${HN}.local)" 8 70 "$DOMAIN" 3>&1 1>&2 2>&3) || exit 1
+  v=$(whiptail --backtitle "ToDoch" --title "DOMAIN" --inputbox "Eigene Domain, z. B. todoch.example.de (leer = https://${HN}.local)" 8 70 "$DOMAIN" 3>&1 1>&2 2>&3) || exit 1
   DOMAIN=$(echo "${v,,}" | tr -d ' ')
   if [[ -n "$DOMAIN" ]]; then
-    TLS_MODE=$(whiptail --backtitle "Todoch" --title "HTTPS" --menu "Wer kümmert sich um HTTPS für ${DOMAIN}?" 14 76 3 \
-      "proxy" "Mein Reverse-Proxy (NetBird, NPM, Traefik …) – Todoch nur HTTP :80" \
-      "internal" "Todoch mit eigener CA (Heimnetz, Zertifikat auf Geräten installieren)" \
-      "acme" "Todoch mit Let's Encrypt (Ports 80/443 aus dem Internet erreichbar)" \
+    TLS_MODE=$(whiptail --backtitle "ToDoch" --title "HTTPS" --menu "Wer kümmert sich um HTTPS für ${DOMAIN}?" 14 76 3 \
+      "proxy" "Mein Reverse-Proxy (NetBird, NPM, Traefik …) – ToDoch nur HTTP :80" \
+      "internal" "ToDoch mit eigener CA (Heimnetz, Zertifikat auf Geräten installieren)" \
+      "acme" "ToDoch mit Let's Encrypt (Ports 80/443 aus dem Internet erreichbar)" \
       3>&1 1>&2 2>&3) || exit 1
   fi
 }
@@ -483,7 +483,7 @@ install_script() {
   default_settings
   if command -v whiptail >/dev/null && [[ -t 0 ]]; then
     local choice
-    choice=$(whiptail --backtitle "Todoch" --title "EINSTELLUNGEN" --menu "Wie soll der Container erstellt werden?" 12 62 2 \
+    choice=$(whiptail --backtitle "ToDoch" --title "EINSTELLUNGEN" --menu "Wie soll der Container erstellt werden?" 12 62 2 \
       "1" "Standard-Einstellungen (empfohlen)" \
       "2" "Erweiterte Einstellungen" 3>&1 1>&2 2>&3) || exit 1
     [[ "$choice" == "2" ]] && advanced_settings
@@ -557,7 +557,7 @@ build_container() {
 description() {
   pct set "$CT_ID" -description "<div align='center'>
 <img src='https://raw.githubusercontent.com/${REPO}/main/frontend/static/favicon.svg' width='72'/>
-<h2>Todoch</h2>
+<h2>ToDoch</h2>
 <p>To-dos &amp; Termine – selbst gehostet</p>
 <p><a href='https://github.com/${REPO}'>GitHub</a> · Update: in der Konsole <code>update</code></p>
 </div>" >/dev/null

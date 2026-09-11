@@ -93,4 +93,4 @@ http
 		});
 		createReadStream(file).pipe(res);
 	})
-	.listen(PORT, () => console.log(`Todoch-Vorschau auf http://localhost:${PORT}`));
+	.listen(PORT, () => console.log(`ToDoch-Vorschau auf http://localhost:${PORT}`));

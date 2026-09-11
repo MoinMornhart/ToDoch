@@ -96,7 +96,7 @@
 	>
 		<a href="/" class="mb-4 flex items-center gap-2.5 px-2 text-lg font-semibold tracking-tight">
 			<Logo size={26} />
-			Todoch
+			ToDoch
 		</a>
 		<div class="mb-4"><NewMenu /></div>
 		{#each primary as item (item.href)}

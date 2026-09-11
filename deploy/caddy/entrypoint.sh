@@ -1,7 +1,7 @@
 #!/bin/sh
 # Wählt die Caddy-Konfiguration nach TODOCH_TLS_MODE:
 #   proxy     – nur HTTP auf Port 80, HTTPS macht ein vorgelagerter Reverse-Proxy
-#   internal  – HTTPS mit eigener Todoch-CA (Heimnetz, Zertifikat unter http://<IP>/ca.crt)
+#   internal  – HTTPS mit eigener ToDoch-CA (Heimnetz, Zertifikat unter http://<IP>/ca.crt)
 #   acme      – HTTPS mit Let's Encrypt (Domain muss öffentlich auf Port 80/443 zeigen)
 set -eu
 mode="${TODOCH_TLS_MODE:-internal}"

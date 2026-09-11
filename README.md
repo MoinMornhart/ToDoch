@@ -1,8 +1,10 @@
 <div align="center">
 
-<img src="docs/images/logo.svg" width="88" alt="Todoch-Logo">
+<img src="docs/images/logo.svg" width="88" alt="ToDoch-Logo">
 
-# Todoch
+# ToDoch
+
+**Deutsch** · [English](README.en.md)
 
 **Deine To-dos und Termine – auf deinem eigenen Server.**<br>
 Minimalistisch, schnell mit der Tastatur, sicher ab Werk. Keine Cloud, kein Tracking.
@@ -23,7 +25,7 @@ Minimalistisch, schnell mit der Tastatur, sicher ab Werk. Keine Cloud, kein Trac
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/images/uebersicht-dunkel.png">
-  <img src="docs/images/uebersicht.png" alt="Todoch – Übersicht mit Aufgaben, Terminen und Bereichen" width="860">
+  <img src="docs/images/uebersicht.png" alt="ToDoch – Übersicht mit Aufgaben, Terminen und Bereichen" width="860">
 </picture>
 
 </div>
@@ -33,7 +35,7 @@ Minimalistisch, schnell mit der Tastatur, sicher ab Werk. Keine Cloud, kein Trac
 ## ✨ Funktionen
 
 ### 🏠 Übersicht zum Start
-Nach dem Öffnen begrüßt dich Todoch mit allem Wichtigen auf einen Blick: heute fällig, überfällig,
+Nach dem Öffnen begrüßt dich ToDoch mit allem Wichtigen auf einen Blick: heute fällig, überfällig,
 die nächsten Termine, was demnächst ansteht und wie viel in jedem Bereich offen ist. Über **Neu**
 (auf dem Handy der ➕-Knopf) legst du von überall eine Aufgabe oder einen Termin an.
 
@@ -42,7 +44,7 @@ die nächsten Termine, was demnächst ansteht und wie viel in jedem Bereich offe
 <td width="50%" valign="top">
 
 ### ⚡ Schnellerfassung
-Eine Zeile tippen – Todoch erkennt Datum, Uhrzeit, Priorität, Tags, Bereich und Wiederholung:
+Eine Zeile tippen – ToDoch erkennt Datum, Uhrzeit, Priorität, Tags, Bereich und Wiederholung:
 
 ```text
 Reifenwechsel buchen nächste Woche 8:30 !mittel #auto @privat
@@ -99,14 +101,14 @@ Pro Bereich legst du fest, welche Tage und Stunden der Kalender zeigt – z. B. 
 **Heute** (mit Überfälligem), **Demnächst** für die nächsten 7 Tage, **Alle offen**, **Erledigt** und jeder einzelne Tag – dazu eine Volltextsuche über Titel, Notizen und Tags.
 
 ### 📱 Überall
-Installierbar als App (PWA) auf Smartphone und Desktop, **Dunkelmodus** per Klick oder automatisch nach Systemeinstellung, Deutsch und Englisch, barrierearm.
+Installierbar als App (PWA) auf Smartphone und Desktop, **Dunkelmodus** per Klick oder automatisch nach Systemeinstellung, **Deutsch und Englisch** (schon auf der Anmeldeseite umschaltbar, auch Fehlermeldungen des Servers), barrierearm.
 
 </td>
 </tr>
 </table>
 
 <div align="center">
-<img src="docs/images/mobil.png" alt="Todoch auf dem Smartphone" width="260">
+<img src="docs/images/mobil.png" alt="ToDoch auf dem Smartphone" width="260">
 &nbsp;&nbsp;&nbsp;
 <img src="docs/images/mobil-demnaechst.png" alt="Demnächst auf dem Smartphone" width="260">
 </div>
@@ -133,11 +135,11 @@ Ist ein Bereich gewählt, zeigt der Kalender nur dessen Tage und Stunden (einste
 **In anderen Kalendern anzeigen:** Unter *Bereiche → Kalender abonnieren* erzeugst du einen geheimen
 ICS-Link – für alle oder nur einen Bereich, mit allen Details, nur Titeln oder nur „Belegt“. Ein Klick
 öffnet ihn in Apple Kalender, Google Kalender oder Outlook; jeder Link lässt sich einzeln widerrufen.
-Google und Outlook.com holen den Kalender aus dem Internet – dafür muss Todoch öffentlich erreichbar
+Google und Outlook.com holen den Kalender aus dem Internet – dafür muss ToDoch öffentlich erreichbar
 sein (z. B. hinter einem Reverse-Proxy).
 
 **Erinnerungen:** Unter *Einstellungen → Erinnerungen als Benachrichtigung* für jedes Gerät einschalten –
-Todoch meldet sich dann vor Terminen per Push, auch wenn die App geschlossen ist (auf dem iPhone nach
+ToDoch meldet sich dann vor Terminen per Push, auch wenn die App geschlossen ist (auf dem iPhone nach
 „Zum Home-Bildschirm“). Die nötigen Schlüssel erzeugt der Server selbst.
 
 ### 📞 Vereinbarte Termine
@@ -184,11 +186,11 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/MoinMornhart/Todoch/main
 ```
 
 Das Skript fragt **Standard** oder **Erweitert** ab, erstellt einen unprivilegierten Debian-13-Container
-(2 CPU · 2 GB RAM · 16 GB Disk), installiert Docker, erzeugt alle Schlüssel und startet Todoch.
+(2 CPU · 2 GB RAM · 16 GB Disk), installiert Docker, erzeugt alle Schlüssel und startet ToDoch.
 Am Ende steht die Adresse und ein **einmaliger Einrichtungslink** für dein Konto:
 
 ```text
-🚀  Todoch wurde erfolgreich installiert!
+🚀  ToDoch wurde erfolgreich installiert!
 🌐  Adresse: https://todoch.local
 💡  Erster Aufruf (legt das Admin-Konto an):
       https://todoch.local/setup#code=…
@@ -249,7 +251,7 @@ Datenbank und Redis hängen in einem internen Netz ohne Internet und ohne offene
 | `POSTGRES_PASSWORD`, `REDIS_PASSWORD` | Interne Passwörter |
 | `TODOCH_SESSION_IDLE_MINUTES`, `TODOCH_SESSION_ABSOLUTE_HOURS` | Abmeldung nach Inaktivität / spätestens |
 
-Todoch startet nicht, wenn Schlüssel fehlen, zu kurz sind oder noch Platzhalter enthalten.
+ToDoch startet nicht, wenn Schlüssel fehlen, zu kurz sind oder noch Platzhalter enthalten.
 
 </details>
 
@@ -260,19 +262,19 @@ Todoch startet nicht, wenn Schlüssel fehlen, zu kurz sind oder noch Platzhalter
 Passkeys funktionieren nur über **HTTPS mit festem Hostnamen** – nie über eine IP. Sie sind fest an
 diesen Hostnamen gebunden: Wer die Domain später ändert, muss Passkeys neu hinzufügen (das Passwort
 funktioniert weiter).
-Todoch kennt drei Betriebsarten, umschaltbar mit einem Befehl:
+ToDoch kennt drei Betriebsarten, umschaltbar mit einem Befehl:
 
 | Befehl | Passt, wenn … | HTTPS macht … |
 | --- | --- | --- |
-| `todoch domain todoch.example.de --proxy` | ein Reverse-Proxy davor sitzt (NetBird, Nginx Proxy Manager, Traefik) | der Proxy – Todoch spricht nur HTTP auf Port 80 |
-| `todoch domain todoch.home.arpa` | Todoch nur im Heimnetz läuft | Todoch mit eigener CA (Zertifikat unter `http://<IP>/ca.crt`) |
-| `todoch domain todoch.example.de --acme` | die Domain direkt auf den Server zeigt, Ports 80/443 offen | Todoch mit Let's Encrypt |
-| `todoch domain --reset` | du zurück zum Standard willst | Todoch unter `https://<hostname>.local` |
+| `todoch domain todoch.example.de --proxy` | ein Reverse-Proxy davor sitzt (NetBird, Nginx Proxy Manager, Traefik) | der Proxy – ToDoch spricht nur HTTP auf Port 80 |
+| `todoch domain todoch.home.arpa` | ToDoch nur im Heimnetz läuft | ToDoch mit eigener CA (Zertifikat unter `http://<IP>/ca.crt`) |
+| `todoch domain todoch.example.de --acme` | die Domain direkt auf den Server zeigt, Ports 80/443 offen | ToDoch mit Let's Encrypt |
+| `todoch domain --reset` | du zurück zum Standard willst | ToDoch unter `https://<hostname>.local` |
 
 > **Reverse-Proxy:** Als Ziel `http://<IP-des-Containers>:80` eintragen – HTTP, nicht HTTPS. `todoch info` zeigt es jederzeit an.
 
 <details>
-<summary><b>Zertifikat der Todoch-CA auf Geräten installieren</b> (nur Betriebsart „internal“)</summary>
+<summary><b>Zertifikat der ToDoch-CA auf Geräten installieren</b> (nur Betriebsart „internal“)</summary>
 
 <br>
 
@@ -302,7 +304,7 @@ todoch logs [app|web|db|worker]  # Protokolle ansehen
 > [!IMPORTANT]
 > Die Schlüssel für gespeicherte Zugangsdaten liegen **getrennt** von der Sicherung unter
 > `/var/backups/todoch/keys/`. Beides zusammen an einem sicheren Ort aufbewahren – ohne Schlüssel keine
-> Wiederherstellung. Vor jedem Update legt Todoch automatisch eine Sicherung an.
+> Wiederherstellung. Vor jedem Update legt ToDoch automatisch eine Sicherung an.
 
 <details>
 <summary><b>Fehlersuche</b></summary>
@@ -315,7 +317,7 @@ todoch logs [app|web|db|worker]  # Protokolle ansehen
 | 502 hinter dem Reverse-Proxy | Ziel muss `http://<IP>:<HTTP-Port>` sein, nicht `https://` |
 | Zertifikatswarnung | In der Betriebsart `internal` die CA unter `http://<IP>/ca.crt` installieren |
 | Passwort vergessen | `todoch reset-password <e-mail>` |
-| „Zu viele Versuche“ | Nach 5 Fehlversuchen wartet Todoch zunehmend länger (bis 1 Stunde) |
+| „Zu viele Versuche“ | Nach 5 Fehlversuchen wartet ToDoch zunehmend länger (bis 1 Stunde) |
 | Deinstallieren | Proxmox: `pct stop <ID> && pct destroy <ID>` · Compose: `docker compose -f deploy/docker-compose.yml down -v` |
 
 </details>

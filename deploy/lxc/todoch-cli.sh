@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Todoch – Verwaltung im Container (Befehl „todoch“).
+# ToDoch – Verwaltung im Container (Befehl „todoch“).
 # Copyright (c) 2026 MoinMornhart | Lizenz: MIT | https://github.com/MoinMornhart/Todoch
 set -Eeuo pipefail
 
@@ -8,11 +8,11 @@ TODOCH_HOME="${TODOCH_HOME:-/opt/todoch}"
 source "$TODOCH_HOME/deploy/lxc/build.func"
 color
 
-HELP="Todoch – Verwaltung
+HELP="ToDoch – Verwaltung
 
   todoch info                          Version, Adresse, Ports und Dienste anzeigen
   todoch domain <domain> --proxy       Hinter Reverse-Proxy (NetBird, NPM, Traefik): nur HTTP, Port 80
-  todoch domain <domain>               Eigene Domain mit Todoch-eigener CA (Heimnetz)
+  todoch domain <domain>               Eigene Domain mit ToDoch-eigener CA (Heimnetz)
   todoch domain <domain> --acme        Eigene Domain mit Let's Encrypt (Ports 80/443 öffentlich)
   todoch domain --reset                Zurück zu https://$(hostname 2>/dev/null || echo '<hostname>').local
   todoch port <https> [http]           Ports ändern (Standard 443 / 80); hinter Proxy: todoch port <http>
@@ -57,9 +57,9 @@ apply_config() {
   msg_info "Übernehme Einstellungen und starte neu"
   silent todoch_compose up -d
   if wait_healthy; then
-    msg_ok "Todoch läuft"
+    msg_ok "ToDoch läuft"
   else
-    msg_error "Todoch startet nicht – letzte Meldungen:"
+    msg_error "ToDoch startet nicht – letzte Meldungen:"
     todoch_compose logs --tail 40 || true
     exit 1
   fi
@@ -74,11 +74,11 @@ cmd_info() {
   local ip mode
   ip=$(host_ip)
   mode=$(get_env TODOCH_TLS_MODE)
-  echo -e "\n  ${GN}Todoch${CL} v$(cat "$TODOCH_HOME/VERSION" 2>/dev/null)\n"
+  echo -e "\n  ${GN}ToDoch${CL} v$(cat "$TODOCH_HOME/VERSION" 2>/dev/null)\n"
   echo -e "  Adresse:   ${BGN}$(get_env TODOCH_ORIGIN)${CL}"
   case "$mode" in
   proxy) echo -e "  HTTPS:     macht der Reverse-Proxy · Ziel: ${BOLD}http://${ip}$(http_suffix "$(get_env TODOCH_HTTP_PORT)")${CL}" ;;
-  internal) echo -e "  HTTPS:     Todoch-CA · Zertifikat: ${BOLD}http://${ip}$(http_suffix "$(get_env TODOCH_HTTP_PORT)")/ca.crt${CL}" ;;
+  internal) echo -e "  HTTPS:     ToDoch-CA · Zertifikat: ${BOLD}http://${ip}$(http_suffix "$(get_env TODOCH_HTTP_PORT)")/ca.crt${CL}" ;;
   acme) echo -e "  HTTPS:     Let's Encrypt" ;;
   esac
   echo -e "  Ports:     HTTP $(get_env TODOCH_HTTP_PORT) · HTTPS $(get_env TODOCH_HTTPS_PORT)"
@@ -127,7 +127,7 @@ cmd_domain() {
   apply_config
 
   ip=$(host_ip)
-  echo -e "\n${CM}${GN}Todoch ist jetzt eingestellt auf:${CL} ${BGN}$(get_env TODOCH_ORIGIN)${CL}  (vorher: ${old})\n"
+  echo -e "\n${CM}${GN}ToDoch ist jetzt eingestellt auf:${CL} ${BGN}$(get_env TODOCH_ORIGIN)${CL}  (vorher: ${old})\n"
   echo -e "${BOLD}Damit die Adresse funktioniert:${CL}"
   case "$mode" in
   proxy)

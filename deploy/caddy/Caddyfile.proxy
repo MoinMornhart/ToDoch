@@ -1,5 +1,5 @@
 # Hinter einem Reverse-Proxy (NetBird, Nginx Proxy Manager, Traefik …):
-# Todoch spricht nur HTTP auf Port 80, HTTPS und Zertifikat übernimmt der Proxy.
+# ToDoch spricht nur HTTP auf Port 80, HTTPS und Zertifikat übernimmt der Proxy.
 {
 	admin off
 	auto_https off

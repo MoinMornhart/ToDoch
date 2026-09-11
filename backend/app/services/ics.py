@@ -19,7 +19,9 @@ def _moment(event: Event, instant: datetime) -> date | datetime:
     return instant.date() if event.all_day else instant.astimezone(ZoneInfo(event.tzid))
 
 
-def build_calendar(events: Iterable[Event], *, name: str, detail: str) -> bytes:
+def build_calendar(
+    events: Iterable[Event], *, name: str, detail: str, busy_title: str = BUSY_TITLE
+) -> bytes:
     """Stabile Ausgabe: gleiche Termine ergeben gleiche Bytes (wichtig für ETag-Caching).
 
     ``detail``: ``full`` alles, ``public`` ohne Beschreibung und Tags (zum Weitergeben an
@@ -48,7 +50,7 @@ def build_calendar(events: Iterable[Event], *, name: str, detail: str) -> bytes:
             if event.exdates:
                 item.add("exdate", [_moment(event, d) for d in sorted(event.exdates)])
         if detail == "busy":
-            item.add("summary", BUSY_TITLE)
+            item.add("summary", busy_title)
             item.add("class", "PRIVATE")
         else:
             item.add("summary", event.title)

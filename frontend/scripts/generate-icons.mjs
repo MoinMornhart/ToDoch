@@ -4,12 +4,26 @@ import { crc32, deflateSync } from 'node:zlib';
 
 const ACCENT = [0x24, 0x59, 0xd6];
 const WHITE = [0xff, 0xff, 0xff];
-// Häkchen wie im favicon.svg (viewBox 64): 18,34 → 28,44 → 46,23
+// Wie static/favicon.svg (viewBox 64): „TD“ zu 30 % weiß im Hintergrund, davor der Haken
+// 17,35 → 27,45 → 47,22 mit einem Rand in Akzentfarbe, damit er sich von den Buchstaben abhebt.
 const CHECK = [
-	[18 / 64, 34 / 64],
-	[28 / 64, 44 / 64],
-	[46 / 64, 23 / 64]
+	[17, 35],
+	[27, 45],
+	[47, 22]
 ];
+const LETTER_ALPHA = 0.3;
+const CHECK_WIDTH = 6.5;
+const CHECK_BORDER = 12;
+
+function inLetters(x, y) {
+	// T: Balken 7–30 × 14–21, Stamm 15–22 × 14–50
+	if (y >= 14 && y <= 21 && x >= 7 && x <= 30) return true;
+	if (x >= 15 && x <= 22 && y >= 14 && y <= 50) return true;
+	// D: Stamm 32–39 × 14–50, Bogen als Halbring um (39, 32) mit Radius 11–18
+	if (x >= 32 && x <= 39 && y >= 14 && y <= 50) return true;
+	const r = Math.hypot(x - 39, y - 32);
+	return x >= 39 && r >= 11 && r <= 18;
+}
 
 function segmentDistance(px, py, [ax, ay], [bx, by]) {
 	const dx = bx - ax;
@@ -28,30 +42,34 @@ function render(size, { maskable }) {
 	const radius = maskable ? 0 : size * (14 / 64);
 	const scale = maskable ? 0.72 : 1; // Safe-Zone für maskierbare Icons
 	const offset = (size * (1 - scale)) / 2;
-	const points = CHECK.map(([x, y]) => [offset + x * size * scale, offset + y * size * scale]);
-	const stroke = (6 / 64) * size * scale;
+	const unit = (size * scale) / 64; // Pixel je Einheit der 64er-viewBox
 	const pixels = Buffer.alloc(size * size * 4);
 	const samples = 4;
 	for (let y = 0; y < size; y++) {
 		for (let x = 0; x < size; x++) {
 			let bg = 0;
-			let fg = 0;
+			let white = 0; // Anteil Weiß über der Akzentfarbe
 			for (let sy = 0; sy < samples; sy++) {
 				for (let sx = 0; sx < samples; sx++) {
 					const px = x + (sx + 0.5) / samples;
 					const py = y + (sy + 0.5) / samples;
 					if (!insideRoundedRect(px, py, size, radius)) continue;
 					bg++;
+					// In Koordinaten der viewBox umrechnen
+					const vx = (px - offset) / unit;
+					const vy = (py - offset) / unit;
 					const d = Math.min(
-						segmentDistance(px, py, points[0], points[1]),
-						segmentDistance(px, py, points[1], points[2])
+						segmentDistance(vx, vy, CHECK[0], CHECK[1]),
+						segmentDistance(vx, vy, CHECK[1], CHECK[2])
 					);
-					if (d <= stroke / 2) fg++;
+					if (d <= CHECK_WIDTH / 2) white += 1;
+					else if (d <= CHECK_BORDER / 2) white += 0;
+					else if (inLetters(vx, vy)) white += LETTER_ALPHA;
 				}
 			}
 			const total = samples * samples;
 			const alpha = bg / total;
-			const mix = bg ? fg / bg : 0;
+			const mix = bg ? white / bg : 0;
 			const i = (y * size + x) * 4;
 			for (let c = 0; c < 3; c++)
 				pixels[i + c] = Math.round(ACCENT[c] * (1 - mix) + WHITE[c] * mix);

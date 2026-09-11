@@ -73,7 +73,7 @@ async def setup(body: SetupIn, request: Request, response: Response, db: DB, res
     # Verhindert, dass zwei gleichzeitige Anfragen beide einen Admin anlegen.
     await db.execute(select(func.pg_advisory_xact_lock(SETUP_LOCK_ID)))
     if not await _setup_required(db):
-        raise HTTPException(status.HTTP_409_CONFLICT, "Todoch ist bereits eingerichtet.")
+        raise HTTPException(status.HTTP_409_CONFLICT, "ToDoch ist bereits eingerichtet.")
 
     try:
         check_password_policy(body.password, email=body.email, display_name=body.display_name)

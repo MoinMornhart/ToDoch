@@ -1,6 +1,6 @@
 {
-	"name": "Todoch",
-	"short_name": "Todoch",
+	"name": "ToDoch",
+	"short_name": "ToDoch",
 	"description": "To-dos und Termine – selbst gehostet",
 	"start_url": "/today",
 	"scope": "/",

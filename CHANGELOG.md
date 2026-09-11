@@ -4,6 +4,16 @@ Alle Änderungen an Todoch – die neueste Version steht oben.
 Versionsschema: `0.0.1 → 0.0.2 → … → 0.0.9 → 0.1.0 → … → 0.9.9 → 1.0.0`.
 Im Container spielt der Befehl `update` immer die neueste Version ein.
 
+## [0.1.2] – 2026-09-11
+
+Englische Version und neues Logo – jetzt ToDoch
+
+- README auf Englisch (README.en.md) mit Umschalter Deutsch/English oben in beiden Fassungen (closes #1)
+- Sprache schon auf der Anmeldeseite umschaltbar; ohne Wahl gilt die Browsersprache, nach dem Anmelden die aus dem Profil
+- Fehlermeldungen des Servers kommen jetzt auch auf Englisch – ein Test stellt sicher, dass jede Meldung übersetzt ist
+- ICS-Abos zeigen „Busy“ statt „Belegt“ bei englischer Sprache
+- Neuer Name ToDoch mit großem D, neues Icon: „TD“ im Hintergrund, davor ein Haken (App, Favicon, App-Icons)
+
 ## [0.1.1] – 2026-09-11
 
 Admins ändern ihr Passwort ohne das alte

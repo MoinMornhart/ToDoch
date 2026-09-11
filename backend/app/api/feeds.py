@@ -148,8 +148,9 @@ async def feed_calendar(token: str, request: Request, db: DB, res: Res) -> Respo
         raise _not_found()
 
     events = await _feed_events(db, user, feed)
-    name = f"Todoch – {feed.area.name}" if feed.area else "Todoch"
-    body = build_calendar(events, name=name, detail=feed.detail)
+    name = f"ToDoch – {feed.area.name}" if feed.area else "ToDoch"
+    busy = "Busy" if user.locale == "en" else "Belegt"
+    body = build_calendar(events, name=name, detail=feed.detail, busy_title=busy)
     etag = '"' + hashlib.sha256(body).hexdigest()[:32] + '"'
 
     now = datetime.now(UTC)

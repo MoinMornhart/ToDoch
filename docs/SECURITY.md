@@ -1,6 +1,6 @@
 # Sicherheit
 
-Todoch speichert private Termine, Aufgaben und später Zugangsdaten zu E-Mail-Konten. Sicherheit
+ToDoch speichert private Termine, Aufgaben und später Zugangsdaten zu E-Mail-Konten. Sicherheit
 geht deshalb vor Komfort: sichere Voreinstellungen, nichts Sicherheitsrelevantes ist abschaltbar
 (Ausnahme: Passkeys sind freiwillig, ein Passwort bleibt immer als Rückfall).
 

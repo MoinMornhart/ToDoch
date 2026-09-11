@@ -2,7 +2,7 @@
 	let { title, subtitle }: { title: string; subtitle?: string } = $props();
 </script>
 
-<svelte:head><title>{title} · Todoch</title></svelte:head>
+<svelte:head><title>{title} · ToDoch</title></svelte:head>
 
 <header class="mb-5">
 	<h1 tabindex="-1" class="text-2xl font-semibold tracking-tight focus:outline-none">{title}</h1>

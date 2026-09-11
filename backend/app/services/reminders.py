@@ -24,10 +24,10 @@ KEEP_LOG = timedelta(days=60)
 TEXTS = {
     "de": {
         "all_day": "Ganztägig",
-        "test_title": "Todoch",
+        "test_title": "ToDoch",
         "test": "Benachrichtigungen funktionieren.",
     },
-    "en": {"all_day": "All day", "test_title": "Todoch", "test": "Notifications are working."},
+    "en": {"all_day": "All day", "test_title": "ToDoch", "test": "Notifications are working."},
 }
 
 

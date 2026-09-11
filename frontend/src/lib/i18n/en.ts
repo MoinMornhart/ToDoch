@@ -1,9 +1,9 @@
 import type { MessageKey } from './de';
 
 export const en: Record<MessageKey, string> = {
-	'app.name': 'Todoch',
+	'app.name': 'ToDoch',
 	'app.loading': 'Loading …',
-	'app.error': 'Todoch is currently unreachable.',
+	'app.error': 'ToDoch is currently unreachable.',
 	'app.retry': 'Try again',
 	'app.offline': 'Offline – showing the last loaded state.',
 	'app.skip': 'Skip to content',
@@ -108,7 +108,7 @@ export const en: Record<MessageKey, string> = {
 	'login.password': 'Password',
 	'login.submit': 'Sign in',
 
-	'setup.title': 'Set up Todoch',
+	'setup.title': 'Set up ToDoch',
 	'setup.intro':
 		'Create the administrator account. The setup code is shown by the server after installation (command “todoch setup-code”).',
 	'setup.code': 'Setup code',
@@ -152,7 +152,7 @@ export const en: Record<MessageKey, string> = {
 	'settings.lastSeen': 'Last active',
 	'settings.endSession': 'Sign out',
 	'settings.logoutAll': 'Sign out everywhere',
-	'settings.about': 'About Todoch',
+	'settings.about': 'About ToDoch',
 	'settings.version': 'Version {version}',
 
 	'nav.calendar': 'Calendar',
@@ -223,7 +223,7 @@ export const en: Record<MessageKey, string> = {
 
 	'feeds.title': 'Subscribe to calendar (ICS)',
 	'feeds.intro':
-		'Create a secret link to show your events in Apple Calendar, Google Calendar, Outlook or Thunderbird. They are read-only there – edit them in Todoch.',
+		'Create a secret link to show your events in Apple Calendar, Google Calendar, Outlook or Thunderbird. They are read-only there – edit them in ToDoch.',
 	'feeds.name': 'Link name',
 	'feeds.namePlaceholder': 'e.g. iPhone',
 	'feeds.area': 'Area',
@@ -250,7 +250,7 @@ export const en: Record<MessageKey, string> = {
 
 	'push.title': 'Reminders as notifications',
 	'push.intro':
-		'Todoch notifies you before events with a reminder – even when the app is closed. Enable it on each device.',
+		'ToDoch notifies you before events with a reminder – even when the app is closed. Enable it on each device.',
 	'push.enable': 'Enable on this device',
 	'push.disable': 'Disable on this device',
 	'push.test': 'Send test notification',
@@ -261,7 +261,7 @@ export const en: Record<MessageKey, string> = {
 		'Notifications are blocked in the browser. Please allow them in the site settings.',
 	'push.unsupported': 'This browser does not support push notifications.',
 	'push.iosHint':
-		'iPhone/iPad: first install Todoch via “Share → Add to Home Screen”, open it from there, then enable here.',
+		'iPhone/iPad: first install ToDoch via “Share → Add to Home Screen”, open it from there, then enable here.',
 	'push.devices': 'Devices with reminders',
 	'push.remove': 'Remove',
 
@@ -391,7 +391,7 @@ export const en: Record<MessageKey, string> = {
 	'passkeys.password': 'Password to confirm',
 	'passkeys.added': 'Passkey added',
 	'passkeys.cancelled': 'Cancelled.',
-	'passkeys.exists': 'This device already has a passkey for Todoch.',
+	'passkeys.exists': 'This device already has a passkey for ToDoch.',
 	'passkeys.created': 'Added on {date}',
 	'passkeys.lastUsed': 'last used on {date}',
 	'passkeys.neverUsed': 'not used yet',
@@ -406,6 +406,12 @@ export const en: Record<MessageKey, string> = {
 	'settings.method.password': 'Password',
 
 	'settings.adminNoCurrent': 'As an admin you don’t need your old password for this.',
+
+	'login.language': 'Language',
+	'error.tooMany': 'Too many attempts. Please try again later.',
+	'error.server': 'The server reported an error. Please try again later.',
+	'error.status': 'Error {status}',
+	'error.offline': 'No connection to the server.',
 
 	'error.generic': 'Something went wrong.'
 };

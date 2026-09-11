@@ -22,8 +22,7 @@
 		if (status === 'setup' && path !== '/setup') void goto('/setup', { replaceState: true });
 		else if (status === 'anonymous' && path !== '/login')
 			void goto('/login', { replaceState: true });
-		else if (status === 'ready' && PUBLIC.includes(path))
-			void goto('/today', { replaceState: true });
+		else if (status === 'ready' && PUBLIC.includes(path)) void goto('/', { replaceState: true });
 	});
 
 	const showPage = $derived(

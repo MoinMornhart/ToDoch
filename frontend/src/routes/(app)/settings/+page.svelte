@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { Monitor, Moon, Sun } from '@lucide/svelte';
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { describeAgent } from '$lib/agent';
@@ -7,8 +8,15 @@
 	import PushSettings from '$lib/components/PushSettings.svelte';
 	import { i18n, t } from '$lib/i18n/index.svelte';
 	import { session } from '$lib/stores/session.svelte';
+	import { theme, type ThemeMode } from '$lib/stores/theme.svelte';
 	import { toasts } from '$lib/stores/toasts.svelte';
 	import type { Locale, SessionInfo, User } from '$lib/types';
+
+	const themes = [
+		{ mode: 'system', label: 'theme.system', icon: Monitor },
+		{ mode: 'light', label: 'theme.light', icon: Sun },
+		{ mode: 'dark', label: 'theme.dark', icon: Moon }
+	] as const satisfies readonly { mode: ThemeMode; label: string; icon: typeof Sun }[];
 
 	const initialZone = session.user?.timezone ?? 'Europe/Berlin';
 	const zones = Array.from(new Set([initialZone, ...Intl.supportedValuesOf('timeZone')])).sort();
@@ -116,6 +124,31 @@
 				<button type="submit" class="btn btn-primary">{t('settings.saveProfile')}</button>
 			</div>
 		</form>
+	</section>
+
+	<section aria-labelledby="appearance-title">
+		<h2 id="appearance-title" class="mb-3 text-base font-semibold">
+			{t('settings.appearance')}
+		</h2>
+		<div
+			role="group"
+			aria-labelledby="appearance-title"
+			class="inline-flex rounded-lg border border-line bg-raised p-1"
+		>
+			{#each themes as item (item.mode)}
+				<button
+					type="button"
+					aria-pressed={theme.mode === item.mode}
+					class="flex items-center gap-2 rounded-md px-3 py-1.5 text-sm {theme.mode === item.mode
+						? 'bg-surface-2 font-medium text-fg'
+						: 'text-muted hover:text-fg'}"
+					onclick={() => theme.set(item.mode)}
+				>
+					<item.icon size={16} aria-hidden="true" />{t(item.label)}
+				</button>
+			{/each}
+		</div>
+		<p class="mt-2 text-xs text-muted">{t('theme.hint')}</p>
 	</section>
 
 	<section aria-labelledby="password-title">

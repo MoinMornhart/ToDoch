@@ -10,6 +10,7 @@
 
 	let {
 		days,
+		columns = 7,
 		month,
 		today,
 		occurrences,
@@ -20,6 +21,7 @@
 		onmove
 	}: {
 		days: string[];
+		columns?: number;
 		month: string;
 		today: string;
 		occurrences: Occurrence[];
@@ -35,7 +37,7 @@
 
 	const weekdays = $derived(
 		days
-			.slice(0, 7)
+			.slice(0, columns)
 			.map((day) =>
 				new Intl.DateTimeFormat(i18n.locale, { weekday: 'short', timeZone: 'UTC' }).format(
 					new Date(`${day}T00:00:00Z`)
@@ -57,7 +59,10 @@
 	}
 </script>
 
-<div class="grid grid-cols-7 overflow-hidden rounded-xl border border-line bg-raised text-sm">
+<div
+	class="grid overflow-hidden rounded-xl border border-line bg-raised text-sm"
+	style:grid-template-columns={`repeat(${columns}, minmax(0, 1fr))`}
+>
 	{#each weekdays as name (name)}
 		<div class="border-b border-line px-2 py-1.5 text-xs font-medium text-muted">{name}</div>
 	{/each}
@@ -66,9 +71,11 @@
 		{@const outside = day.slice(0, 7) !== month.slice(0, 7)}
 		<!-- svelte-ignore a11y_no_static_element_interactions -->
 		<div
-			class="group min-h-24 border-line p-1 {index % 7 !== 6 ? 'border-r' : ''} {index < 35
-				? 'border-b'
-				: ''} {outside ? 'bg-surface-2/60' : ''} {dropDay === day ? 'bg-accent/10' : ''}"
+			class="group min-h-24 border-line p-1 {index % columns !== columns - 1
+				? 'border-r'
+				: ''} {index < days.length - columns ? 'border-b' : ''} {outside
+				? 'bg-surface-2/60'
+				: ''} {dropDay === day ? 'bg-accent/10' : ''}"
 			ondragover={(event) => {
 				event.preventDefault();
 				dropDay = day;

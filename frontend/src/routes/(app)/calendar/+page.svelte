@@ -6,7 +6,10 @@
 	import AgendaView from '$lib/components/calendar/AgendaView.svelte';
 	import MonthView from '$lib/components/calendar/MonthView.svelte';
 	import TimeGrid from '$lib/components/calendar/TimeGrid.svelte';
+	import { areas } from '$lib/stores/areas.svelte';
 	import {
+		filterDays,
+		shapeFor,
 		isoWeek,
 		minutesToTime,
 		rangeFor,
@@ -38,7 +41,13 @@
 		const requested = page.url.searchParams.get('date') ?? '';
 		return isValidIsoDate(requested) ? requested : today;
 	});
-	const days = $derived(visibleDays(view, date));
+	// Kalenderform des gewählten Bereichs (z. B. Arbeit: Mo–Fr, 8–18 Uhr)
+	const shape = $derived(shapeFor(areas.current ? [areas.current] : areas.list));
+	const days = $derived(
+		view === 'week' || view === 'month'
+			? filterDays(visibleDays(view, date), shape.weekdays)
+			: visibleDays(view, date)
+	);
 	const data = calendarQuery(() => rangeFor(view, date));
 
 	function format(day: string, options: Intl.DateTimeFormatOptions): string {
@@ -168,6 +177,7 @@
 {#if view === 'month'}
 	<MonthView
 		{days}
+		columns={shape.weekdays.length}
 		month={date}
 		{today}
 		occurrences={data.occurrences}
@@ -191,6 +201,8 @@
 		{days}
 		{today}
 		{nowMinutes}
+		startHour={shape.startHour}
+		endHour={shape.endHour}
 		occurrences={data.occurrences}
 		tasks={data.tasks}
 		onopen={openOccurrence}

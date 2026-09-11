@@ -50,6 +50,43 @@ export function shift(view: CalendarView, iso: string, direction: 1 | -1): strin
 	return addDays(iso, AGENDA_DAYS * direction);
 }
 
+/** Wochentag 0 = Montag … 6 = Sonntag. */
+export function weekdayIndex(iso: string): number {
+	return (weekday(iso) + 6) % 7;
+}
+
+export interface CalendarShape {
+	/** Sichtbare Wochentage, 0 = Montag … 6 = Sonntag */
+	weekdays: number[];
+	startHour: number;
+	endHour: number;
+}
+
+export const FULL_SHAPE: CalendarShape = {
+	weekdays: [0, 1, 2, 3, 4, 5, 6],
+	startHour: 0,
+	endHour: 24
+};
+
+/** Kalenderform aus den Einstellungen der Bereiche (mehrere: alles, was einer davon zeigt). */
+export function shapeFor(
+	settings: { week_days: number; day_start: number; day_end: number }[]
+): CalendarShape {
+	if (settings.length === 0) return FULL_SHAPE;
+	const mask = settings.reduce((acc, s) => acc | s.week_days, 0);
+	const weekdays = [0, 1, 2, 3, 4, 5, 6].filter((d) => mask & (1 << d));
+	return {
+		weekdays: weekdays.length ? weekdays : FULL_SHAPE.weekdays,
+		startHour: Math.min(...settings.map((s) => s.day_start)),
+		endHour: Math.max(...settings.map((s) => s.day_end))
+	};
+}
+
+export function filterDays(days: string[], weekdays: number[]): string[] {
+	const filtered = days.filter((day) => weekdays.includes(weekdayIndex(day)));
+	return filtered.length ? filtered : days;
+}
+
 /** Kalenderwoche nach ISO 8601. */
 export function isoWeek(iso: string): number {
 	const date = new Date(`${iso}T00:00:00Z`);

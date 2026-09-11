@@ -29,6 +29,9 @@ def area_out(area: Area, user: User, open_count: int = 0) -> AreaOut:
         sort_order=area.sort_order,
         open_count=open_count,
         role=role.value if role else "none",
+        week_days=area.week_days,
+        day_start=area.day_start,
+        day_end=area.day_end,
     )
 
 
@@ -78,6 +81,10 @@ async def update_area(area_id: uuid.UUID, body: AreaPatch, db: DB, user: Current
         value = getattr(body, field)
         if value is not None:
             setattr(area, field, value)
+    if area.day_start >= area.day_end:
+        raise HTTPException(
+            status.HTTP_422_UNPROCESSABLE_CONTENT, "Der Kalender muss vor dem Ende beginnen."
+        )
     try:
         await db.commit()
     except IntegrityError as exc:

@@ -33,7 +33,8 @@ test('Einrichtung, Schnellerfassung, Tastatur, Bearbeiten und Suche', async ({ p
 	await page.getByLabel('Passwort wiederholen').fill(PASSWORD);
 	await page.getByRole('button', { name: 'Einrichten' }).click();
 
-	await expect(page).toHaveURL(/\/today$/);
+	await expect(page).toHaveURL(/\/$/);
+	await page.goto('/today');
 	await expect(page.getByText(/Nichts fällig/)).toBeVisible();
 
 	const quick = page.getByLabel('Neue Aufgabe');
@@ -99,7 +100,8 @@ test('Bereiche filtern alle Ansichten', async ({ page }) => {
 	await page.getByLabel('E-Mail-Adresse').fill(EMAIL);
 	await page.getByLabel('Passwort').fill(PASSWORD);
 	await page.getByRole('button', { name: 'Anmelden' }).click();
-	await expect(page).toHaveURL(/\/today$/);
+	await expect(page).toHaveURL(/\/$/);
+	await page.goto('/today');
 
 	const quick = page.getByLabel('Neue Aufgabe');
 	await quick.fill('Angebot schreiben heute @arbeit');
@@ -130,7 +132,8 @@ test('Abmelden, falsches Passwort, erneut anmelden', async ({ page }) => {
 
 	await page.getByLabel('Passwort').fill(PASSWORD);
 	await page.getByRole('button', { name: 'Anmelden' }).click();
-	await expect(page).toHaveURL(/\/today$/);
+	await expect(page).toHaveURL(/\/$/);
+	await page.goto('/today');
 
 	await page.getByRole('link', { name: 'Einstellungen' }).first().click();
 	await expect(page.getByText('Dieses Gerät')).toBeVisible();

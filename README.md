@@ -22,8 +22,8 @@ Minimalistisch, schnell mit der Tastatur, sicher ab Werk. Keine Cloud, kein Trac
 <br>
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/images/heute-dunkel.png">
-  <img src="docs/images/heute.png" alt="Todoch – Ansicht „Heute“" width="860">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/uebersicht-dunkel.png">
+  <img src="docs/images/uebersicht.png" alt="Todoch – Übersicht mit Aufgaben, Terminen und Bereichen" width="860">
 </picture>
 
 </div>
@@ -31,6 +31,11 @@ Minimalistisch, schnell mit der Tastatur, sicher ab Werk. Keine Cloud, kein Trac
 ---
 
 ## ✨ Funktionen
+
+### 🏠 Übersicht zum Start
+Nach dem Öffnen begrüßt dich Todoch mit allem Wichtigen auf einen Blick: heute fällig, überfällig,
+die nächsten Termine, was demnächst ansteht und wie viel in jedem Bereich offen ist. Über **Neu**
+(auf dem Handy der ➕-Knopf) legst du von überall eine Aufgabe oder einen Termin an.
 
 <table>
 <tr>
@@ -55,16 +60,19 @@ Versteht auch „am 15.10. um 9 Uhr“, „übermorgen“, „in 2 Wochen“, �
 <tr>
 <td width="50%" valign="top">
 
-<img src="docs/images/bearbeiten.png" alt="Aufgabe bearbeiten">
+<img src="docs/images/ticket.png" alt="Aufgabe als Ticket anlegen">
 
 </td>
 <td width="50%" valign="top">
 
-### 📝 Aufgaben mit allem, was nötig ist
-Notizen mit Markdown, Unterpunkte, Priorität, Tags, Fälligkeit mit Uhrzeit und Wiederholungen – täglich, an bestimmten Wochentagen, monatlich, jährlich, mit Intervall und Enddatum.
+### 📝 Aufgaben als Ticket
+Über **Neu → Aufgabe** öffnet sich ein vollständiges Formular wie bei einem Ticket: Titel, Bereich,
+Fälligkeit mit Uhrzeit, Priorität, Tags, Unterpunkte, Notizen mit Markdown und Wiederholungen –
+täglich, an bestimmten Wochentagen, monatlich, jährlich, mit Intervall und Enddatum.
 
 ### 🗂️ Bereiche
 „Arbeit“, „Privat“ und eigene Bereiche mit Farbe und Symbol. Ein Klick filtert alle Ansichten.
+Pro Bereich legst du fest, welche Tage und Stunden der Kalender zeigt – z. B. Arbeit nur Mo–Fr, 8–18 Uhr.
 
 </td>
 </tr>
@@ -76,6 +84,7 @@ Notizen mit Markdown, Unterpunkte, Priorität, Tags, Fälligkeit mit Uhrzeit und
 | Taste | Aktion |
 | :---: | --- |
 | <kbd>n</kbd> | Neue Aufgabe |
+| <kbd>c</kbd> | Neuer Termin |
 | <kbd>/</kbd> | Suchen |
 | <kbd>j</kbd> / <kbd>k</kbd> | Nächste / vorherige Aufgabe |
 | <kbd>x</kbd> | Erledigt |
@@ -89,7 +98,7 @@ Notizen mit Markdown, Unterpunkte, Priorität, Tags, Fälligkeit mit Uhrzeit und
 **Heute** (mit Überfälligem), **Demnächst** für die nächsten 7 Tage, **Alle offen**, **Erledigt** und jeder einzelne Tag – dazu eine Volltextsuche über Titel, Notizen und Tags.
 
 ### 📱 Überall
-Installierbar als App (PWA) auf Smartphone und Desktop, Hell- und Dunkelmodus nach Systemeinstellung, Deutsch und Englisch, barrierearm.
+Installierbar als App (PWA) auf Smartphone und Desktop, **Dunkelmodus** per Klick oder automatisch nach Systemeinstellung, Deutsch und Englisch, barrierearm.
 
 </td>
 </tr>
@@ -101,6 +110,14 @@ Installierbar als App (PWA) auf Smartphone und Desktop, Hell- und Dunkelmodus na
 <img src="docs/images/mobil-demnaechst.png" alt="Demnächst auf dem Smartphone" width="260">
 </div>
 
+<details>
+<summary><b>Bearbeiten, Heute-Ansicht und Dunkelmodus ansehen</b></summary>
+<br>
+<img src="docs/images/bearbeiten.png" alt="Aufgabe bearbeiten">
+<img src="docs/images/heute.png" alt="Ansicht „Heute“">
+<img src="docs/images/heute-dunkel.png" alt="Ansicht „Heute“ im Dunkelmodus">
+</details>
+
 ### 🗓️ Kalender
 
 <img src="docs/images/kalender-woche.png" alt="Kalender in der Wochenansicht">
@@ -110,6 +127,7 @@ erscheinen direkt daneben. Wiederkehrende Termine (auch „jeden letzten Freitag
 **nur dieser / dieser und folgende / alle** bearbeiten. Ganztägige und mehrtägige Termine, Ort,
 Videolink, Teilnehmer, Erinnerungen, **feste Termine** mit Rückfrage beim Verschieben und eine
 **Warnung bei Überschneidungen** im selben Bereich. Die Termine des Tages stehen auch auf „Heute“.
+Ist ein Bereich gewählt, zeigt der Kalender nur dessen Tage und Stunden (einstellbar unter *Bereiche*).
 
 **In anderen Kalendern anzeigen:** Unter *Bereiche → Kalender abonnieren* erzeugst du einen geheimen
 ICS-Link – für alle oder nur einen Bereich, mit allen Details, nur Titeln oder nur „Belegt“. Ein Klick
@@ -291,9 +309,9 @@ todoch logs [app|web|db|worker]  # Protokolle ansehen
 | | Meilenstein | Inhalt |
 | :---: | --- | --- |
 | ✅ | **1 · Grundgerüst** | Anmeldung, Sitzungen, Bereiche, Aufgaben, Schnellerfassung, Suche, PWA, Proxmox-Quickstart |
-| ✅ | **2 · Kalender** | Termine, Serien, Monat / Woche / Tag / Agenda, Drag & Drop, Konflikte, ICS-Abos für Apple, Google & Outlook, Erinnerungen per Push |
+| ✅ | **2 · Kalender** | Termine, Serien, Monat / Woche / Tag / Agenda, Drag & Drop, Konflikte, ICS-Abos für Apple, Google & Outlook, Erinnerungen per Push, Übersicht, Dunkelmodus |
 | ⏳ | **3 · Telefontermine** | Formular für telefonisch vereinbarte Termine, Kontakte, Folgeaufgaben |
-| ⏳ | **4 · E-Mail** | Postfächer per IMAP, Regeln, automatische Terminerkennung, Bestätigungs-Inbox |
+| ⏳ | **4 · E-Mail** | Eigener Bereich „E-Mail“ in der Navigation, Postfächer per IMAP, Regeln, automatische Terminerkennung, Bestätigungs-Inbox |
 | ⏳ | **5 · Synchronisation** | Gmail & Microsoft per OAuth, Zwei-Wege-Sync mit CalDAV, Google und Microsoft |
 | ⏳ | **6 · Passkeys** | Anmeldung mit Face ID / Touch ID / Windows Hello, TOTP, Wiederherstellungscodes |
 | ⏳ | **7 · Gruppen** | Gemeinsame Bereiche, Rollen, Einladungen, Zuweisungen, Kommentare |

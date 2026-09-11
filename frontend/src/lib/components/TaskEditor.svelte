@@ -95,9 +95,37 @@
 		if (id) void load(id);
 	});
 
+	// Neue Aufgabe als Ticket: leeres Formular mit allen Feldern.
+	async function startNew(date?: string) {
+		task = null;
+		form = {
+			title: '',
+			area_id: areas.filterId ?? areas.list[0]?.id ?? '',
+			due_date: date ?? '',
+			due_time: '',
+			priority: 0,
+			tags: '',
+			notes: '',
+			recurrence: parseRule(null),
+			checklist: []
+		};
+		newItem = '';
+		confirmDelete = false;
+		error = null;
+		showPreview = false;
+		open = true;
+		await tick();
+		titleInput?.focus();
+	}
+
+	$effect(() => {
+		const request = ui.newTask;
+		if (request) void startNew(request.date);
+	});
+
 	async function save(event?: Event) {
 		event?.preventDefault();
-		if (!task || !form || saving) return;
+		if (!form || saving) return;
 		if (!form.title.trim()) {
 			error = t('task.titleRequired');
 			return;
@@ -111,24 +139,23 @@
 		]
 			.filter((item) => item.text.trim())
 			.map((item) => ({ id: item.id, text: item.text.trim(), done: item.done }));
+		const body = {
+			title: form.title.trim(),
+			area_id: form.area_id || undefined,
+			due_date: form.due_date || null,
+			due_time: form.due_date && form.due_time ? form.due_time : null,
+			priority: form.priority,
+			tags: parseTags(form.tags),
+			notes: form.notes,
+			recurrence: buildRule(form.recurrence),
+			checklist
+		};
 		try {
-			await api<Task>(`/tasks/${task.id}`, {
-				method: 'PATCH',
-				body: {
-					title: form.title.trim(),
-					area_id: form.area_id,
-					due_date: form.due_date || null,
-					due_time: form.due_date && form.due_time ? form.due_time : null,
-					priority: form.priority,
-					tags: parseTags(form.tags),
-					notes: form.notes,
-					recurrence: buildRule(form.recurrence),
-					checklist
-				}
-			});
+			if (task) await api<Task>(`/tasks/${task.id}`, { method: 'PATCH', body });
+			else await api<Task>('/tasks', { method: 'POST', body });
 			ui.changed();
 			void areas.refresh();
-			toasts.show(t('task.saved'));
+			toasts.show(task ? t('task.saved') : t('quick.created'));
 			open = false;
 		} catch (err) {
 			error = message(err);
@@ -172,13 +199,14 @@
 
 	function onClose() {
 		ui.editTaskId = null;
+		ui.newTask = null;
 		task = null;
 		form = null;
 	}
 </script>
 
-<Dialog bind:open title={t('task.edit')} size="lg" onclose={onClose}>
-	{#if form && task}
+<Dialog bind:open title={task ? t('task.edit') : t('task.new')} size="lg" onclose={onClose}>
+	{#if form}
 		<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 		<form class="flex flex-col gap-4" onsubmit={save} onkeydown={onKeydown}>
 			{#if error}<p role="alert" class="text-sm text-danger">{error}</p>{/if}
@@ -359,7 +387,7 @@
 			<div>
 				<div class="flex items-center justify-between">
 					<label class="label" for="{uid}-notes">{t('task.notes')}</label>
-					{#if task.notes_html}
+					{#if task?.notes_html}
 						<button
 							type="button"
 							class="text-xs text-accent"
@@ -373,7 +401,7 @@
 				{#if showPreview}
 					<!-- Serverseitig per Allowlist bereinigtes HTML -->
 					<div class="prose-notes rounded-lg border border-line p-3 text-sm">
-						{@html task.notes_html}
+						{@html task?.notes_html ?? ''}
 					</div>
 				{:else}
 					<textarea
@@ -387,7 +415,12 @@
 			</div>
 
 			<div class="flex items-center justify-between gap-2 border-t border-line pt-4">
-				<button type="button" class="btn btn-ghost btn-danger" onclick={remove}>
+				<button
+					type="button"
+					class="btn btn-ghost btn-danger {task ? '' : 'invisible'}"
+					onclick={remove}
+					disabled={!task}
+				>
 					<Trash size={16} aria-hidden="true" />
 					{confirmDelete ? t('task.deleteConfirm') : t('task.delete')}
 				</button>

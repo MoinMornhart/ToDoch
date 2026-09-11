@@ -5,8 +5,9 @@
 	import AreaIcon from '$lib/components/AreaIcon.svelte';
 	import CalendarFeeds from '$lib/components/CalendarFeeds.svelte';
 	import PageHeader from '$lib/components/PageHeader.svelte';
-	import { t } from '$lib/i18n/index.svelte';
+	import { i18n, t } from '$lib/i18n/index.svelte';
 	import { AREA_ICONS } from '$lib/labels';
+	import { weekdayName } from '$lib/recurrence';
 	import { areas } from '$lib/stores/areas.svelte';
 	import { toasts } from '$lib/stores/toasts.svelte';
 	import { ui } from '$lib/stores/ui.svelte';
@@ -42,7 +43,18 @@
 		}
 	}
 
-	async function update(area: Area, patch: Partial<Pick<Area, 'name' | 'color' | 'icon'>>) {
+	const WEEKDAYS = ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'] as const;
+	const HOURS = Array.from({ length: 25 }, (_, h) => h);
+
+	function toggleDay(area: Area, index: number) {
+		const mask = area.week_days ^ (1 << index);
+		if (mask > 0) void update(area, { week_days: mask });
+	}
+
+	async function update(
+		area: Area,
+		patch: Partial<Pick<Area, 'name' | 'color' | 'icon' | 'week_days' | 'day_start' | 'day_end'>>
+	) {
 		try {
 			await api(`/areas/${area.id}`, { method: 'PATCH', body: patch });
 			ui.changed();
@@ -91,7 +103,7 @@
 	}
 </script>
 
-<PageHeader title={t('areas.title')} />
+<PageHeader title={t('areas.title')} subtitle={t('areas.calendarHint')} />
 
 <ul class="flex flex-col divide-y divide-line rounded-xl border border-line bg-raised">
 	{#each areas.list as area, index (area.id)}
@@ -151,6 +163,52 @@
 				>
 					<Trash size={16} aria-hidden="true" />
 				</button>
+			</div>
+			<div class="flex w-full flex-wrap items-center gap-2 pl-10 text-xs text-muted">
+				<span>{t('areas.calendar')}:</span>
+				<div
+					class="flex gap-0.5"
+					role="group"
+					aria-label={t('areas.calendarDays', { name: area.name })}
+				>
+					{#each WEEKDAYS as day, dayIndex (day)}
+						{@const on = (area.week_days & (1 << dayIndex)) !== 0}
+						<button
+							type="button"
+							aria-pressed={on}
+							class="rounded px-1.5 py-0.5 {on
+								? 'bg-accent/15 font-medium text-accent'
+								: 'hover:bg-surface-2'}"
+							onclick={() => toggleDay(area, dayIndex)}
+						>
+							{weekdayName(day, i18n.locale)}
+						</button>
+					{/each}
+				</div>
+				<label class="flex items-center gap-1">
+					{t('areas.from')}
+					<select
+						class="rounded border border-line bg-raised px-1 py-0.5"
+						value={area.day_start}
+						onchange={(event) => update(area, { day_start: Number(event.currentTarget.value) })}
+					>
+						{#each HOURS.slice(0, 24) as hour (hour)}
+							<option value={hour} disabled={hour >= area.day_end}>{hour}:00</option>
+						{/each}
+					</select>
+				</label>
+				<label class="flex items-center gap-1">
+					{t('areas.to')}
+					<select
+						class="rounded border border-line bg-raised px-1 py-0.5"
+						value={area.day_end}
+						onchange={(event) => update(area, { day_end: Number(event.currentTarget.value) })}
+					>
+						{#each HOURS.slice(1) as hour (hour)}
+							<option value={hour} disabled={hour <= area.day_start}>{hour}:00</option>
+						{/each}
+					</select>
+				</label>
 			</div>
 			{#if deleting === area.id}
 				<div class="flex w-full flex-wrap items-center gap-2 pt-1 text-sm">

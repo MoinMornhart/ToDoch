@@ -3,6 +3,8 @@
 		CalendarDays,
 		CalendarRange,
 		CircleCheckBig,
+		House,
+		Moon,
 		Keyboard,
 		Layers,
 		ListTodo,
@@ -20,6 +22,8 @@
 	import { todayIn } from '$lib/dates';
 	import HelpDialog from '$lib/components/HelpDialog.svelte';
 	import Logo from '$lib/components/Logo.svelte';
+	import NewMenu from '$lib/components/NewMenu.svelte';
+	import { theme } from '$lib/stores/theme.svelte';
 	import SearchDialog from '$lib/components/SearchDialog.svelte';
 	import TaskEditor from '$lib/components/TaskEditor.svelte';
 	import { t, type MessageKey } from '$lib/i18n/index.svelte';
@@ -31,6 +35,7 @@
 	let { children }: { children: Snippet } = $props();
 
 	const primary: { href: string; label: MessageKey; icon: typeof Sun }[] = [
+		{ href: '/', label: 'nav.dashboard', icon: House },
 		{ href: '/today', label: 'nav.today', icon: Sun },
 		{ href: '/upcoming', label: 'nav.upcoming', icon: CalendarDays },
 		{ href: '/open', label: 'nav.open', icon: ListTodo },
@@ -41,8 +46,8 @@
 		{ href: '/areas', label: 'nav.areas', icon: Layers },
 		{ href: '/settings', label: 'nav.settings', icon: Settings }
 	];
-	// Handy: Heute, Demnächst, Alle offen, Kalender, Einstellungen
-	const tabs = [...primary.slice(0, 3), secondary[0]!, secondary[2]!];
+	// Handy: Übersicht, Heute, Alle offen, Kalender, Einstellungen
+	const tabs = [primary[0]!, primary[1]!, primary[3]!, secondary[0]!, secondary[2]!];
 
 	const isActive = (href: string) => page.url.pathname === href;
 
@@ -82,13 +87,11 @@
 		aria-label={t('nav.main')}
 		class="sticky top-0 hidden h-dvh w-56 shrink-0 flex-col gap-0.5 border-r border-line px-3 py-5 md:flex"
 	>
-		<a
-			href="/today"
-			class="mb-5 flex items-center gap-2.5 px-2 text-lg font-semibold tracking-tight"
-		>
+		<a href="/" class="mb-4 flex items-center gap-2.5 px-2 text-lg font-semibold tracking-tight">
 			<Logo size={26} />
 			Todoch
 		</a>
+		<div class="mb-4"><NewMenu /></div>
 		{#each primary as item (item.href)}
 			<a
 				href={item.href}
@@ -138,6 +141,18 @@
 			</button>
 			<button
 				type="button"
+				class="icon-btn"
+				aria-label={theme.resolved === 'dark' ? t('theme.toLight') : t('theme.toDark')}
+				onclick={() => theme.toggle()}
+			>
+				{#if theme.resolved === 'dark'}
+					<Sun size={18} aria-hidden="true" />
+				{:else}
+					<Moon size={18} aria-hidden="true" />
+				{/if}
+			</button>
+			<button
+				type="button"
 				class="icon-btn hidden md:inline-grid"
 				aria-label={t('nav.help')}
 				onclick={() => (ui.helpOpen = true)}
@@ -173,6 +188,8 @@
 		</a>
 	{/each}
 </nav>
+
+<div class="fixed right-4 bottom-20 z-30 md:hidden"><NewMenu variant="fab" /></div>
 
 <SearchDialog />
 <HelpDialog />

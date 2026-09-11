@@ -13,6 +13,8 @@
 		days,
 		today,
 		nowMinutes,
+		startHour = 0,
+		endHour = 24,
 		occurrences,
 		tasks,
 		onopen,
@@ -23,6 +25,8 @@
 		days: string[];
 		today: string;
 		nowMinutes: number;
+		startHour?: number;
+		endHour?: number;
 		occurrences: Occurrence[];
 		tasks: Task[];
 		onopen: (occ: Occurrence) => void;
@@ -36,13 +40,8 @@
 
 	const HOUR = 48;
 	const PX = HOUR / 60;
-	const hours = Array.from({ length: 24 }, (_, h) => h);
 	let scroller: HTMLDivElement | undefined = $state();
 	let dropTarget = $state<string | null>(null);
-
-	onMount(() => {
-		if (scroller) scroller.scrollTop = 7 * HOUR - 8;
-	});
 
 	const columns = $derived(
 		days.map((day) => ({
@@ -56,6 +55,27 @@
 		}))
 	);
 
+	// Sichtbarer Zeitraum: Einstellung des Bereichs, bei Bedarf erweitert, damit kein Termin fehlt.
+	const bounds = $derived.by(() => {
+		let start = startHour * 60;
+		let end = endHour * 60;
+		for (const column of columns) {
+			for (const placed of column.placed) {
+				start = Math.min(start, placed.start);
+				end = Math.max(end, placed.end);
+			}
+		}
+		return { start: Math.floor(start / 60) * 60, end: Math.min(1440, Math.ceil(end / 60) * 60) };
+	});
+	const hours = $derived(
+		Array.from({ length: (bounds.end - bounds.start) / 60 }, (_, i) => bounds.start / 60 + i)
+	);
+	const template = $derived(`3.5rem repeat(${days.length}, minmax(0, 1fr))`);
+
+	onMount(() => {
+		if (scroller && bounds.start === 0 && bounds.end === 1440) scroller.scrollTop = 7 * HOUR;
+	});
+
 	function header(day: string) {
 		const date = new Date(`${day}T00:00:00Z`);
 		return {
@@ -68,7 +88,11 @@
 
 	function minutesAt(event: MouseEvent, element: HTMLElement): number {
 		const rect = element.getBoundingClientRect();
-		return (event.clientY - rect.top) / PX;
+		return bounds.start + (event.clientY - rect.top) / PX;
+	}
+
+	function clamp(minutes: number): number {
+		return Math.max(bounds.start, Math.min(bounds.end - 15, minutes));
 	}
 
 	function colorOf(occ: Occurrence): string {
@@ -76,69 +100,70 @@
 	}
 </script>
 
+<!-- Kopf und Raster liegen im selben Scrollbereich – so sind die Spalten immer gleich breit. -->
 <div class="overflow-hidden rounded-xl border border-line bg-raised text-sm">
-	<!-- Kopfzeile und ganztägige Termine -->
-	<div
-		class="grid border-b border-line"
-		style:grid-template-columns={`3.5rem repeat(${days.length}, minmax(0, 1fr))`}
-	>
-		<div></div>
-		{#each days as day (day)}
-			{@const h = header(day)}
-			<button
-				type="button"
-				class="flex items-baseline justify-center gap-1.5 border-l border-line py-1.5 text-xs {day ===
-				today
-					? 'font-semibold text-accent'
-					: 'text-muted'}"
-				aria-label={formatLongDate(day, i18n.locale)}
-				onclick={() => onday(day)}
-			>
-				{h.weekday}
-				<span class="text-base {day === today ? '' : 'text-fg'}">{h.number}</span>
-			</button>
-		{/each}
-		<div class="self-center px-1 text-right text-[10px] text-muted">{t('cal.allDay')}</div>
-		{#each columns as column (column.day)}
-			<!-- svelte-ignore a11y_no_static_element_interactions -->
-			<div
-				class="flex min-h-8 flex-col gap-0.5 border-l border-t border-line p-0.5 {dropTarget ===
-				`all:${column.day}`
-					? 'bg-accent/10'
-					: ''}"
-				ondragover={(event) => {
-					event.preventDefault();
-					dropTarget = `all:${column.day}`;
-				}}
-				ondrop={(event) => {
-					event.preventDefault();
-					dropTarget = null;
-					const occ = dragging.occ;
-					dragging.occ = null;
-					if (occ) onmove(occ, { date: column.day, minutes: null, allDay: true });
-				}}
-			>
-				{#each column.allDay as occ (occ.key)}<EventChip {occ} {onopen} />{/each}
-				{#each column.tasks as task (task.id)}<TaskChip {task} />{/each}
-			</div>
-		{/each}
-	</div>
+	<div bind:this={scroller} class="max-h-[calc(100dvh-13rem)] overflow-y-auto">
+		<div
+			class="sticky top-0 z-20 grid border-b border-line bg-raised"
+			style:grid-template-columns={template}
+		>
+			<div></div>
+			{#each days as day (day)}
+				{@const h = header(day)}
+				<button
+					type="button"
+					class="flex items-baseline justify-center gap-1.5 border-l border-line py-1.5 text-xs {day ===
+					today
+						? 'font-semibold text-accent'
+						: 'text-muted'}"
+					aria-label={formatLongDate(day, i18n.locale)}
+					onclick={() => onday(day)}
+				>
+					{h.weekday}
+					<span class="text-base {day === today ? '' : 'text-fg'}">{h.number}</span>
+				</button>
+			{/each}
+			<div class="self-center px-1 text-right text-[10px] text-muted">{t('cal.allDay')}</div>
+			{#each columns as column (column.day)}
+				<!-- svelte-ignore a11y_no_static_element_interactions -->
+				<div
+					class="flex min-h-8 flex-col gap-0.5 border-t border-l border-line p-0.5 {dropTarget ===
+					`all:${column.day}`
+						? 'bg-accent/10'
+						: ''}"
+					ondragover={(event) => {
+						event.preventDefault();
+						dropTarget = `all:${column.day}`;
+					}}
+					ondrop={(event) => {
+						event.preventDefault();
+						dropTarget = null;
+						const occ = dragging.occ;
+						dragging.occ = null;
+						if (occ) onmove(occ, { date: column.day, minutes: null, allDay: true });
+					}}
+				>
+					{#each column.allDay as occ (occ.key)}<EventChip {occ} {onopen} />{/each}
+					{#each column.tasks as task (task.id)}<TaskChip {task} />{/each}
+				</div>
+			{/each}
+		</div>
 
-	<!-- Zeitraster -->
-	<div bind:this={scroller} class="max-h-[calc(100dvh-15rem)] overflow-y-auto">
 		<div
 			class="relative grid"
-			style:grid-template-columns={`3.5rem repeat(${days.length}, minmax(0, 1fr))`}
-			style:height={`${24 * HOUR}px`}
+			style:grid-template-columns={template}
+			style:height={`${hours.length * HOUR}px`}
 		>
 			<div class="relative">
-				{#each hours as hour (hour)}
-					<span
-						class="absolute right-2 -translate-y-1/2 text-[10px] text-muted tabular-nums"
-						style:top={`${hour * HOUR}px`}
-					>
-						{hour === 0 ? '' : `${String(hour).padStart(2, '0')}:00`}
-					</span>
+				{#each hours as hour, index (hour)}
+					{#if index > 0}
+						<span
+							class="absolute right-2 -translate-y-1/2 text-[10px] text-muted tabular-nums"
+							style:top={`${index * HOUR}px`}
+						>
+							{String(hour).padStart(2, '0')}:00
+						</span>
+					{/if}
 				{/each}
 			</div>
 			{#each columns as column (column.day)}
@@ -149,7 +174,7 @@
 						: ''}"
 					onclick={(event) => {
 						if (event.target === event.currentTarget)
-							oncreate(column.day, snap(minutesAt(event, event.currentTarget), 30));
+							oncreate(column.day, clamp(snap(minutesAt(event, event.currentTarget), 30)));
 					}}
 					ondragover={(event) => {
 						event.preventDefault();
@@ -163,13 +188,13 @@
 						dragging.occ = null;
 						if (!occ) return;
 						const minutes = snap(minutesAt(event, event.currentTarget) - dragging.grabMinutes, 15);
-						onmove(occ, { date: column.day, minutes: Math.max(0, Math.min(1425, minutes)) });
+						onmove(occ, { date: column.day, minutes: clamp(minutes) });
 					}}
 				>
-					{#if column.day === today}
+					{#if column.day === today && nowMinutes >= bounds.start && nowMinutes < bounds.end}
 						<div
 							class="pointer-events-none absolute inset-x-0 z-10 border-t-2 border-danger"
-							style:top={`${nowMinutes * PX}px`}
+							style:top={`${(nowMinutes - bounds.start) * PX}px`}
 						></div>
 					{/if}
 					{#each column.placed as placed (placed.item.key)}
@@ -189,7 +214,7 @@
 							'cancelled'
 								? 'line-through opacity-60'
 								: ''} {occ.status === 'tentative' ? 'italic' : ''}"
-							style:top={`${placed.start * PX}px`}
+							style:top={`${(placed.start - bounds.start) * PX}px`}
 							style:height={`${Math.max((placed.end - placed.start) * PX, 18)}px`}
 							style:left={`calc(${(placed.column / placed.columns) * 100}% + 2px)`}
 							style:width={`calc(${100 / placed.columns}% - 4px)`}

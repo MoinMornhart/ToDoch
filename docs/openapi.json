@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Todoch API",
-    "version": "0.0.6"
+    "version": "0.0.7"
   },
   "paths": {
     "/api/health": {
@@ -1710,6 +1710,27 @@
             "minimum": 0.0,
             "title": "Sort Order",
             "default": 0
+          },
+          "week_days": {
+            "type": "integer",
+            "maximum": 127.0,
+            "minimum": 1.0,
+            "title": "Week Days",
+            "default": 127
+          },
+          "day_start": {
+            "type": "integer",
+            "maximum": 23.0,
+            "minimum": 0.0,
+            "title": "Day Start",
+            "default": 0
+          },
+          "day_end": {
+            "type": "integer",
+            "maximum": 24.0,
+            "minimum": 1.0,
+            "title": "Day End",
+            "default": 24
           }
         },
         "type": "object",
@@ -1748,6 +1769,18 @@
           "role": {
             "type": "string",
             "title": "Role"
+          },
+          "week_days": {
+            "type": "integer",
+            "title": "Week Days"
+          },
+          "day_start": {
+            "type": "integer",
+            "title": "Day Start"
+          },
+          "day_end": {
+            "type": "integer",
+            "title": "Day End"
           }
         },
         "type": "object",
@@ -1758,7 +1791,10 @@
           "icon",
           "sort_order",
           "open_count",
-          "role"
+          "role",
+          "week_days",
+          "day_start",
+          "day_end"
         ],
         "title": "AreaOut"
       },
@@ -1830,6 +1866,45 @@
               }
             ],
             "title": "Sort Order"
+          },
+          "week_days": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 127.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Week Days"
+          },
+          "day_start": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 23.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Day Start"
+          },
+          "day_end": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 24.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Day End"
           }
         },
         "type": "object",

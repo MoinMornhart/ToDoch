@@ -4,6 +4,17 @@ Alle Änderungen an Todoch – die neueste Version steht oben.
 Versionsschema: `0.0.1 → 0.0.2 → … → 0.0.9 → 0.1.0 → … → 0.9.9 → 1.0.0`.
 Im Container spielt der Befehl `update` immer die neueste Version ein.
 
+## [0.0.8] – 2026-09-11
+
+Übersicht, Aufgaben als Ticket, Dunkelmodus und gekürzter Kalender
+
+- Neue Startseite „Übersicht“: Begrüßung, Kennzahlen, Überfälliges, Heute, nächste Termine, Demnächst und Bereiche auf einen Blick
+- Menü „Neu“ in der Seitenleiste (auf dem Handy als ➕-Knopf): Aufgabe als Ticket mit vollständigem Formular oder Termin anlegen
+- Dunkelmodus: Umschalter oben rechts, unter Einstellungen → Darstellung wählbar (System, Hell, Dunkel), ohne Aufblitzen beim Laden
+- Kalender je Bereich kürzen: Tage und Stunden einstellbar, z. B. Arbeit nur Mo–Fr von 8 bis 18 Uhr
+- Wochen- und Tagesansicht: Kopfzeile und Raster liegen jetzt exakt übereinander
+- Nach Anmeldung und Einrichtung öffnet sich die Übersicht
+
 ## [0.0.7] – 2026-09-11
 
 Erinnerungen per Push – Meilenstein 2 (Kalender) abgeschlossen

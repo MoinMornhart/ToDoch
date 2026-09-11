@@ -25,6 +25,10 @@ export interface Area {
 	sort_order: number;
 	open_count: number;
 	role: string;
+	/** Kalender: Wochentage als Bitmaske (Bit 0 = Montag) und sichtbare Stunden. */
+	week_days: number;
+	day_start: number;
+	day_end: number;
 }
 
 export interface ChecklistItem {

@@ -7,6 +7,8 @@ class Ui {
 	searchOpen = $state(false);
 	helpOpen = $state(false);
 	editTaskId = $state<string | null>(null);
+	/** Neue Aufgabe als „Ticket“ mit vollständigem Formular anlegen. */
+	newTask = $state<{ date?: string } | null>(null);
 	eventEditor = $state<EventEditorRequest | null>(null);
 	/** Die Schnellerfassung soll beim nächsten Anzeigen den Fokus bekommen. */
 	quickAddPending = $state(false);
@@ -19,6 +21,7 @@ class Ui {
 			this.searchOpen ||
 			this.helpOpen ||
 			this.editTaskId !== null ||
+			this.newTask !== null ||
 			this.eventEditor !== null ||
 			choice.request !== null
 		);

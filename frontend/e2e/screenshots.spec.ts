@@ -32,7 +32,8 @@ async function login(page: Page) {
 	await page.getByLabel('E-Mail-Adresse').fill(EMAIL);
 	await page.getByLabel('Passwort').fill(PASSWORD);
 	await page.getByRole('button', { name: 'Anmelden' }).click();
-	await expect(page).toHaveURL(/\/today$/);
+	await expect(page).toHaveURL(/\/$/);
+	await expect(page.getByRole('region', { name: 'Nächste Termine' })).toBeVisible();
 }
 
 function isoDay(date: Date): string {
@@ -132,7 +133,8 @@ test('README-Screenshots', async ({ browser }) => {
 	await page.getByLabel('Passwort', { exact: true }).fill(PASSWORD);
 	await page.getByLabel('Passwort wiederholen').fill(PASSWORD);
 	await page.getByRole('button', { name: 'Einrichten' }).click();
-	await expect(page).toHaveURL(/\/today$/);
+	await expect(page).toHaveURL(/\/$/);
+	await page.goto('/today');
 
 	const quick = page.getByLabel('Neue Aufgabe');
 	for (const text of TASKS) {
@@ -187,6 +189,25 @@ test('README-Screenshots', async ({ browser }) => {
 	await expect(page.getByRole('button', { name: /Familienfeier/ }).first()).toBeVisible();
 	await calm(page);
 	await page.screenshot({ path: `${OUT}/kalender-monat.png` });
+
+	await page.goto('/');
+	await expect(page.getByRole('region', { name: 'Nächste Termine' })).toContainText('Sport');
+	await calm(page);
+	await page.screenshot({ path: `${OUT}/uebersicht.png` });
+
+	await page.getByRole('button', { name: 'Neu', exact: true }).first().click();
+	await page.getByRole('menuitem', { name: /Aufgabe/ }).click();
+	const ticket = page.getByRole('dialog', { name: 'Aufgabe anlegen' });
+	await ticket.getByLabel('Titel').fill('Website-Relaunch abstimmen');
+	await ticket.getByText('Hoch', { exact: true }).click();
+	for (const item of ['Entwürfe sichten', 'Texte freigeben']) {
+		await ticket.getByLabel('Unterpunkt hinzufügen').first().fill(item);
+		await ticket.getByLabel('Unterpunkt hinzufügen').first().press('Enter');
+	}
+	await ticket.getByLabel('Notiz').fill('Mit **Marketing** und IT, Termin bis Monatsende.');
+	await page.mouse.move(0, 0);
+	await page.screenshot({ path: `${OUT}/ticket.png` });
+	await page.keyboard.press('Escape');
 	await light.close();
 
 	const dark = await browser.newContext({
@@ -197,6 +218,9 @@ test('README-Screenshots', async ({ browser }) => {
 	});
 	const darkPage = await dark.newPage();
 	await login(darkPage);
+	await calm(darkPage);
+	await darkPage.screenshot({ path: `${OUT}/uebersicht-dunkel.png` });
+	await darkPage.goto('/today');
 	await calm(darkPage);
 	await darkPage.screenshot({ path: `${OUT}/heute-dunkel.png` });
 	await dark.close();
@@ -213,7 +237,7 @@ test('README-Screenshots', async ({ browser }) => {
 	await login(phone);
 	await calm(phone);
 	await phone.screenshot({ path: `${OUT}/mobil.png` });
-	await phone.getByRole('link', { name: 'Demnächst' }).last().click();
+	await phone.goto('/upcoming');
 	await calm(phone);
 	await phone.screenshot({ path: `${OUT}/mobil-demnaechst.png` });
 	await mobile.close();

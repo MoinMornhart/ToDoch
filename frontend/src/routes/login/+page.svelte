@@ -17,7 +17,7 @@
 		try {
 			await session.login(email, password);
 			password = '';
-			await goto('/today', { replaceState: true });
+			await goto('/', { replaceState: true });
 		} catch (err) {
 			error = err instanceof ApiError ? err.message : t('error.generic');
 		} finally {

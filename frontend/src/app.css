@@ -13,23 +13,23 @@
 	--danger: #b42f2f;
 	--warn: #9a5b00;
 	--ok: #22784a;
-	color-scheme: light dark;
+	color-scheme: light;
 }
 
-@media (prefers-color-scheme: dark) {
-	:root {
-		--surface: #161615;
-		--surface-2: #1f1f1d;
-		--raised: #242422;
-		--fg: #ececea;
-		--muted: #a3a39d;
-		--line: #33332f;
-		--accent: #7aa2ff;
-		--accent-fg: #0e1a33;
-		--danger: #f07878;
-		--warn: #e0a54a;
-		--ok: #5cc48a;
-	}
+/* Dunkles Design: data-theme setzt static/theme.js (System, Hell oder Dunkel je Gerät). */
+:root[data-theme='dark'] {
+	--surface: #161615;
+	--surface-2: #1f1f1d;
+	--raised: #242422;
+	--fg: #ececea;
+	--muted: #a3a39d;
+	--line: #33332f;
+	--accent: #7aa2ff;
+	--accent-fg: #0e1a33;
+	--danger: #f07878;
+	--warn: #e0a54a;
+	--ok: #5cc48a;
+	color-scheme: dark;
 }
 
 @theme inline {

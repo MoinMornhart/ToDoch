@@ -4,6 +4,12 @@ Alle Änderungen an Todoch – die neueste Version steht oben.
 Versionsschema: `0.0.1 → 0.0.2 → … → 0.0.9 → 0.1.0 → … → 0.9.9 → 1.0.0`.
 Im Container spielt der Befehl `update` immer die neueste Version ein.
 
+## [0.1.8] – 2026-09-11
+
+Stabilerer Passkey-Test
+
+- Ende-zu-Ende-Test für Passkeys mit eindeutigem Gerätenamen je Lauf und frisch geladener Einstellungsseite – übersteht jetzt auch Wiederholungen in der CI
+
 ## [0.1.7] – 2026-09-11
 
 Eigene Webseite mit Doku

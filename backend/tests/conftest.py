@@ -24,14 +24,24 @@ from app.security.crypto import Crypto
 from app.security.middleware import CSRF_COOKIE
 from app.security.passwords import hash_password
 from app.security.ratelimit import RateLimiter
-from app.services import external_calendars
+from app.services import external_calendars, mail
+from tests.fake_imap import FakeMailbox, make_mail
 
 EMPTY_ICS = b"BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Test//DE\r\nEND:VCALENDAR\r\n"
 
 
+@pytest.fixture
+def mailbox() -> FakeMailbox:
+    """Das Postfach, mit dem sich jedes eingebundene Mailkonto im Test verbindet."""
+    box = FakeMailbox()
+    box.add(make_mail())
+    return box
+
+
 @pytest.fixture(autouse=True)
-def no_network(monkeypatch: pytest.MonkeyPatch) -> None:
-    """Tests rufen nie echte Kalender-Adressen ab: öffentliche IP, leerer Kalender."""
+def no_network(monkeypatch: pytest.MonkeyPatch, mailbox: FakeMailbox) -> None:
+    """Tests rufen nie echte Adressen ab: öffentliche IP, leerer Kalender, Test-Postfach."""
+    monkeypatch.setattr(mail, "open_connection", mailbox.connect)
 
     async def fake_resolve(host: str, port: int) -> list[str]:
         return ["93.184.216.34"]

@@ -172,6 +172,22 @@ container) can only be added by an admin, and the server's internal addresses ar
 <img src="docs/images/en/kalender-monat.png" alt="Calendar month view">
 </details>
 
+### 📬 Email
+
+A separate **Email** section in the navigation: add a mailbox via IMAP (the server is suggested for
+Gmail, iCloud, GMX, Web.de, T-Online, Posteo, mailbox.org and others), read and search your mail and
+**turn an email into a task** with one click – the subject becomes the title, the email is quoted in
+the notes.
+
+- ToDoch **only reads along**: nothing on the server is deleted, moved or marked as read
+- Emails are always shown as **plain text** – images, scripts and tracking pixels are never loaded
+- Encrypted connections only (SSL/TLS or STARTTLS with certificate checks); the password is stored
+  encrypted and never shown again
+- The background worker fetches new mail regularly (every 15 minutes by default)
+
+Gmail, iCloud and Yahoo need an app password; Microsoft accounts (Outlook, Hotmail) follow with OAuth
+in milestone 5. Rules and automatic appointment detection come next.
+
 ### 🔒 Secure by default
 
 | | |
@@ -341,7 +357,7 @@ todoch logs [app|web|db|worker]  # view logs
 | :---: | --- | --- |
 | ✅ | **1 · Foundation** | Sign-in, sessions, areas, tasks, quick add, search, PWA, Proxmox quickstart |
 | ✅ | **2 · Calendar** | Events, series, month / week / day / agenda, drag & drop, conflicts, ICS subscriptions for Apple, Google & Outlook, push reminders, overview, dark mode |
-| ⏳ | **4 · Email** | Own “Email” section in the navigation, mailboxes via IMAP, rules, automatic appointment detection, confirmation inbox |
+| 🚧 | **4 · Email** | ✅ Own “Email” section, mailboxes via IMAP, task from email · ⏳ rules, automatic appointment detection, confirmation inbox |
 | ⏳ | **5 · Sync** | Gmail & Microsoft via OAuth, two-way sync with CalDAV, Google and Microsoft |
 | ✅ | **6 · Passkeys & two-factor** | Passkeys (Face ID / Touch ID / Windows Hello / security keys), two-factor with an authenticator app (TOTP), recovery codes |
 | ⏳ | **7 · Groups** | Shared areas, roles, invitations, assignments, comments |

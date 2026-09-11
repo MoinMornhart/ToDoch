@@ -9,6 +9,7 @@
 		Layers,
 		ListTodo,
 		LogOut,
+		Mail,
 		Search,
 		Settings,
 		Sun
@@ -45,11 +46,13 @@
 	];
 	const secondary: typeof primary = [
 		{ href: '/calendar', label: 'nav.calendar', icon: CalendarRange },
+		{ href: '/mail', label: 'nav.mail', icon: Mail },
 		{ href: '/areas', label: 'nav.areas', icon: Layers },
 		{ href: '/settings', label: 'nav.settings', icon: Settings }
 	];
-	// Handy: Übersicht, Heute, Alle offen, Kalender, Einstellungen
-	const tabs = [primary[0]!, primary[1]!, primary[3]!, secondary[0]!, secondary[2]!];
+	// Handy: Übersicht, Heute, Alle offen, Kalender, E-Mail, Einstellungen
+	const tabs = [primary[0]!, primary[1]!, primary[3]!, secondary[0]!, secondary[1]!, secondary[3]!];
+	const wide = ['/calendar', '/mail'];
 
 	const isActive = (href: string) => page.url.pathname === href;
 
@@ -192,7 +195,7 @@
 		</header>
 		<main
 			id="main"
-			class="w-full flex-1 px-4 pt-5 pb-28 md:px-8 md:pb-12 {page.url.pathname === '/calendar'
+			class="w-full flex-1 px-4 pt-5 pb-28 md:px-8 md:pb-12 {wide.includes(page.url.pathname)
 				? ''
 				: 'max-w-3xl'}"
 		>
@@ -203,7 +206,7 @@
 
 <nav
 	aria-label={t('nav.main')}
-	class="fixed inset-x-0 bottom-0 z-20 grid grid-cols-5 border-t border-line bg-surface pb-[env(safe-area-inset-bottom)] md:hidden"
+	class="fixed inset-x-0 bottom-0 z-20 grid grid-cols-6 border-t border-line bg-surface pb-[env(safe-area-inset-bottom)] md:hidden"
 >
 	{#each tabs as item (item.href)}
 		<a

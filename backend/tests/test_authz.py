@@ -50,8 +50,21 @@ async def _alice_objects(alice: AsyncClient) -> dict[str, Any]:
             json={"name": "Streamo", "url": "https://s.example/c.ics", "area_id": areas[0]["id"]},
         )
     ).json()
+    account = (
+        await alice.post(
+            "/api/mail/accounts",
+            json={
+                "email": "alice@example.org",
+                "password": "imap-geheim",
+                "imap_host": "imap.example.org",
+            },
+        )
+    ).json()
+    message = (await alice.get("/api/mail/messages")).json()[0]
     return {
         "area": areas[0],
+        "account": account,
+        "mail": message,
         "task": task,
         "session": session,
         "event": event,
@@ -155,6 +168,8 @@ def test_every_object_route_is_covered() -> None:
         "contact_id",
         "passkey_id",
         "calendar_id",
+        "account_id",
+        "mail_id",
     }
     assert params <= known, params
 
@@ -174,6 +189,8 @@ async def test_every_object_route_rejects_foreign_ids(
         "contact_id": objects["contact"]["id"],
         "passkey_id": objects["passkey"]["id"],
         "calendar_id": objects["calendar"]["id"],
+        "account_id": objects["account"]["id"],
+        "mail_id": objects["mail"]["id"],
     }
     url = re.sub(r"\{(\w+_id)\}", lambda m: ids[m.group(1)], path)
     body = {} if method in ("PATCH", "PUT") else None
@@ -183,3 +200,5 @@ async def test_every_object_route_rejects_foreign_ids(
     assert (await alice.get(f"/api/tasks/{ids['task_id']}")).status_code == 200
     contact = await alice.get(f"/api/contacts/{ids['contact_id']}")
     assert contact.json()["name"] == "Vertraulich"
+    assert len((await alice.get("/api/mail/accounts")).json()) == 1
+    assert (await bob.get("/api/mail/messages")).json() == []

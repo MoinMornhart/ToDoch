@@ -22,6 +22,7 @@ RAISERS = {
     "ValueError",
     "_reject",
     "FeedError",
+    "MailError",
 }
 
 

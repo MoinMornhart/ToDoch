@@ -94,6 +94,12 @@ async def check_url(url: str, *, allow_private: bool) -> str:
     host = parts.hostname or ""
     if parts.scheme not in ("http", "https") or not host:
         raise FeedError("Die Adresse muss mit http:// oder https:// beginnen.")
+    await check_address(host, port, allow_private=allow_private)
+    return host.lower()
+
+
+async def check_address(host: str, port: int, *, allow_private: bool) -> list[str]:
+    """Löst ``host`` auf und prüft jede Adresse (auch für Mailserver); liefert die IP-Adressen."""
     try:
         addresses = await resolve(host, port)
     except OSError as exc:
@@ -106,7 +112,7 @@ async def check_url(url: str, *, allow_private: bool) -> str:
             raise FeedError("Diese Adresse ist nicht erlaubt.")
         if addr.is_private and not allow_private:
             raise FeedError("Adressen im eigenen Netz kann nur ein Admin einbinden.")
-    return host.lower()
+    return addresses
 
 
 async def fetch_ics(

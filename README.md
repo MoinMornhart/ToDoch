@@ -165,6 +165,21 @@ nur ein Admin eintragen, interne Adressen des Servers sind gesperrt.
 <img src="docs/images/kalender-monat.png" alt="Kalender in der Monatsansicht">
 </details>
 
+### 📬 E-Mail
+
+Eigener Bereich **E-Mail** in der Navigation: Postfach per IMAP einbinden (Server wird für GMX, Web.de,
+T-Online, Gmail, iCloud, Posteo, mailbox.org & Co. vorgeschlagen), Mails lesen, durchsuchen und mit
+einem Klick **eine Aufgabe daraus machen** – mit Betreff als Titel und der Mail als Zitat in der Notiz.
+
+- ToDoch **liest nur mit**: auf dem Server wird nichts gelöscht, verschoben oder als gelesen markiert
+- Mails erscheinen immer als **reiner Text** – Bilder, Skripte und Tracking-Pixel werden nie geladen
+- Nur verschlüsselte Verbindungen (SSL/TLS oder STARTTLS, Zertifikat wird geprüft), das Passwort liegt
+  verschlüsselt in der Datenbank und wird nie wieder angezeigt
+- Neue Mails holt der Hintergrunddienst regelmäßig ab (Standard alle 15 Minuten)
+
+Gmail, iCloud und Yahoo brauchen ein App-Passwort; Microsoft-Konten (Outlook, Hotmail) folgen mit
+OAuth in Meilenstein 5. Regeln und automatische Terminerkennung kommen als Nächstes.
+
 ### 🔒 Sicher ab Werk
 
 | | |
@@ -333,7 +348,7 @@ todoch logs [app|web|db|worker]  # Protokolle ansehen
 | :---: | --- | --- |
 | ✅ | **1 · Grundgerüst** | Anmeldung, Sitzungen, Bereiche, Aufgaben, Schnellerfassung, Suche, PWA, Proxmox-Quickstart |
 | ✅ | **2 · Kalender** | Termine, Serien, Monat / Woche / Tag / Agenda, Drag & Drop, Konflikte, ICS-Abos für Apple, Google & Outlook, Erinnerungen per Push, Übersicht, Dunkelmodus |
-| ⏳ | **4 · E-Mail** | Eigener Bereich „E-Mail“ in der Navigation, Postfächer per IMAP, Regeln, automatische Terminerkennung, Bestätigungs-Inbox |
+| 🚧 | **4 · E-Mail** | ✅ Eigener Bereich „E-Mail“, Postfächer per IMAP, Aufgabe aus Mail · ⏳ Regeln, automatische Terminerkennung, Bestätigungs-Inbox |
 | ⏳ | **5 · Synchronisation** | Gmail & Microsoft per OAuth, Zwei-Wege-Sync mit CalDAV, Google und Microsoft |
 | ✅ | **6 · Passkeys & Zwei-Faktor** | Passkeys (Face ID / Touch ID / Windows Hello / Sicherheitsschlüssel), Zwei-Faktor per Authenticator-App (TOTP), Wiederherstellungscodes |
 | ⏳ | **7 · Gruppen** | Gemeinsame Bereiche, Rollen, Einladungen, Zuweisungen, Kommentare |

@@ -94,6 +94,22 @@ EXACT: dict[str, str] = {
     "Dieser Termin kommt aus einem abonnierten Kalender und lässt sich nur dort ändern.": (
         "This event comes from a subscribed calendar and can only be changed there."
     ),
+    "Anmeldung am Postfach fehlgeschlagen. Benutzername und Passwort prüfen.": (
+        "Signing in to the mailbox failed. Check the user name and password."
+    ),
+    "Den Ordner gibt es im Postfach nicht.": "The folder does not exist in the mailbox.",
+    "Das Postfach antwortet nicht wie erwartet.": "The mailbox does not respond as expected.",
+    "Der Mailserver ist nicht erreichbar.": "The mail server cannot be reached.",
+    "Das Zertifikat des Mailservers ist ungültig.": "The mail server's certificate is invalid.",
+    "Die Verbindung zum Mailserver ist abgebrochen.": (
+        "The connection to the mail server was interrupted."
+    ),
+    "Der Mailserver unterstützt keine verschlüsselte Verbindung (STARTTLS).": (
+        "The mail server does not support an encrypted connection (STARTTLS)."
+    ),
+    "Das gespeicherte Passwort lässt sich nicht entschlüsseln.": (
+        "The stored password cannot be decrypted."
+    ),
     "Unbekannter Push-Dienst": "Unknown push service",
     "Zu viele Geräte registriert.": "Too many devices registered.",
     "Auf keinem Gerät aktiviert.": "Not enabled on any device.",
@@ -124,6 +140,7 @@ NOUNS = {
     "Kontakte": "contacts",
     "Abo-Links": "subscription links",
     "Passkeys": "passkeys",
+    "Postfächer": "mailboxes",
 }
 
 Render = Callable[[re.Match[str]], str]

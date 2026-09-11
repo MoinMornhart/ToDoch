@@ -15,7 +15,7 @@ melden, nicht als öffentliches Issue.
 | **Gestohlenes Backup** | Zugangsdaten und Inhalte auslesen | Passwörter nur als Argon2id-Hash; Mail-Passwörter/OAuth-Tokens (ab M4/M5) mit AES-256-GCM verschlüsselt, Schlüssel liegt **nicht** in der Datenbank und nicht im Backup-Archiv, sondern getrennt (`keys/`) |
 | **Kompromittierter Browser / XSS** | Sitzung übernehmen, Daten abgreifen | Sitzungscookie `HttpOnly`, `Secure`, `SameSite=Lax`, Präfix `__Host-`; strenge CSP ohne `'unsafe-inline'` (Skripte nur aus eigenen Dateien); Markdown serverseitig per Allowlist bereinigt; Sitzungen einzeln widerrufbar, „Überall abmelden“ |
 | **Fremde Website (CSRF)** | Aktionen im Namen des Nutzers auslösen | Double-Submit-Token (`__Host-todoch_csrf` + Header `X-CSRF-Token`) **und** Origin-/Referer-Prüfung für jede zustandsändernde Anfrage; `SameSite=Lax` |
-| **Bösartige E-Mail** (ab M4) | Tracking, Skriptausführung, ReDoS, SSRF, Zip-/XML-Bomben | HTML aus Mails nie direkt rendern; Regex mit Timeout; Größen- und Zeitlimits in Worker-Jobs; SSRF-Schutz für Autoconfig/CalDAV |
+| **Bösartige E-Mail** | Tracking, Skriptausführung, ReDoS, SSRF, Speicher-DoS | HTML aus Mails wird nie gerendert, sondern serverseitig zu Text (nh3); Größen-, Anzahl- und Zeitlimits beim Abholen; SSRF-Schutz für Mailserver, Kalender-Abos und später CalDAV |
 | **Andere Nutzer derselben Instanz** | Fremde Daten sehen oder ändern (IDOR) | Zentrale Autorisierung `can(user, action, obj)`; jede Abfrage filtert serverseitig; nicht sichtbare Objekte ergeben 404; automatisierte Tests prüfen **jede** Route mit Objekt-ID gegen Fremdzugriff |
 
 ## Umgesetzte Maßnahmen (Stand v0.0.1)
@@ -57,6 +57,24 @@ melden, nicht als öffentliches Issue.
 - Anmeldung per Passkey braucht keinen zweiten Faktor (Besitz + Gerätesperre). Notfall im Container:
   `todoch disable-2fa <e-mail>`.
 
+**E-Mail-Postfächer (IMAP, seit v0.2.1)**
+- Nur verschlüsselt: IMAPS oder STARTTLS (vor der Anmeldung), mindestens TLS 1.2, Zertifikat und
+  Hostname werden geprüft. Unverschlüsseltes IMAP ist nicht wählbar.
+- SSRF-Schutz wie bei Kalender-Abos: Der Servername wird aufgelöst und geprüft (kein Loopback, keine
+  Link-Local-/Cloud-Metadaten-Adressen, Heimnetz nur für Admins); verbunden wird genau mit der
+  geprüften IP, das Zertifikat gilt weiter für den Namen (kein DNS-Rebinding).
+- Das Postfach-Passwort wird erst nach erfolgreicher Anmeldung gespeichert, AES-256-GCM-verschlüsselt
+  und an das Konto gebunden (AAD); die API gibt es nie zurück. Hinzufügen, Entfernen und Passwort-
+  wechsel stehen im Audit-Log.
+- Nur lesend: Ordner wird schreibgeschützt ausgewählt, Inhalte per `BODY.PEEK` geholt (nichts wird
+  als gelesen markiert, gelöscht oder verschoben).
+- Limits: höchstens 512 KB je Mail, 200 Mails je Abgleich, 2000 gespeicherte Mails je Postfach,
+  20 s Zeitlimit je Verbindung. Kaputte Mails werden übersprungen.
+- Anzeige nur als Text: HTML wird mit nh3 ohne erlaubte Tags bereinigt (Skripte und Styles samt
+  Inhalt entfernt), Bilder und Links werden nie geladen; Svelte gibt den Text escaped aus.
+- Mails anderer Nutzer sind wie nicht vorhanden (404) – auch dafür prüfen die Autorisierungstests
+  jede Route.
+
 **Anfragen**
 - Größenlimit für Anfragen (Standard 1 MB, geprüft per `Content-Length` und beim Lesen).
 - Strikte Validierung aller Eingaben (Pydantic), Längenlimits für alle Felder.
@@ -96,5 +114,5 @@ gebunden (kein Umkopieren zwischen Datensätzen möglich).
 
 - Kürzere Sitzungs-Standardwerte, nachdem Passkeys und Zwei-Faktor verbreitet genutzt werden.
 - Upload-Prüfung per Magic Bytes, Anhänge außerhalb des Webroots (M3).
-- SSRF-Schutz, ReDoS-Timeouts, Härtung des ICS-Parsers (M4/M5).
+- ReDoS-Timeouts für Mail-Regeln, SSRF-Schutz für CalDAV (M4/M5).
 - Datenexport und Kontolöschung (DSGVO), getesteter Restore in der CI, Review nach OWASP ASVS L2 (M8).

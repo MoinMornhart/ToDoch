@@ -22,6 +22,7 @@
   <ul>
     <li>Zugangsdaten wie Abo-Adressen mit Token werden mit AES-256-GCM verschlüsselt gespeichert; Schlüssel lassen sich rotieren.</li>
     <li>Eingebundene Kalender werden nur über geprüfte Adressen abgerufen: kein Loopback, keine Cloud-Metadaten, Heimnetz nur für Admins, auch nach Weiterleitungen (SSRF-Schutz).</li>
+    <li>E-Mail-Postfächer nur verschlüsselt (SSL/TLS oder STARTTLS mit Zertifikatsprüfung), mit derselben Adressprüfung und fest an die geprüfte IP gebunden. ToDoch liest nur mit, das Passwort liegt verschlüsselt, Mails werden nur als Text angezeigt – HTML, Bilder und Tracking nie.</li>
     <li>Jedes Objekt gehört einem Bereich; fremde Objekte sind wie nicht vorhandene (404). Automatische Tests prüfen jede Route darauf.</li>
     <li>Ein Audit-Log für Anmeldungen und sicherheitsrelevante Änderungen – per Datenbank-Trigger nur anhängbar.</li>
   </ul>

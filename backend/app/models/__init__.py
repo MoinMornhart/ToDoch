@@ -7,6 +7,7 @@ from app.models.calendar import ExternalCalendar
 from app.models.contact import Contact
 from app.models.event import Event
 from app.models.feed import FeedToken
+from app.models.mail import MailAccount, MailMessage
 from app.models.passkey import Passkey
 from app.models.push import PushSubscription, ReminderLog, ServerKey
 from app.models.task import ChecklistItem, Task
@@ -21,6 +22,8 @@ __all__ = [
     "Event",
     "ExternalCalendar",
     "FeedToken",
+    "MailAccount",
+    "MailMessage",
     "Passkey",
     "PushSubscription",
     "RecoveryCode",

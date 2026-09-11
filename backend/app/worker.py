@@ -15,6 +15,7 @@ from app.db import create_engine, create_sessionmaker
 from app.models import UserSession
 from app.security.crypto import Crypto
 from app.services.external_calendars import sync_due_calendars
+from app.services.mail import sync_due_accounts
 from app.services.reminders import cleanup_reminder_log, send_due_reminders
 
 
@@ -41,6 +42,11 @@ async def sync_calendars(ctx: dict[str, Any]) -> int:
         return await sync_due_calendars(db, ctx["crypto"])
 
 
+async def sync_mail(ctx: dict[str, Any]) -> int:
+    async with ctx["sessionmaker"]() as db:
+        return await sync_due_accounts(db, ctx["crypto"])
+
+
 async def startup(ctx: dict[str, Any]) -> None:
     settings = load_settings()
     engine = create_engine(settings.database_url.get_secret_value())
@@ -55,13 +61,15 @@ async def shutdown(ctx: dict[str, Any]) -> None:
 
 
 class WorkerSettings:
-    functions: ClassVar[list[Any]] = [cleanup_sessions, send_reminders, sync_calendars]
+    functions: ClassVar[list[Any]] = [cleanup_sessions, send_reminders, sync_calendars, sync_mail]
     cron_jobs: ClassVar[list[Any]] = [
         cron(cleanup_sessions, minute={17}, run_at_startup=True),
         # Jede Minute: fällige Terminerinnerungen verschicken
         cron(send_reminders, second={0}, timeout=50),
         # Alle 5 Minuten: abonnierte Kalender abgleichen, deren Intervall abgelaufen ist
         cron(sync_calendars, minute=set(range(0, 60, 5)), second={30}, timeout=240),
+        # Alle 5 Minuten (versetzt): fällige E-Mail-Postfächer abholen
+        cron(sync_mail, minute=set(range(2, 60, 5)), second={15}, timeout=240),
     ]
     on_startup = startup
     on_shutdown = shutdown

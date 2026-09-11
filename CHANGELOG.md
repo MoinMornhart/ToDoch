@@ -4,6 +4,17 @@ Alle Änderungen an Todoch – die neueste Version steht oben.
 Versionsschema: `0.0.1 → 0.0.2 → … → 0.0.9 → 0.1.0 → … → 0.9.9 → 1.0.0`.
 Im Container spielt der Befehl `update` immer die neueste Version ein.
 
+## [0.2.1] – 2026-09-11
+
+E-Mail: Postfächer per IMAP, Mails lesen, Aufgabe aus Mail (Meilenstein 4, Teil 1)
+
+- Neuer Bereich „E-Mail“ in der Navigation (auch als Tab auf dem Handy)
+- Postfach per IMAP einbinden – Server wird für GMX, Web.de, T-Online, Gmail, iCloud, Posteo & Co. vorgeschlagen; falsche Zugangsdaten werden gar nicht erst gespeichert
+- Mails lesen, durchsuchen, nach ungelesen filtern; Aufgabe aus Mail mit Betreff als Titel und zitierter Mail als Notiz
+- Hintergrunddienst holt neue Mails regelmäßig ab (Standard alle 15 Minuten, nur neue Mails, höchstens 200 je Abgleich)
+- Sicherheit: nur SSL/TLS oder STARTTLS mit Zertifikatsprüfung, SSRF-Schutz mit fester IP, Passwort verschlüsselt, Postfach nur lesend, Mails nur als Text (kein HTML, keine Bilder, kein Tracking), Limits für Größe und Anzahl
+- README, SECURITY.md und Webseite ergänzt
+
 ## [0.2.0] – 2026-09-11
 
 Schnellerfassung versteht Englisch

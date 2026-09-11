@@ -19,6 +19,7 @@ from app.api import (
     contacts,
     events,
     feeds,
+    mail,
     meta,
     passkeys,
     push,
@@ -99,6 +100,7 @@ def create_app(settings: Settings | None = None, resources: Resources | None = N
         calendars,
         push,
         contacts,
+        mail,
     )
     for module in modules:
         app.include_router(module.router)

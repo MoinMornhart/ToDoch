@@ -366,7 +366,8 @@ todoch logs [app|web|db|worker]  # Protokolle ansehen
 > [!IMPORTANT]
 > Die Schlüssel für gespeicherte Zugangsdaten liegen **getrennt** von der Sicherung unter
 > `/var/backups/todoch/keys/`. Beides zusammen an einem sicheren Ort aufbewahren – ohne Schlüssel keine
-> Wiederherstellung. Vor jedem Update legt ToDoch automatisch eine Sicherung an.
+> Wiederherstellung. Vor jedem Update legt ToDoch automatisch eine Sicherung an. Dass sich Sicherungen
+> wirklich zurückspielen lassen, prüft die CI bei jeder Version (`scripts/restore-test.sh`).
 
 <details>
 <summary><b>Fehlersuche</b></summary>

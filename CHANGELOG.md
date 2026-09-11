@@ -4,6 +4,16 @@ Alle Änderungen an Todoch – die neueste Version steht oben.
 Versionsschema: `0.0.1 → 0.0.2 → … → 0.0.9 → 0.1.0 → … → 0.9.9 → 1.0.0`.
 Im Container spielt der Befehl `update` immer die neueste Version ein.
 
+## [0.3.1] – 2026-09-11
+
+Getestete Wiederherstellung in der CI (Meilenstein 8, Teil 2)
+
+- Neuer Wiederherstellungstest scripts/restore-test.sh: startet ToDoch mit Docker Compose, sichert mit todoch backup, löscht die Daten, spielt die Sicherung wie todoch restore zurück und prüft Konto, Datenbank-Stand und Start
+- Läuft bei jedem Push in der CI und nutzt dieselben Funktionen wie der Befehl im Container
+- Prüft auch, dass die Schlüssel getrennt unter keys/ neben der Sicherung liegen
+- Docker-Projektname in den Container-Helfern überschreibbar, damit Tests eine echte Installation nie berühren
+- Doku: Sicherheitskonzept und README um die getestete Wiederherstellung ergänzt
+
 ## [0.3.0] – 2026-09-11
 
 Datenexport und Konto löschen (Meilenstein 8, Teil 1)

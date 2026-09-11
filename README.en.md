@@ -374,7 +374,8 @@ todoch logs [app|web|db|worker]  # view logs
 > [!IMPORTANT]
 > The keys for stored credentials are kept **separately** from the backup in
 > `/var/backups/todoch/keys/`. Store both together in a safe place – no restore without the keys.
-> ToDoch creates a backup automatically before every update.
+> ToDoch creates a backup automatically before every update. CI checks with every version that backups
+> really restore (`scripts/restore-test.sh`).
 
 <details>
 <summary><b>Troubleshooting</b></summary>

@@ -169,7 +169,7 @@ set_env() {
 compose_at() {
   local dir=$1
   shift
-  docker compose --project-name todoch --env-file "$TODOCH_ENV" -f "$dir/deploy/docker-compose.yml" "$@"
+  docker compose --project-name "${TODOCH_PROJECT:-todoch}" --env-file "$TODOCH_ENV" -f "$dir/deploy/docker-compose.yml" "$@"
 }
 todoch_compose() { compose_at "$TODOCH_HOME" "$@"; }
 

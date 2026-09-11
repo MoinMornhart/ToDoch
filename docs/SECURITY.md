@@ -157,12 +157,20 @@ Meilenstein 4, sobald verschlüsselte Zugangsdaten gespeichert werden). Danach k
 Schlüssel entfernt werden. Jedes Chiffrat enthält die Schlüssel-ID und ist per AAD an sein Feld
 gebunden (kein Umkopieren zwischen Datensätzen möglich).
 
+## Getestete Wiederherstellung (seit v0.3.1)
+
+Eine Sicherung zählt erst, wenn sie sich zurückspielen lässt. `scripts/restore-test.sh` läuft bei
+jedem Push in der CI: Es startet ToDoch mit Docker Compose, legt ein Konto an, sichert mit denselben
+Funktionen wie `todoch backup`, löscht die Daten, spielt die Sicherung wie `todoch restore` zurück
+und prüft Konto, Datenbank-Stand und Start. Außerdem wird kontrolliert, dass die Schlüssel getrennt
+unter `keys/` neben der Sicherung liegen.
+
 ## Offene Punkte (geplant)
 
 - Kürzere Sitzungs-Standardwerte, nachdem Passkeys und Zwei-Faktor verbreitet genutzt werden.
 - Upload-Prüfung per Magic Bytes, Anhänge außerhalb des Webroots (M3).
 - ReDoS-Timeouts für Mail-Regeln, SSRF-Schutz für CalDAV (M4/M5).
-- Getesteter Restore in der CI, Review nach OWASP ASVS L2 (M8).
+- Review nach OWASP ASVS L2 (M8).
 
 ## Datenexport und Kontolöschung (seit v0.3.0)
 

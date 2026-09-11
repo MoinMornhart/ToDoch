@@ -165,21 +165,20 @@
 				value={session.user?.email}
 				readonly
 			/>
-			{#if session.user?.is_admin}
-				<p class="self-end text-sm text-muted sm:pb-2.5">{t('settings.adminNoCurrent')}</p>
-			{:else}
-				<div>
-					<label class="label" for="current-password">{t('settings.currentPassword')}</label>
-					<input
-						id="current-password"
-						type="password"
-						class="input"
-						autocomplete="current-password"
-						required
-						bind:value={currentPassword}
-					/>
-				</div>
-			{/if}
+			<div>
+				<label class="label" for="current-password">{t('settings.currentPassword')}</label>
+				<input
+					id="current-password"
+					type="password"
+					class="input"
+					autocomplete="current-password"
+					aria-describedby="current-password-hint"
+					bind:value={currentPassword}
+				/>
+				<p id="current-password-hint" class="mt-1 text-xs text-muted">
+					{t('settings.passkeyNoCurrent')}
+				</p>
+			</div>
 			<div>
 				<label class="label" for="new-password">{t('settings.newPassword')}</label>
 				<input

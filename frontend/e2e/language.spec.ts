@@ -35,7 +35,8 @@ test('Englisch: Anmeldeseite, Oberfläche und Fehlermeldungen des Servers', asyn
 	await expect(page.getByRole('link', { name: 'Today' }).first()).toBeVisible();
 	await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible();
 
-	// Server-Fehler im Profil-Englisch
+	// Server-Fehler im Profil-Englisch (auch Admins brauchen das aktuelle Passwort)
+	await page.getByLabel('Current password').fill(PASSWORD);
 	await page.getByLabel('New password').fill('aaaaaaaaaaaa');
 	await page.getByRole('button', { name: 'Change password' }).click();
 	await expect(page.getByRole('status')).toContainText('The password is too simple.');

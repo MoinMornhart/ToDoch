@@ -1,6 +1,6 @@
 [project]
 name = "todoch"
-version = "0.3.3"
+version = "0.3.4"
 description = "ToDoch – selbst gehostete, minimalistische To-do- und Termin-App"
 license = "MIT"
 requires-python = ">=3.12,<3.13"

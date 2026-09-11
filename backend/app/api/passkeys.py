@@ -153,7 +153,9 @@ async def register_options(
         user_display_name=user.display_name,
         authenticator_selection=AuthenticatorSelectionCriteria(
             resident_key=ResidentKeyRequirement.REQUIRED,
-            user_verification=UserVerificationRequirement.PREFERRED,
+            # Gerätesperre (Fingerabdruck, Gesicht, PIN) Pflicht – ein Passkey ersetzt den
+            # zweiten Faktor, ein gestohlener Stick ohne PIN darf das nicht
+            user_verification=UserVerificationRequirement.REQUIRED,
         ),
         # Geräte, die schon einen Passkey haben, lehnen einen zweiten ab
         exclude_credentials=[
@@ -184,6 +186,7 @@ async def register_verify(
             expected_challenge=challenge,
             expected_rp_id=res.settings.rp_id,
             expected_origin=res.settings.origin,
+            require_user_verification=True,
         )
     except WEBAUTHN_ERRORS as exc:
         raise HTTPException(
@@ -252,7 +255,7 @@ async def login_options(request: Request, res: Res) -> LoginOptionsOut:
         "passkey-options", client_ip(request) or "unknown", limit=60, window=600
     )
     options = generate_authentication_options(
-        rp_id=res.settings.rp_id, user_verification=UserVerificationRequirement.PREFERRED
+        rp_id=res.settings.rp_id, user_verification=UserVerificationRequirement.REQUIRED
     )
     challenge_id = secrets.token_urlsafe(24)
     await _store_challenge(res, "login", challenge_id, options.challenge)
@@ -297,6 +300,7 @@ async def login_verify(
             credential_public_key=passkey.public_key,
             # Zähler darf nicht zurückspringen – sonst Verdacht auf geklonten Schlüssel
             credential_current_sign_count=passkey.sign_count,
+            require_user_verification=True,
         )
     except WEBAUTHN_ERRORS as exc:
         raise await fail() from exc

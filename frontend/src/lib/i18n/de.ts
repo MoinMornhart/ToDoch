@@ -404,7 +404,8 @@ export const de = {
 	'settings.method.passkey': 'Passkey',
 	'settings.method.password': 'Passwort',
 
-	'settings.adminNoCurrent': 'Als Admin brauchst du dein altes Passwort dafür nicht.',
+	'settings.passkeyNoCurrent':
+		'Nicht nötig in den ersten 10 Minuten nach einer Anmeldung per Passkey.',
 
 	'login.language': 'Sprache',
 	'error.tooMany': 'Zu viele Versuche. Bitte später erneut versuchen.',

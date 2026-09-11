@@ -405,7 +405,7 @@ export const en: Record<MessageKey, string> = {
 	'settings.method.passkey': 'Passkey',
 	'settings.method.password': 'Password',
 
-	'settings.adminNoCurrent': 'As an admin you don’t need your old password for this.',
+	'settings.passkeyNoCurrent': 'Not needed within 10 minutes of signing in with a passkey.',
 
 	'login.language': 'Language',
 	'error.tooMany': 'Too many attempts. Please try again later.',

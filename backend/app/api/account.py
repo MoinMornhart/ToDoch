@@ -123,6 +123,8 @@ async def delete_account(
     if user.totp_enabled and (
         not body.code or await check_second_factor(db, res, user, body.code) is None
     ):
+        audit.record(db, "account.delete_failed", user_id=user.id, ip=ip, reason="code")
+        await db.commit()
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Der Code ist falsch.")
     if user.is_admin:
         other_admins = await db.scalar(

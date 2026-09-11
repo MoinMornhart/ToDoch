@@ -157,6 +157,17 @@ Meilenstein 4, sobald verschlüsselte Zugangsdaten gespeichert werden). Danach k
 Schlüssel entfernt werden. Jedes Chiffrat enthält die Schlüssel-ID und ist per AAD an sein Feld
 gebunden (kein Umkopieren zwischen Datensätzen möglich).
 
+## Anmeldung nachgeschärft (seit v0.3.4)
+
+- **Passkeys nur mit Gerätesperre:** Registrierung und Anmeldung verlangen Benutzerverifikation
+  (Fingerabdruck, Gesicht, PIN – `userVerification: required`, serverseitig geprüft). Ein Passkey
+  ersetzt den zweiten Faktor; ein gestohlener Sicherheitsschlüssel ohne PIN reicht dafür nicht.
+- **Passwort ändern** geht nur mit dem aktuellen Passwort – ohne nur in den ersten zehn Minuten nach
+  einer Anmeldung per Passkey. Früher durften Admins immer ohne; eine übernommene Sitzung hätte so
+  Passwort und danach Passkey austauschen und den echten Admin aussperren können.
+- Ein falscher Zwei-Faktor-Code beim Löschen des Kontos landet im Audit-Log
+  (`account.delete_failed`).
+
 ## Echte Client-IP (seit v0.3.3)
 
 Rate-Limits je IP (Anmeldung, Zwei-Faktor, Passkeys, Einrichtung, Feeds), Audit-Log und

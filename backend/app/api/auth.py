@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import secrets
 import uuid
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 from fastapi import APIRouter, HTTPException, Request, Response, status
 from sqlalchemy import select
@@ -44,6 +44,8 @@ from app.services import audit
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 LOGIN_FAILED = "E-Mail-Adresse oder Passwort ist falsch."
+# So lange nach einer Anmeldung per Passkey geht „Passwort ändern“ ohne das alte Passwort
+FRESH_PASSKEY_LOGIN = timedelta(minutes=10)
 
 
 MFA_TTL = 300
@@ -223,9 +225,14 @@ async def change_password(
     user = session.user
     ip = client_ip(request)
     await res.limiter.enforce("password-change", str(user.id), limit=10, window=600)
-    # Admins dürfen ohne das alte Passwort ändern (z. B. nach Anmeldung per Passkey).
-    # Wer es trotzdem angibt, muss das richtige nehmen.
-    skip_current = user.is_admin and body.current_password is None
+    # Ohne altes Passwort nur direkt nach einer Anmeldung per Passkey (mit Gerätesperre) – eine
+    # übernommene, ältere Sitzung reicht nicht, um das Passwort zu ersetzen. Wer es trotzdem
+    # angibt, muss das richtige nehmen.
+    fresh_passkey = (
+        session.auth_method == "passkey"
+        and session.created_at > datetime.now(UTC) - FRESH_PASSKEY_LOGIN
+    )
+    skip_current = fresh_passkey and body.current_password is None
     if not skip_current:
         if body.current_password is None:
             raise HTTPException(

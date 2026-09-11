@@ -396,7 +396,7 @@ todoch logs [app|web|db|worker]  # Protokolle ansehen
 | ✅ | **5 · Synchronisation** | Gmail & Microsoft per OAuth („Mit … verbinden“), Zwei-Wege-Sync mit Google Kalender, Outlook und CalDAV (Nextcloud, iCloud & Co.), Abo-Links ohne Einrichtung |
 | ✅ | **6 · Passkeys & Zwei-Faktor** | Passkeys (Face ID / Touch ID / Windows Hello / Sicherheitsschlüssel), Zwei-Faktor per Authenticator-App (TOTP), Wiederherstellungscodes |
 | ✅ | **7 · Gruppen** | Gemeinsame Bereiche, Rollen, Einladungslinks, Zuweisungen, Kommentare |
-| ⏳ | **8 · Härtung** | Datenexport, Kontolöschung, Restore-Tests, Security-Review nach OWASP ASVS L2 |
+| 🚧 | **8 · Härtung** | ✅ Datenexport, Kontolöschung · ⏳ Restore-Tests, Security-Review nach OWASP ASVS L2 |
 
 Jede Änderung erscheint als neue Version (`0.0.1 → 0.0.2 → … → 0.0.9 → 0.1.0`) mit Beschreibung im
 [Changelog](CHANGELOG.md) und in den [Releases](https://github.com/MoinMornhart/Todoch/releases).

@@ -13,6 +13,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app import __version__
 from app.api import (
+    account,
     area_members,
     areas,
     auth,
@@ -98,6 +99,7 @@ def create_app(settings: Settings | None = None, resources: Resources | None = N
         auth,
         passkeys,
         totp,
+        account,
         areas,
         area_members,
         tasks,

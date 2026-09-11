@@ -4,6 +4,16 @@ Alle Änderungen an Todoch – die neueste Version steht oben.
 Versionsschema: `0.0.1 → 0.0.2 → … → 0.0.9 → 0.1.0 → … → 0.9.9 → 1.0.0`.
 Im Container spielt der Befehl `update` immer die neueste Version ein.
 
+## [0.3.0] – 2026-09-11
+
+Datenexport und Konto löschen (Meilenstein 8, Teil 1)
+
+- Einstellungen → Konto: alle eigenen Daten als JSON-Datei herunterladen (DSGVO Art. 15/20) – ohne Passwort-Hashes, Tokens und verschlüsselte Zugangsdaten
+- Konto endgültig löschen mit Passwort und – falls eingerichtet – Zwei-Faktor-Code (DSGVO Art. 17)
+- Das letzte Admin-Konto ist vor dem Löschen geschützt
+- In geteilten Bereichen bleiben Aufgaben und Kommentare für die anderen erhalten, nur ohne Namen; das Audit-Log behält die pseudonyme ID
+- Doku: Sicherheitskonzept um Export und Löschung ergänzt, Roadmap Meilenstein 8 begonnen
+
 ## [0.2.9] – 2026-09-11
 
 Aufgaben zuweisen und kommentieren – Meilenstein 7 abgeschlossen

@@ -4,6 +4,7 @@
 	import { goto } from '$app/navigation';
 	import { describeAgent } from '$lib/agent';
 	import { api, ApiError } from '$lib/api';
+	import AccountSettings from '$lib/components/AccountSettings.svelte';
 	import ContactsSettings from '$lib/components/ContactsSettings.svelte';
 	import PasskeySettings from '$lib/components/PasskeySettings.svelte';
 	import TotpSettings from '$lib/components/TotpSettings.svelte';
@@ -244,6 +245,8 @@
 	<ContactsSettings />
 
 	<PushSettings />
+
+	<AccountSettings />
 
 	<section aria-labelledby="about-title">
 		<h2 id="about-title" class="mb-1 text-base font-semibold">{t('settings.about')}</h2>

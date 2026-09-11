@@ -147,6 +147,9 @@ EXACT: dict[str, str] = {
         "This person cannot take on tasks in this area."
     ),
     "Bitte einen Kommentar eingeben.": "Please enter a comment.",
+    "Das letzte Admin-Konto kann nicht gelöscht werden.": (
+        "The last admin account cannot be deleted."
+    ),
     "Mindestens eine Bedingung angeben.": "Enter at least one condition.",
     "Mindestens eine Aktion wählen.": "Choose at least one action.",
     "Unbekannter Push-Dienst": "Unknown push service",

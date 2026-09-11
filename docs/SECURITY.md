@@ -162,4 +162,14 @@ gebunden (kein Umkopieren zwischen Datensätzen möglich).
 - Kürzere Sitzungs-Standardwerte, nachdem Passkeys und Zwei-Faktor verbreitet genutzt werden.
 - Upload-Prüfung per Magic Bytes, Anhänge außerhalb des Webroots (M3).
 - ReDoS-Timeouts für Mail-Regeln, SSRF-Schutz für CalDAV (M4/M5).
-- Datenexport und Kontolöschung (DSGVO), getesteter Restore in der CI, Review nach OWASP ASVS L2 (M8).
+- Getesteter Restore in der CI, Review nach OWASP ASVS L2 (M8).
+
+## Datenexport und Kontolöschung (seit v0.3.0)
+
+Unter *Einstellungen → Konto* lädt „Daten exportieren“ alle eigenen Daten als JSON (DSGVO Art. 15
+und 20). Spalten mit Passwörtern, Geheimnissen, Tokens, Hashes oder verschlüsselten Zugangsdaten
+kommen grundsätzlich nicht in die Datei – ein Test prüft das. „Konto löschen“ (Art. 17) verlangt
+das Passwort und, falls eingerichtet, einen Zwei-Faktor- oder Wiederherstellungscode; das letzte
+Admin-Konto lässt sich nicht löschen. Alles Eigene verschwindet per Datenbank-Kaskade; Aufgaben
+und Kommentare in Bereichen anderer bleiben ohne Namen erhalten. Das Audit-Log behält nur die
+pseudonyme Nutzer-ID (kein Fremdschlüssel, nur anhängbar).

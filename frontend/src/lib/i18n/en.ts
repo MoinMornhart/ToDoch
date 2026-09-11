@@ -640,6 +640,17 @@ export const en: Record<MessageKey, string> = {
 	'comments.add': 'Comment',
 	'comments.delete': 'Delete comment',
 	'comments.none': 'No comments yet.',
+	'account.title': 'Account',
+	'account.exportHint':
+		'All your data in one file (JSON): areas, tasks, events, contacts, emails, rules, sign-ins – without passwords and access keys.',
+	'account.export': 'Export data',
+	'account.delete': 'Delete account',
+	'account.deleteHint':
+		'Deletes your account for good: your areas with their tasks and events, mailboxes, calendars and sign-ins. In areas others shared with you, your tasks and comments stay – without your name.',
+	'account.password': 'Password to confirm',
+	'account.code': 'Code from the authenticator app or recovery code',
+	'account.confirm': 'Yes, delete my account and all data for good',
+	'account.deleteButton': 'Delete account for good',
 	'share.button': 'Share',
 	'share.title': 'Share area “{name}”',
 	'share.you': 'you',

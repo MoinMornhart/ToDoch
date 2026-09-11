@@ -639,6 +639,17 @@ export const de = {
 	'comments.add': 'Kommentieren',
 	'comments.delete': 'Kommentar löschen',
 	'comments.none': 'Noch keine Kommentare.',
+	'account.title': 'Konto',
+	'account.exportHint':
+		'Alle deine Daten als eine Datei (JSON): Bereiche, Aufgaben, Termine, Kontakte, Mails, Regeln, Anmeldungen – ohne Passwörter und Zugangsschlüssel.',
+	'account.export': 'Daten exportieren',
+	'account.delete': 'Konto löschen',
+	'account.deleteHint':
+		'Löscht dein Konto endgültig: deine Bereiche samt Aufgaben und Terminen, Postfächer, Kalender und Anmeldungen. In geteilten Bereichen anderer bleiben deine Aufgaben und Kommentare ohne deinen Namen erhalten.',
+	'account.password': 'Passwort zur Bestätigung',
+	'account.code': 'Code aus der Authenticator-App oder Wiederherstellungscode',
+	'account.confirm': 'Ja, mein Konto und alle Daten endgültig löschen',
+	'account.deleteButton': 'Konto endgültig löschen',
 	'share.button': 'Teilen',
 	'share.title': 'Bereich „{name}“ teilen',
 	'share.you': 'du',
